@@ -6,7 +6,10 @@ import socialNetwork.domain.validators.EntityValidatorInterface;
 import socialNetwork.repository.RepositoryInterface;
 import socialNetwork.utilitaries.UnorderedPair;
 
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -91,5 +94,26 @@ public class UserService {
                 }
         );
         return userRepository.remove(id);
+    }
+
+    /**
+     * finds all friends for a certain user
+     * @param idUser - Long - identifier for one user
+     * @return - Map - key is Optional of user, value is LocalDateTime
+     */
+    public Map<Optional<User>, LocalDateTime> findAllFriendsForUserService(Long idUser){
+        Map<Optional<User>, LocalDateTime> mapOfFriendships = new HashMap<>();
+        List<Friendship> friendships = friendshipRepository.getAll();
+        friendships.stream()
+                .filter(friendship -> friendship.hasUser(idUser))
+                .forEach(friendship -> {
+                    Long idOfFriend;
+                    if(friendship.getId().left == idUser)
+                        idOfFriend = friendship.getId().right;
+                    else
+                        idOfFriend = friendship.getId().left;
+                    mapOfFriendships.put(userRepository.find(idOfFriend), friendship.getDate());
+                });
+        return mapOfFriendships;
     }
 }
