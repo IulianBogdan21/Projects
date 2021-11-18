@@ -7,6 +7,7 @@ import socialNetwork.service.UserService;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -116,5 +117,13 @@ public class NetworkController {
      */
     public List<User> getMostSocialCommunity(){
         return networkService.getMostSocialCommunity();
+    }
+
+    /**
+     * @param idUser - Long - identifier for user
+     * @return Map key is Optional of user, value is LocalDateTime
+     */
+    public Map<Optional<User>, LocalDateTime> findAllFriendshipsForUser(Long idUser){
+        return userService.findAllFriendsForUserService(idUser);
     }
 }
