@@ -8,7 +8,6 @@ import socialNetwork.exceptions.InvalidNumericalValueException;
 import socialNetwork.service.NetworkService;
 import socialNetwork.service.UserService;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -78,7 +77,6 @@ public class ConsoleInterface {
             }
             else
                 System.out.println("Invalid command");
-
         }
     }
 
@@ -270,7 +268,7 @@ public class ConsoleInterface {
             System.out.println(user.toString());
         };
         Consumer<User> userPrinterConsumerWithFriends = user ->{
-           userPrinterConsumer.accept(user);
+            userPrinterConsumer.accept(user);
             System.out.println("Friends: ");
             if(user.getListOfFriends().size() == 0)
                 System.out.println("No friends");
