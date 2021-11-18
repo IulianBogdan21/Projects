@@ -8,6 +8,7 @@ import socialNetwork.exceptions.InvalidNumericalValueException;
 import socialNetwork.service.NetworkService;
 import socialNetwork.service.UserService;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.Consumer;
@@ -70,6 +71,7 @@ public class ConsoleInterface {
             }
             else
                 System.out.println("Invalid command");
+
         }
     }
 
