@@ -9,6 +9,7 @@ import socialNetwork.service.NetworkService;
 import socialNetwork.service.UserService;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -19,6 +20,7 @@ class Command{
     public static final String REMOVE_USER = "remove user";
     public static final String FIND_USER = "find user";
     public static final String GET_ALL_USERS = "get all users";
+    public static final String FIND_ALL_FRIENDSHIPS_USER = "find friendships user";
     public static final String ADD_FRIENDSHIP = "add friendship";
     public static final String REMOVE_FRIENDSHIP = "remove friendship";
     public static final String FIND_FRIENDSHIP = "find friendship";
@@ -30,6 +32,10 @@ public class ConsoleInterface {
     private NetworkController networkController;
     private final Scanner inputReader = new Scanner(System.in);
     private Map<String, Runnable> commandMap = new HashMap<>();
+    /*public static final DateTimeFormatter DATE_TIME_FORMATTER =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm");*/
+    public static final DateTimeFormatter DATE_TIME_FORMATTER =
+            DateTimeFormatter.ofPattern("dd/MM/yyyy h:mm a");
     private static final int MENU_INDENTATION = 4;
 
     private void initializeCommands(){
@@ -37,6 +43,7 @@ public class ConsoleInterface {
         commandMap.put(Command.UPDATE_USER, this::updateUser);
         commandMap.put(Command.REMOVE_USER, this::removeUser);
         commandMap.put(Command.FIND_USER, this::findUser);
+        commandMap.put(Command.FIND_ALL_FRIENDSHIPS_USER, this::findFriendshipsUser);
         commandMap.put(Command.ADD_FRIENDSHIP, this::addFriendship);
         commandMap.put(Command.REMOVE_FRIENDSHIP, this::removeFriendship);
         commandMap.put(Command.FIND_FRIENDSHIP, this::findFriendship);
@@ -111,7 +118,24 @@ public class ConsoleInterface {
         System.out.printf("8. %s".indent(MENU_INDENTATION), Command.GET_ALL_USERS);
         System.out.printf("9. %s".indent(MENU_INDENTATION), Command.COUNT_COMMUNITIES);
         System.out.printf("10. %s".indent(MENU_INDENTATION), Command.MOST_SOCIAL);
-        System.out.printf("11. %s".indent(MENU_INDENTATION), Command.EXIT);
+        System.out.printf("11. %s".indent(MENU_INDENTATION), Command.FIND_ALL_FRIENDSHIPS_USER);
+        System.out.printf("12. %s".indent(MENU_INDENTATION), Command.EXIT);
+    }
+
+    private void findFriendshipsUser(){
+        System.out.print("ID: ");
+        Long idUser = readLongFromUser("Invalid value for ID");
+        Map<Optional<User>, LocalDateTime> mapOfFriends =
+                networkController.findAllFriendshipsForUser(idUser);
+        if(mapOfFriends.isEmpty())
+            System.out.println("User does not have any friends");
+        else
+            mapOfFriends.forEach((friend, date) ->{
+                System.out.printf("%s | %s | %s\n",
+                        friend.get().getLastName(),
+                        friend.get().getFirstName(),
+                        date.format(DATE_TIME_FORMATTER));
+            });
     }
 
     private void findMostSocialCommunities(){
