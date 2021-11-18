@@ -118,14 +118,14 @@ public class UserService {
     }
 
     public Map<Optional<User>, LocalDateTime > findAllFriendsForUserMonthService(Long idUser,int month){
-        Map<Optional<User>, LocalDateTime> ans = new HashMap<>();
+        Map<Optional<User>, LocalDateTime> friendshipsMonth = new HashMap<>();
         findAllFriendsForUserService(idUser).entrySet()
                 .stream()
                 .filter(entry -> entry.getValue().getMonth().getValue() == month )
                 .forEach(entry -> {
                     //System.out.println(entry);
-                    ans.put(entry.getKey(),entry.getValue());
+                    friendshipsMonth.put(entry.getKey(),entry.getValue());
                 });
-        return ans;
+        return friendshipsMonth;
     }
 }
