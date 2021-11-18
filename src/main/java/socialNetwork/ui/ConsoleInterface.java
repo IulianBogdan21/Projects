@@ -8,6 +8,7 @@ import socialNetwork.exceptions.InvalidNumericalValueException;
 import socialNetwork.service.NetworkService;
 import socialNetwork.service.UserService;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -21,6 +22,7 @@ class Command{
     public static final String FIND_USER = "find user";
     public static final String GET_ALL_USERS = "get all users";
     public static final String FIND_ALL_FRIENDSHIPS_USER = "find friendships user";
+    public static final String FIND_ALL_FRIENDSHIPS_MONTH = "find friendships month";
     public static final String ADD_FRIENDSHIP = "add friendship";
     public static final String REMOVE_FRIENDSHIP = "remove friendship";
     public static final String FIND_FRIENDSHIP = "find friendship";
@@ -44,6 +46,7 @@ public class ConsoleInterface {
         commandMap.put(Command.REMOVE_USER, this::removeUser);
         commandMap.put(Command.FIND_USER, this::findUser);
         commandMap.put(Command.FIND_ALL_FRIENDSHIPS_USER, this::findFriendshipsUser);
+        commandMap.put(Command.FIND_ALL_FRIENDSHIPS_MONTH,this::findFriendshipMonth);
         commandMap.put(Command.ADD_FRIENDSHIP, this::addFriendship);
         commandMap.put(Command.REMOVE_FRIENDSHIP, this::removeFriendship);
         commandMap.put(Command.FIND_FRIENDSHIP, this::findFriendship);
@@ -77,6 +80,15 @@ public class ConsoleInterface {
             }
             else
                 System.out.println("Invalid command");
+
+            System.out.println("\nPress Enter to continue!");
+            try {
+                System.in.read();
+                System.in.skipNBytes(System.in.available());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
         }
     }
 
@@ -105,9 +117,28 @@ public class ConsoleInterface {
         return userInput;
     }
 
+    private int readIntFromUser(){
+        int userIntInput = inputReader
+                .nextInt();
+        inputReader.nextLine();
+        return userIntInput;
+    }
+
+    private int readIntFromUser(String invalidNumericalValueMessage){
+        int userInput;
+        try{
+            userInput = readIntFromUser();
+        } catch (InputMismatchException e){
+            inputReader.nextLine();
+            throw new InvalidNumericalValueException(invalidNumericalValueMessage);
+        }
+        return userInput;
+    }
+
     private void printMenu(){
         System.out.print("SOCIAL NETWORK APPLICATION".indent(MENU_INDENTATION));
         System.out.print("MENU".indent(MENU_INDENTATION));
+        System.out.printf("0. %s".indent(MENU_INDENTATION), Command.EXIT);
         System.out.printf("1. %s\n".indent(MENU_INDENTATION), Command.ADD_USER);
         System.out.printf("2. %s".indent(MENU_INDENTATION), Command.REMOVE_USER);
         System.out.printf("3. %s".indent(MENU_INDENTATION), Command.UPDATE_USER);
@@ -119,7 +150,26 @@ public class ConsoleInterface {
         System.out.printf("9. %s".indent(MENU_INDENTATION), Command.COUNT_COMMUNITIES);
         System.out.printf("10. %s".indent(MENU_INDENTATION), Command.MOST_SOCIAL);
         System.out.printf("11. %s".indent(MENU_INDENTATION), Command.FIND_ALL_FRIENDSHIPS_USER);
-        System.out.printf("12. %s".indent(MENU_INDENTATION), Command.EXIT);
+        System.out.printf("12. %s".indent(MENU_INDENTATION), Command.FIND_ALL_FRIENDSHIPS_MONTH);
+
+    }
+
+    private void findFriendshipMonth(){
+        System.out.print("ID: ");
+        Long idUser = readLongFromUser("Invalid value for ID");
+        System.out.print("Month: ");
+        int month = readIntFromUser("Invalid value for month");
+        Map<Optional<User>,LocalDateTime> mapOfFriends =
+                networkController.findAllFriendsForUserMonth(idUser,month);
+        if(mapOfFriends.isEmpty())
+            System.out.println("User does not have any friends for that month");
+        else
+            mapOfFriends.forEach((friend, date) ->{
+                System.out.printf("%s | %s | %s\n",
+                        friend.get().getLastName(),
+                        friend.get().getFirstName(),
+                        date.format(DATE_TIME_FORMATTER));
+            });
     }
 
     private void findFriendshipsUser(){

@@ -126,4 +126,8 @@ public class NetworkController {
     public Map<Optional<User>, LocalDateTime> findAllFriendshipsForUser(Long idUser){
         return userService.findAllFriendsForUserService(idUser);
     }
+
+    public Map<Optional<User>, LocalDateTime> findAllFriendsForUserMonth(Long idUser,int month){
+        return userService.findAllFriendsForUserMonthService(idUser,month);
+    }
 }
