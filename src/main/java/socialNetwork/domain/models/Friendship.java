@@ -15,7 +15,7 @@ public class Friendship extends Entity<UnorderedPair<Long, Long>> {
      * @param idSecondUser - Long
      */
     public Friendship(Long idFirstUser, Long idSecondUser) {
-        super(new UnorderedPair<>(idFirstUser, idSecondUser));
+        setIdEntity(new UnorderedPair<>(idFirstUser, idSecondUser));
     }
 
     /**
@@ -25,7 +25,7 @@ public class Friendship extends Entity<UnorderedPair<Long, Long>> {
      * @param date - LocalDateTime - when the 2 users became friends
      */
     public Friendship(Long idFirstUser, Long idSecondUser, LocalDateTime date) {
-        super(new UnorderedPair<>(idFirstUser, idSecondUser));
+        setIdEntity(new UnorderedPair<>(idFirstUser, idSecondUser));
         this.date = date;
     }
 

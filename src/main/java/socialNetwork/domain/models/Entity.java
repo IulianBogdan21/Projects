@@ -1,21 +1,20 @@
 package socialNetwork.domain.models;
 
+import java.io.Serializable;
 import java.util.Objects;
+
+
 
 /**
  * class Entity - base class for every model of the application
  * @param <ID> - generic type parameter
  */
-public class Entity<ID> {
+public class Entity<ID> implements Serializable {
+
+    private static final long serialVersionUID = 7331115341259248461L;
+
     private ID id;
 
-    /**
-     * constructor
-     * @param id - generic type parameter
-     */
-    public Entity(ID id) {
-        this.id = id;
-    }
 
     /**
      * getter method for idEntity

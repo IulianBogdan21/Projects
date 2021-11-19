@@ -318,7 +318,7 @@ public class ConsoleInterface {
             System.out.println(user.toString());
         };
         Consumer<User> userPrinterConsumerWithFriends = user ->{
-           userPrinterConsumer.accept(user);
+            userPrinterConsumer.accept(user);
             System.out.println("Friends: ");
             if(user.getListOfFriends().size() == 0)
                 System.out.println("No friends");
