@@ -30,10 +30,7 @@ public class MessagesToRespondDTO {
 
     @Override
     public String toString() {
-        return "MessagesToRespondDTO{" +
-                "id=" + id +
-                ", text='" + text + '\'' +
-                '}';
+        return "Id: " + id + ", Text: " + text;
     }
 
     @Override

@@ -1,7 +1,7 @@
 package socialNetwork.controllers;
 
-import socialNetwork.domain.models.Friendship;
-import socialNetwork.domain.models.User;
+import socialNetwork.domain.models.*;
+import socialNetwork.service.MessageService;
 import socialNetwork.service.NetworkService;
 import socialNetwork.service.UserService;
 
@@ -16,15 +16,18 @@ import java.util.Optional;
 public class NetworkController {
     private UserService userService;
     private NetworkService networkService;
+    private MessageService messageService;
 
     /**
      * constructor - creates a controller that accesses the given services
      * @param userService - service for users
      * @param networkService - service for friendships
      */
-    public NetworkController(UserService userService, NetworkService networkService) {
+    public NetworkController(UserService userService, NetworkService networkService,
+                             MessageService messageService) {
         this.userService = userService;
         this.networkService = networkService;
+        this.messageService = messageService;
     }
 
     /**
@@ -129,5 +132,21 @@ public class NetworkController {
 
     public Map<Optional<User>, LocalDateTime> findAllFriendsForUserMonth(Long idUser,int month){
         return userService.findAllFriendsForUserMonthService(idUser,month);
+    }
+
+    public Optional<Message> sendMessages(Long idUserFrom, List<Long> to, String text){
+        return messageService.sendMessagesService(idUserFrom, to, text);
+    }
+
+    public Optional<ReplyMessage> respondMessage(Long idUserFrom, Long idMessageAgregate, String text){
+        return messageService.respondMessageService(idUserFrom, idMessageAgregate, text);
+    }
+
+    public List<HistoryConversationDTO> historyConversation(Long idFirstUser, Long idSecondUser){
+        return messageService.historyConversationService(idFirstUser, idSecondUser);
+    }
+
+    public List<MessagesToRespondDTO> getAllMessagesToRespondForUser(Long idUser){
+        return messageService.getAllMessagesToRespondForUserService(idUser);
     }
 }

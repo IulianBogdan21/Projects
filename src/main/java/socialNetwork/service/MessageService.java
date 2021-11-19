@@ -20,7 +20,7 @@ public class MessageService {
         this.repoMessagesDTO = repoMessagesDTO;
     }
 
-    public Optional<Message> sendMessage(Long idUserFrom, List<Long> to,String text){
+    public Optional<Message> sendMessagesService(Long idUserFrom, List<Long> to, String text){
         User userFrom = getUserById(idUserFrom);
         List<User> usersTo = new ArrayList<>();
         to.forEach( idUserTo -> {
@@ -36,7 +36,7 @@ public class MessageService {
         return Optional.of(saveMessageDTO.get().getMainMessage());
     }
 
-    public Optional<ReplyMessage> respondMessage(Long idUserFrom,Long idMessageAgregate,String text){
+    public Optional<ReplyMessage> respondMessageService(Long idUserFrom, Long idMessageAgregate, String text){
         User userFrom = getUserById(idUserFrom);
 
         Optional<MessageDTO> findMessageDTO = repoMessagesDTO.find(idMessageAgregate);
@@ -68,7 +68,7 @@ public class MessageService {
     }
 
 
-    public List<HistoryConversationDTO> historyConversation(Long idFirstUser,Long idSecondUser){
+    public List<HistoryConversationDTO> historyConversationService(Long idFirstUser, Long idSecondUser){
         User firstUser = getUserById(idFirstUser);
         User secondUser = getUserById(idSecondUser);
         List < Message > messageList = new ArrayList<>();
@@ -106,7 +106,7 @@ public class MessageService {
         return listHistoryConversation;
     }
 
-    public List<MessagesToRespondDTO> getAllMessagesToRespondForUser(Long idUser){
+    public List<MessagesToRespondDTO> getAllMessagesToRespondForUserService(Long idUser){
         User user = getUserById(idUser);
         return repoMessagesDTO.getAll()
                 .stream()

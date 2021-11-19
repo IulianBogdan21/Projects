@@ -2,7 +2,10 @@ package socialNetwork.ui;
 
 import socialNetwork.controllers.NetworkController;
 import socialNetwork.domain.models.Friendship;
+import socialNetwork.domain.models.HistoryConversationDTO;
 import socialNetwork.domain.models.User;
+import socialNetwork.exceptions.CorruptedDataException;
+import socialNetwork.exceptions.EntityMissingValidationException;
 import socialNetwork.exceptions.ExceptionBaseClass;
 import socialNetwork.exceptions.InvalidNumericalValueException;
 import socialNetwork.service.NetworkService;
@@ -28,14 +31,15 @@ class Command{
     public static final String FIND_FRIENDSHIP = "find friendship";
     public static final String COUNT_COMMUNITIES = "count communities";
     public static final String MOST_SOCIAL = "most social";
+    public static final String SEND_MESSAGE = "send message";
+    public static final String RESPOND_TO_MESSAGE = "respond to message";
+    public static final String HISTORY_CONVERSATION = "history conversation";
 }
 
 public class ConsoleInterface {
     private NetworkController networkController;
     private final Scanner inputReader = new Scanner(System.in);
     private Map<String, Runnable> commandMap = new HashMap<>();
-    /*public static final DateTimeFormatter DATE_TIME_FORMATTER =
-            DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm");*/
     public static final DateTimeFormatter DATE_TIME_FORMATTER =
             DateTimeFormatter.ofPattern("dd/MM/yyyy h:mm a");
     private static final int MENU_INDENTATION = 4;
@@ -53,7 +57,12 @@ public class ConsoleInterface {
         commandMap.put(Command.GET_ALL_USERS, this::getAllUsersWithTheirFriends);
         commandMap.put(Command.COUNT_COMMUNITIES, this::countCommunities);
         commandMap.put(Command.MOST_SOCIAL, this::findMostSocialCommunities);
+        commandMap.put(Command.SEND_MESSAGE, this::sendMessage);
+        commandMap.put(Command.RESPOND_TO_MESSAGE, this::respondMessage);
+        commandMap.put(Command.HISTORY_CONVERSATION, this::historyConversation);
     }
+
+
 
     public ConsoleInterface(NetworkController networkController) {
         this.networkController = networkController;
@@ -151,7 +160,61 @@ public class ConsoleInterface {
         System.out.printf("10. %s".indent(MENU_INDENTATION), Command.MOST_SOCIAL);
         System.out.printf("11. %s".indent(MENU_INDENTATION), Command.FIND_ALL_FRIENDSHIPS_USER);
         System.out.printf("12. %s".indent(MENU_INDENTATION), Command.FIND_ALL_FRIENDSHIPS_MONTH);
+        System.out.printf("13. %s".indent(MENU_INDENTATION), Command.SEND_MESSAGE);
+        System.out.printf("14. %s".indent(MENU_INDENTATION), Command.RESPOND_TO_MESSAGE);
+        System.out.printf("15. %s".indent(MENU_INDENTATION), Command.HISTORY_CONVERSATION);
+    }
 
+    private void historyConversation() {
+        List<User> listOfUsers = networkController.getAllUsersAndTheirFriends();
+        listOfUsers.forEach(System.out::println);
+        System.out.print("ID first user: ");
+        Long idFirstUser = readLongFromUser("Invalid value for ID");
+        System.out.print("ID second user: ");
+        Long idSecondUser = readLongFromUser("Invalid value for ID");
+        List<HistoryConversationDTO> conversation =
+                networkController.historyConversation(idFirstUser, idSecondUser);
+        if(conversation.size() == 0)
+            System.out.println("No conversation between users");
+        else
+            conversation.forEach(System.out::println);
+    }
+
+    private void respondMessage() {
+        List<User> listOfUsers = networkController.getAllUsersAndTheirFriends();
+        listOfUsers.forEach(System.out::println);
+        System.out.print("Id user to respond: ");
+        Long idUserResponds = readLongFromUser("Invalid value for ID");
+        networkController.getAllMessagesToRespondForUser(idUserResponds).forEach(System.out::println);
+        System.out.print("Introduce ID of message to respond to: ");
+        Long idMessageToRespondTo = readLongFromUser("Invalid value for ID");
+        System.out.print("Introduce message: ");
+        String text = readStringFromUser();
+        networkController.respondMessage(idUserResponds, idMessageToRespondTo, text);
+        System.out.println("Successful response!");
+    }
+
+    private void sendMessage() {
+        List<User> listOfUsers = networkController.getAllUsersAndTheirFriends();
+        listOfUsers.forEach(System.out::println);
+        System.out.print("ID user that sends message: ");
+        Long idUserSends = readLongFromUser("Invalid value for id");
+        System.out.print("ID users that receive: ");
+        String idUsersReceive = readStringFromUser();
+        String[] idUsersReceiveAttributes = idUsersReceive.split(",");
+        List<Long> idReceivers = new ArrayList<>();
+        for(int i = 0; i < idUsersReceiveAttributes.length; i++){
+            try {
+                idReceivers.add(Long.parseLong(idUsersReceiveAttributes[i]));
+            }
+            catch (InputMismatchException exception){
+                throw new InvalidNumericalValueException(exception.getMessage());
+            }
+        }
+        System.out.print("Introduce message: ");
+        String text = readStringFromUser();
+        networkController.sendMessages(idUserSends, idReceivers, text);
+        System.out.println("Message has been sent");
     }
 
     private void findFriendshipMonth(){

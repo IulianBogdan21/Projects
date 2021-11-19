@@ -3,12 +3,15 @@ package socialNetwork;
 import socialNetwork.config.ApplicationContext;
 import socialNetwork.controllers.NetworkController;
 import socialNetwork.domain.models.Friendship;
+import socialNetwork.domain.models.MessageDTO;
 import socialNetwork.domain.models.User;
 import socialNetwork.domain.validators.*;
 import socialNetwork.exceptions.CorruptedDataException;
 import socialNetwork.repository.RepositoryInterface;
 import socialNetwork.repository.database.FriendshipDatabaseRepository;
+import socialNetwork.repository.database.MessageDTODatabaseRepository;
 import socialNetwork.repository.database.UserDatabaseRepository;
+import socialNetwork.service.MessageService;
 import socialNetwork.service.NetworkService;
 import socialNetwork.service.UserService;
 import socialNetwork.ui.ConsoleInterface;
@@ -29,10 +32,15 @@ public class Main {
         EntityValidatorInterface<UnorderedPair<Long, Long>, Friendship> friendshipValidator =
                 new FriendshipValidator(userRepository);
 
+        RepositoryInterface<Long, MessageDTO> messagesRepository =
+                new MessageDTODatabaseRepository(url, user, password);
+
         UserService userService = new UserService(userRepository, friendshipRepository, userValidator);
         NetworkService networkService = new NetworkService(friendshipRepository, userRepository,
                 friendshipValidator);
-        NetworkController networkController = new NetworkController(userService, networkService);
+        MessageService messageService = new MessageService(userRepository, messagesRepository);
+        NetworkController networkController =
+                new NetworkController(userService, networkService, messageService);
         ConsoleInterface ui = new ConsoleInterface(networkController);
         ui.run();
     }
