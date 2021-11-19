@@ -1,5 +1,6 @@
 package socialNetwork.domain.models;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class HistoryConversationDTO {
@@ -7,11 +8,21 @@ public class HistoryConversationDTO {
     private String firstName;
     private String lastName;
     private String text;
+    private LocalDateTime date;
 
-    public HistoryConversationDTO(String firstName, String lastName, String text) {
+    public HistoryConversationDTO(String firstName, String lastName, String text, LocalDateTime date) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.text = text;
+        this.date = date;
+    }
+
+    public LocalDateTime getDate() {
+        return date;
+    }
+
+    public void setDate(LocalDateTime date) {
+        this.date = date;
     }
 
     public String getFirstName() {
@@ -44,6 +55,7 @@ public class HistoryConversationDTO {
                 "firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", text='" + text + '\'' +
+                ", date=" + date +
                 '}';
     }
 
