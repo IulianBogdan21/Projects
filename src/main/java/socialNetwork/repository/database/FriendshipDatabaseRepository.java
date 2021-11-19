@@ -1,6 +1,7 @@
 package socialNetwork.repository.database;
 
 import socialNetwork.domain.models.Friendship;
+import socialNetwork.domain.models.InvitationStage;
 import socialNetwork.exceptions.DatabaseException;
 import socialNetwork.repository.RepositoryInterface;
 import socialNetwork.utilitaries.UnorderedPair;
@@ -119,7 +120,10 @@ public class FriendshipDatabaseRepository
             Long id1 = resultSet.getLong("id_first_user");
             Long id2 = resultSet.getLong("id_second_user");
             LocalDateTime dateWhenFriendshipWasCreated = resultSet.getTimestamp("date").toLocalDateTime();
-            return new Friendship(id1, id2, dateWhenFriendshipWasCreated);
+            InvitationStage invitationStage = InvitationStage.valueOf(resultSet.getString("status"));
+            Friendship friendship = new Friendship(id1, id2, dateWhenFriendshipWasCreated);
+            friendship.setInvitationStage(invitationStage);
+            return  friendship;
         }catch (SQLException exception){
             throw new DatabaseException(exception.getMessage());
         }
@@ -193,10 +197,10 @@ public class FriendshipDatabaseRepository
 
     private PreparedStatement createUpdateStatementForFriendship(Connection connection, Friendship newValue) {
         try{
-            String updateSqlStr = "UPDATE friendships SET date=? WHERE id_first_user=? AND id_second_user=? OR " +
+            String updateSqlStr = "UPDATE friendships SET status=? WHERE id_first_user=? AND id_second_user=? OR " +
                     "id_second_user=? AND id_first_user=?";
             PreparedStatement updateSql = connection.prepareStatement(updateSqlStr);
-            updateSql.setTimestamp(1, Timestamp.valueOf(newValue.getDate()));
+            updateSql.setString(1, newValue.getInvitationStage().toString() );
             updateSql.setLong(2, newValue.getId().left);
             updateSql.setLong(3, newValue.getId().right);
             updateSql.setLong(4, newValue.getId().left);

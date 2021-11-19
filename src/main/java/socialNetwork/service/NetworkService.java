@@ -1,8 +1,11 @@
 package socialNetwork.service;
 
 import socialNetwork.domain.models.Friendship;
+import socialNetwork.domain.models.InvitationStage;
 import socialNetwork.domain.models.User;
 import socialNetwork.domain.validators.EntityValidatorInterface;
+import socialNetwork.exceptions.EntityMissingValidationException;
+import socialNetwork.exceptions.InvitationStatusException;
 import socialNetwork.repository.RepositoryInterface;
 import socialNetwork.utilitaries.UndirectedGraph;
 import socialNetwork.utilitaries.UnorderedPair;
@@ -48,10 +51,57 @@ public class NetworkService {
 
         if(existingFriendshipOptional.isEmpty()){
             Friendship friendship = new Friendship(firstUserId, secondUserId, date);
+            //friendship.setInvitationStage(InvitationStage.APPROVED);
             friendshipValidator.validate(friendship);
             friendshipRepository.save(friendship);
         }
         return existingFriendshipOptional;
+    }
+
+    public Optional<Friendship> updateApprovedFriendshipService(Long firstUserId,Long secondUserId){
+        UnorderedPair<Long, Long> idNewFriendship = new UnorderedPair<>(firstUserId, secondUserId);
+        Optional<Friendship> newFriendshipOptional = friendshipRepository.find(idNewFriendship);
+        if(newFriendshipOptional.isEmpty())
+            throw new EntityMissingValidationException("Friendship between users doesn't exist");
+
+        Friendship newFriendship = newFriendshipOptional.get();
+        newFriendship.setInvitationStage(InvitationStage.APPROVED);
+        Optional<Friendship> updateFriendship = friendshipRepository.update(newFriendship);
+        return updateFriendship;
+    }
+
+    public Optional<Friendship> updateRejectedFriendshipService(Long firstUserId,Long secondUserId){
+        UnorderedPair<Long, Long> idNewFriendship = new UnorderedPair<>(firstUserId, secondUserId);
+        Optional<Friendship> newFriendshipOptional = friendshipRepository.find(idNewFriendship);
+        if(newFriendshipOptional.isEmpty())
+            throw new EntityMissingValidationException("Friendship between users doesn't exist");
+
+        Friendship newFriendship = newFriendshipOptional.get();
+        newFriendship.setInvitationStage(InvitationStage.REJECTED);
+        Optional<Friendship> updateFriendship = friendshipRepository.update(newFriendship);
+        return updateFriendship;
+    }
+
+    public Optional<Friendship> sendInvitationForFriendshipsService(Long firstUserId,Long secondUserId){
+        UnorderedPair<Long, Long> idNewFriendship = new UnorderedPair<>(firstUserId, secondUserId);
+        Optional<Friendship> newFriendshipOptional = friendshipRepository.find(idNewFriendship);
+
+        if(newFriendshipOptional.isEmpty() ){
+            addFriendshipService(firstUserId,secondUserId,LocalDateTime.now());
+            Optional<Friendship> friendshipOptional = friendshipRepository.find(idNewFriendship);
+            Friendship newFriendship = friendshipOptional.get();
+            newFriendship.setInvitationStage(InvitationStage.PENDING);
+            Optional<Friendship> updateFriendship = friendshipRepository.update(newFriendship);
+            return updateFriendship;
+        }
+
+        Friendship findFriendship = newFriendshipOptional.get();;
+        if( findFriendship.getInvitationStage().equals(InvitationStage.APPROVED) )
+            throw new InvitationStatusException("The invitation is already accepted");
+        if( findFriendship.getInvitationStage().equals(InvitationStage.PENDING) )
+            throw new InvitationStatusException("The invitation is already pending");
+
+        throw new InvitationStatusException("The invitation is rejected");
     }
 
     /**

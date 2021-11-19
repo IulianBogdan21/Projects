@@ -149,4 +149,16 @@ public class NetworkController {
     public List<MessagesToRespondDTO> getAllMessagesToRespondForUser(Long idUser){
         return messageService.getAllMessagesToRespondForUserService(idUser);
     }
+
+    public Optional<Friendship> updateApprovedFriendship(Long firstUserId,Long secondUserId){
+        return networkService.updateApprovedFriendshipService(firstUserId,secondUserId);
+    }
+
+    public Optional<Friendship> updateRejectedFriendship(Long firstUserId,Long secondUserId){
+        return networkService.updateRejectedFriendshipService(firstUserId,secondUserId);
+    }
+
+    public Optional<Friendship> sendInvitationForFriendships(Long firstUserId,Long secondUserId){
+        return networkService.sendInvitationForFriendshipsService(firstUserId,secondUserId);
+    }
 }
