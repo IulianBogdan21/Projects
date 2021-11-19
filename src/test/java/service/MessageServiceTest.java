@@ -123,6 +123,5 @@ public class MessageServiceTest {
         getService().respondMessageService(2L, id, "Buna si tie");
         List<HistoryConversationDTO> historyConversationDTO =
                 getService().historyConversationService(1L,2L);
-        historyConversationDTO.forEach(System.out::println);
     }
 }

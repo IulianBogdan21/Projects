@@ -65,6 +65,8 @@ public class NetworkService {
             throw new EntityMissingValidationException("Friendship between users doesn't exist");
 
         Friendship newFriendship = newFriendshipOptional.get();
+        if(newFriendship.getInvitationStage().equals(InvitationStage.REJECTED))
+            throw new InvitationStatusException("Invitation has already been rejected");
         newFriendship.setInvitationStage(InvitationStage.APPROVED);
         Optional<Friendship> updateFriendship = friendshipRepository.update(newFriendship);
         return updateFriendship;
@@ -134,7 +136,8 @@ public class NetworkService {
         for(User user: userRepository.getAll())
             graphOfUserNetwork.addVertex(user.getId());
         for(Friendship friendship: friendshipRepository.getAll())
-            graphOfUserNetwork.addEdge(friendship.getId().left, friendship.getId().right);
+            if(friendship.getInvitationStage().equals(InvitationStage.APPROVED))
+                graphOfUserNetwork.addEdge(friendship.getId().left, friendship.getId().right);
         return graphOfUserNetwork.findNumberOfConnectedComponents();
     }
 
@@ -144,11 +147,12 @@ public class NetworkService {
     public List<User> getMostSocialCommunity(){
         UndirectedGraph<User> graphOfUsers = new UndirectedGraph<>(userRepository.getAll());
 
-        for(Friendship friendship: friendshipRepository.getAll()){
-            User user1 = userRepository.find(friendship.getId().left).get();
-            User user2 = userRepository.find(friendship.getId().right).get();
-            graphOfUsers.addEdge(user1, user2);
-        }
+        for(Friendship friendship: friendshipRepository.getAll())
+            if(friendship.getInvitationStage().equals(InvitationStage.APPROVED)){
+                User user1 = userRepository.find(friendship.getId().left).get();
+                User user2 = userRepository.find(friendship.getId().right).get();
+                graphOfUsers.addEdge(user1, user2);
+            }
 
         return graphOfUsers.findConnectedComponentWithLongestPath().getVertices();
     }
@@ -160,11 +164,12 @@ public class NetworkService {
         List<Friendship> allFriendships = friendshipRepository.getAll();
         UndirectedGraph<User> userUndirectedGraph = new UndirectedGraph<>(userRepository.getAll());
 
-        for(Friendship friendship: allFriendships){
-            User user1 = userRepository.find(friendship.getId().left).get();
-            User user2 = userRepository.find(friendship.getId().right).get();
-            userUndirectedGraph.addEdge(user1, user2);
-        }
+        for(Friendship friendship: allFriendships)
+            if(friendship.getInvitationStage().equals(InvitationStage.APPROVED)){
+                User user1 = userRepository.find(friendship.getId().left).get();
+                User user2 = userRepository.find(friendship.getId().right).get();
+                userUndirectedGraph.addEdge(user1, user2);
+            }
         List<User> allUsersAndFriends = new ArrayList<User>(userRepository.getAll());
         for(User currentUser: allUsersAndFriends){
             currentUser.setListOfFriends(userUndirectedGraph.getNeighboursOf(currentUser).stream().toList());
