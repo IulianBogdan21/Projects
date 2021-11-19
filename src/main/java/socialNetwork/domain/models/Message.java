@@ -6,7 +6,6 @@ import java.util.Objects;
 
 public class Message extends Entity<Long>{
 
-    private Long id;
     private User from;
     private List<User> to;
     private String text;
@@ -54,7 +53,7 @@ public class Message extends Entity<Long>{
     @Override
     public String toString() {
         return "Message{" +
-                "id=" + id +
+                "id=" + getId() +
                 ", from=" + from +
                 ", to=" + to +
                 ", text='" + text + '\'' +
