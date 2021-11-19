@@ -18,13 +18,13 @@ public class User extends Entity<Long> {
      * @param lastName - String
      */
     public User(Long id, String firstName, String lastName) {
-        super(id);
+        setIdEntity(id);
         this.firstName = firstName;
         this.lastName = lastName;
     }
 
     public User(User copyUser){
-        super(copyUser.getId());
+        setIdEntity(copyUser.getId());
         this.firstName = copyUser.firstName;
         this.lastName = copyUser.lastName;
     }
