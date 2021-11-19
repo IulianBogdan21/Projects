@@ -27,7 +27,7 @@ public class MessageDTODatabaseRepository implements RepositoryInterface<Long, M
 
     private User getUserById(Connection connection,Long id){
         try (PreparedStatement selectUserById = connection.prepareStatement(
-                "select first_name,last_name from users where id = ?")) {
+                "select * from users where id = ?")) {
             selectUserById.setLong(1, id);
             ResultSet resultSetUsers = selectUserById.executeQuery();
             resultSetUsers.next();
@@ -140,7 +140,7 @@ public class MessageDTODatabaseRepository implements RepositoryInterface<Long, M
 
         try(Connection connection = DriverManager.getConnection(url,user,password);
             PreparedStatement insertMessage =
-                    connection.prepareStatement("insert into messages(text,data) values (?,?)")) {
+                    connection.prepareStatement("insert into messages(text,date) values (?,?)")) {
             insertMessage.setString(1,responseMessage.getText());
             insertMessage.setTimestamp(2, Timestamp.valueOf(responseMessage.getDate()));
             int rowCount = insertMessage.executeUpdate();
@@ -154,7 +154,7 @@ public class MessageDTODatabaseRepository implements RepositoryInterface<Long, M
             ResultSet resultSetMaxId = getIdFromLastRecord.executeQuery();
             resultSetMaxId.next();
             Long maxId = resultSetMaxId.getLong("id");
-
+            responseMessage.setIdEntity(maxId);
 
             /*
             chatmessages isudserSent iduserReceive Id_mesjaulu
@@ -182,7 +182,7 @@ public class MessageDTODatabaseRepository implements RepositoryInterface<Long, M
                         connection.prepareStatement("insert into replymessages(id_message,id_reply) values(?,?)");
                 insertToReplyMessages.setLong(1,theMessageWeWantToRespondTo.getId());
                 insertToReplyMessages.setLong(2,responseMessage.getId());
-
+                insertToReplyMessages.executeUpdate();
             }
 
         } catch (SQLException throwables) {

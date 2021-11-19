@@ -6,7 +6,6 @@ import java.util.Objects;
 
 public class ReplyMessage extends Message{
 
-    private Long id;
     private User from;
     private List< User > to;
     private String text;
@@ -60,7 +59,7 @@ public class ReplyMessage extends Message{
     @Override
     public String toString() {
         return "ReplyMessage{" +
-                "id=" + id +
+                "id=" + getId() +
                 ", from=" + from +
                 ", to=" + to +
                 ", text='" + text + '\'' +
