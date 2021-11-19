@@ -51,12 +51,7 @@ public class HistoryConversationDTO {
 
     @Override
     public String toString() {
-        return "HistoryConversationDTO{" +
-                "firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", text='" + text + '\'' +
-                ", date=" + date +
-                '}';
+        return firstName + " " + lastName + ": " + text + "  | " + date;
     }
 
     @Override

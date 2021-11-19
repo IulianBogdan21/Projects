@@ -1,12 +1,10 @@
 package service;
 
 import config.ApplicationContext;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import socialNetwork.domain.models.*;
-import socialNetwork.repository.RepositoryInterface;
 import socialNetwork.repository.database.MessageDTODatabaseRepository;
 import socialNetwork.repository.database.UserDatabaseRepository;
 import socialNetwork.service.MessageService;
@@ -89,42 +87,42 @@ public class MessageServiceTest {
 
     @Test
     void sendMessagesTest(){
-        getService().sendMessage(1L,
+        getService().sendMessagesService(1L,
                 Arrays.asList(2L, 3L), "Buna");
-        getService().sendMessage(1L,
+        getService().sendMessagesService(1L,
                 Arrays.asList(6L), "Noapte buna");
-        getService().sendMessage(2L,
+        getService().sendMessagesService(2L,
                 Arrays.asList(1L,3L), "hELLO");
     }
 
     @Test
     void replyMessagesTest(){
-        getService().sendMessage(1L,
+        getService().sendMessagesService(1L,
                 Arrays.asList(2L, 3L), "Buna");
-        getService().sendMessage(1L,
+        getService().sendMessagesService(1L,
                 Arrays.asList(6L), "Noapte buna");
-        getService().sendMessage(2L,
+        getService().sendMessagesService(2L,
                 Arrays.asList(1L,3L), "hELLO");
         List<MessagesToRespondDTO> messagesToRespondDTOList =
-                getService().getAllMessagesToRespondForUser(2L);
+                getService().getAllMessagesToRespondForUserService(2L);
         Long id = messagesToRespondDTOList.get(0).getId();
-        getService().respondMessage(2L, id, "Buna si tie");
+        getService().respondMessageService(2L, id, "Buna si tie");
     }
 
     @Test
     void conversationMessagesTest(){
-        getService().sendMessage(1L,
+        getService().sendMessagesService(1L,
                 Arrays.asList(2L, 3L), "Buna");
-        getService().sendMessage(1L,
+        getService().sendMessagesService(1L,
                 Arrays.asList(6L), "Noapte buna");
-        getService().sendMessage(2L,
+        getService().sendMessagesService(2L,
                 Arrays.asList(1L,3L), "hELLO");
         List<MessagesToRespondDTO> messagesToRespondDTOList =
-                getService().getAllMessagesToRespondForUser(2L);
+                getService().getAllMessagesToRespondForUserService(2L);
         Long id = messagesToRespondDTOList.get(0).getId();
-        getService().respondMessage(2L, id, "Buna si tie");
+        getService().respondMessageService(2L, id, "Buna si tie");
         List<HistoryConversationDTO> historyConversationDTO =
-                getService().historyConversation(1L,2L);
+                getService().historyConversationService(1L,2L);
         historyConversationDTO.forEach(System.out::println);
     }
 }
