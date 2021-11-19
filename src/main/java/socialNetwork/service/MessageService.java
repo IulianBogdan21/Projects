@@ -96,10 +96,12 @@ public class MessageService {
         for(Message message: filterMessage){
             if(message.getFrom().getId().equals(firstUser.getId()))
                 listHistoryConversation.add(
-                        new HistoryConversationDTO(firstUser.getFirstName(), firstUser.getLastName(), message.getText()));
+                        new HistoryConversationDTO(firstUser.getFirstName(), firstUser.getLastName(), message.getText()
+                        , message.getDate()));
             if(message.getFrom().getId().equals(secondUser.getId()))
                 listHistoryConversation.add(
-                        new HistoryConversationDTO(secondUser.getFirstName(), secondUser.getLastName(), message.getText()));
+                        new HistoryConversationDTO(secondUser.getFirstName(), secondUser.getLastName(),
+                                message.getText(), message.getDate()));
         }
         return listHistoryConversation;
     }
