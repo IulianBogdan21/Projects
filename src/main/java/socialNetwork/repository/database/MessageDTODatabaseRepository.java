@@ -91,6 +91,8 @@ public class MessageDTODatabaseRepository implements RepositoryInterface<Long, M
         try( Connection connection = DriverManager.getConnection(url,user,password)) {
 
             Optional<Message> responseMessageOptional = getNotReplyMessageById(connection,idSearchedEntity);
+            if(responseMessageOptional.isEmpty())
+                return Optional.empty();
             Message responseMessage = responseMessageOptional.get();
             Long idMessage = responseMessage.getId();
             MessageDTO messageDTO = new MessageDTO(responseMessage);
@@ -184,12 +186,11 @@ public class MessageDTODatabaseRepository implements RepositoryInterface<Long, M
                 insertToReplyMessages.setLong(2,responseMessage.getId());
                 insertToReplyMessages.executeUpdate();
             }
+            return Optional.empty();
 
         } catch (SQLException throwables) {
-            throwables.printStackTrace();
+            throw new DatabaseException(throwables.getMessage());
         }
-
-        return Optional.empty();
 
     }
 

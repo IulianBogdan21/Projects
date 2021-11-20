@@ -4,6 +4,7 @@ import socialNetwork.domain.models.Friendship;
 import socialNetwork.domain.models.InvitationStage;
 import socialNetwork.domain.models.User;
 import socialNetwork.domain.validators.EntityValidatorInterface;
+import socialNetwork.exceptions.DatabaseException;
 import socialNetwork.exceptions.EntityMissingValidationException;
 import socialNetwork.exceptions.InvitationStatusException;
 import socialNetwork.repository.RepositoryInterface;
@@ -87,7 +88,6 @@ public class NetworkService {
     public Optional<Friendship> sendInvitationForFriendshipsService(Long firstUserId,Long secondUserId){
         UnorderedPair<Long, Long> idNewFriendship = new UnorderedPair<>(firstUserId, secondUserId);
         Optional<Friendship> newFriendshipOptional = friendshipRepository.find(idNewFriendship);
-
         if(newFriendshipOptional.isEmpty() ){
             addFriendshipService(firstUserId,secondUserId,LocalDateTime.now());
             Optional<Friendship> friendshipOptional = friendshipRepository.find(idNewFriendship);
