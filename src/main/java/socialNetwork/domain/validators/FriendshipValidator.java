@@ -36,9 +36,9 @@ public class FriendshipValidator
         if(idFirstUser.equals(idSecondUser))
             throw new InvalidEntityException("Id's of friendship must be different!");
         if(!checkIfUserExists(idFirstUser))
-            errorMessage += "User with id " + idFirstUser + "does not exist!\n";
+            errorMessage += "User with id " + idFirstUser + " does not exist!\n";
         if(!checkIfUserExists(idSecondUser))
-            errorMessage += "User with id " + idSecondUser + "does not exist!\n";
+            errorMessage += "User with id " + idSecondUser + " does not exist!\n";
         if(errorMessage.length() > 0)
             throw new EntityMissingValidationException(errorMessage);
     }

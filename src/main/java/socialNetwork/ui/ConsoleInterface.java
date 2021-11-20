@@ -34,6 +34,9 @@ class Command{
     public static final String SEND_MESSAGE = "send message";
     public static final String RESPOND_TO_MESSAGE = "respond to message";
     public static final String HISTORY_CONVERSATION = "history conversation";
+    public static final String SEND_INVITATION = "send invitation";
+    public static final String APPROVE_INVITATION = "approve invitation";
+    public static final String REJECT_INVITATION = "reject invitation";
 }
 
 public class ConsoleInterface {
@@ -60,6 +63,9 @@ public class ConsoleInterface {
         commandMap.put(Command.SEND_MESSAGE, this::sendMessage);
         commandMap.put(Command.RESPOND_TO_MESSAGE, this::respondMessage);
         commandMap.put(Command.HISTORY_CONVERSATION, this::historyConversation);
+        commandMap.put(Command.SEND_INVITATION, this::sendInvitation);
+        commandMap.put(Command.APPROVE_INVITATION, this::approveInvitation);
+        commandMap.put(Command.REJECT_INVITATION, this::rejectInvitation);
     }
 
 
@@ -163,6 +169,39 @@ public class ConsoleInterface {
         System.out.printf("13. %s".indent(MENU_INDENTATION), Command.SEND_MESSAGE);
         System.out.printf("14. %s".indent(MENU_INDENTATION), Command.RESPOND_TO_MESSAGE);
         System.out.printf("15. %s".indent(MENU_INDENTATION), Command.HISTORY_CONVERSATION);
+        System.out.printf("16. %s".indent(MENU_INDENTATION), Command.SEND_INVITATION);
+        System.out.printf("17. %s".indent(MENU_INDENTATION), Command.APPROVE_INVITATION);
+        System.out.printf("18. %s".indent(MENU_INDENTATION), Command.REJECT_INVITATION);
+    }
+
+    private void sendInvitation(){
+        getAllUsersWithTheirFriends();
+        System.out.print("ID first user: ");
+        Long idFirstUser = readLongFromUser("Invalid value for ID");
+        System.out.print("ID second user: ");
+        Long idSecondUser = readLongFromUser("Invalid value for ID");
+        networkController.sendInvitationForFriendships(idFirstUser, idSecondUser);
+        System.out.println("Invitation has been sent");
+    }
+
+    private void approveInvitation(){
+        getAllUsersWithTheirFriends();
+        System.out.print("ID first user: ");
+        Long idFirstUser = readLongFromUser("Invalid value for ID");
+        System.out.print("ID second user: ");
+        Long idSecondUser = readLongFromUser("Invalid value for ID");
+        networkController.updateApprovedFriendship(idFirstUser, idSecondUser);
+        System.out.println("Invitation has been accepted");
+    }
+
+    private void rejectInvitation(){
+        getAllUsersWithTheirFriends();
+        System.out.print("ID first user: ");
+        Long idFirstUser = readLongFromUser("Invalid value for ID");
+        System.out.print("ID second user: ");
+        Long idSecondUser = readLongFromUser("Invalid value for ID");
+        networkController.updateRejectedFriendship(idFirstUser, idSecondUser);
+        System.out.println("Invitation has been rejected");
     }
 
     private void historyConversation() {
