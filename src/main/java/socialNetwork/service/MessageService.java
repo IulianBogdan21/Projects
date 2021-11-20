@@ -1,6 +1,7 @@
 package socialNetwork.service;
 
 import socialNetwork.domain.models.*;
+import socialNetwork.exceptions.CorruptedDataException;
 import socialNetwork.exceptions.EntityMissingValidationException;
 import socialNetwork.repository.RepositoryInterface;
 
@@ -36,10 +37,21 @@ public class MessageService {
         return Optional.of(saveMessageDTO.get().getMainMessage());
     }
 
-    public Optional<ReplyMessage> respondMessageService(Long idUserFrom, Long idMessageAgregate, String text){
+    public Optional<ReplyMessage> respondMessageService(Long idUserFrom, Long idMessageAggregate, String text){
         User userFrom = getUserById(idUserFrom);
 
-        Optional<MessageDTO> findMessageDTO = repoMessagesDTO.find(idMessageAgregate);
+        boolean findAnyMessageThatUserHasToRespond = false;
+        List<MessagesToRespondDTO> messageListUserHasToRespond = getAllMessagesToRespondForUserService(idUserFrom);
+        for(MessagesToRespondDTO messagesToRespondDTO : messageListUserHasToRespond)
+            if( messagesToRespondDTO.getId().equals(idMessageAggregate) ) {
+                findAnyMessageThatUserHasToRespond = true;
+                break;
+            }
+
+        if( !findAnyMessageThatUserHasToRespond )
+            throw new CorruptedDataException("This is not a message for the specified user");
+
+        Optional<MessageDTO> findMessageDTO = repoMessagesDTO.find(idMessageAggregate);
         if( findMessageDTO.isEmpty() )
             throw new EntityMissingValidationException("The message doesn't exist");
         MessageDTO messageDTO = findMessageDTO.get();
@@ -108,16 +120,46 @@ public class MessageService {
 
     public List<MessagesToRespondDTO> getAllMessagesToRespondForUserService(Long idUser){
         User user = getUserById(idUser);
+        List<Message> messageListUserAlreadyRespondTo =
+                getMessageUserAlreadyRespond(idUser);
+        Predicate<MessageDTO> notReplyMessageUser = messageDTO -> {
+            return (messageDTO.getMessageToRespondTo() == null) &&
+                    userInList(user, messageDTO.getMainMessage().getTo()) &&
+                    !messageInList(messageDTO.getMainMessage(),messageListUserAlreadyRespondTo);
+        };
+
         return repoMessagesDTO.getAll()
                 .stream()
-                .filter(messageDTO -> messageDTO.getMessageToRespondTo() == null )
-                .filter(messageDTO -> {
-                    return userInList(user, messageDTO.getMainMessage().getTo());
-                })
+                .filter( notReplyMessageUser )
                 .map( messageDTO -> {
                     return new MessagesToRespondDTO(
                             messageDTO.getMainMessage().getId(),messageDTO.getMainMessage().getText());
                 } )
+                .toList();
+    }
+
+
+    private boolean messageInList(Message message,List<Message> messageList){
+        for(Message messageFromTheList : messageList)
+            if(message.getId().equals(messageFromTheList.getId()))
+                return true;
+        return false;
+    }
+
+    /**
+     *
+     * @param idUser
+     * @return the list of messages the user with idUser already responded to
+     */
+    private List<Message> getMessageUserAlreadyRespond(Long idUser){
+        Predicate<MessageDTO> userReplyMessage = messageDTO -> {
+            return ( messageDTO.getMessageToRespondTo() != null ) &&
+                    messageDTO.getMainMessage().getFrom().getId().equals(idUser);
+        };
+        return repoMessagesDTO.getAll()
+                .stream()
+                .filter(userReplyMessage)
+                .map( messageDTO -> messageDTO.getMessageToRespondTo() )
                 .toList();
     }
 
