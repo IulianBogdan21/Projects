@@ -4,14 +4,12 @@ import socialNetwork.domain.models.Friendship;
 import socialNetwork.domain.models.InvitationStage;
 import socialNetwork.domain.models.User;
 import socialNetwork.domain.validators.EntityValidatorInterface;
-import socialNetwork.exceptions.DatabaseException;
 import socialNetwork.exceptions.EntityMissingValidationException;
 import socialNetwork.exceptions.InvitationStatusException;
 import socialNetwork.repository.RepositoryInterface;
 import socialNetwork.utilitaries.UndirectedGraph;
 import socialNetwork.utilitaries.UnorderedPair;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,16 +19,11 @@ import java.util.Optional;
  * business layer for Friendship model
  */
 public class NetworkService {
-    private RepositoryInterface<UnorderedPair<Long, Long>, Friendship> friendshipRepository;
-    private RepositoryInterface<Long, User> userRepository;
-    private EntityValidatorInterface<UnorderedPair<Long, Long>, Friendship> friendshipValidator;
+    private final RepositoryInterface<UnorderedPair<Long, Long>, Friendship> friendshipRepository;
+    private final RepositoryInterface<Long, User> userRepository;
+    private final EntityValidatorInterface<UnorderedPair<Long, Long>, Friendship> friendshipValidator;
 
-    /**
-     * constructor for Network Service
-     * @param userRepository - user repository
-     * @param friendshipRepository - friendship repository
-     * @param friendshipValidator - validator for friendship model
-     */
+
     public NetworkService(RepositoryInterface<UnorderedPair<Long, Long>, Friendship> friendshipRepository,
                           RepositoryInterface<Long, User> userRepository,
                           EntityValidatorInterface<UnorderedPair<Long, Long>, Friendship> friendshipValidator) {
