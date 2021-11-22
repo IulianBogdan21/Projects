@@ -5,10 +5,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
-import socialNetwork.domain.models.Message;
-import socialNetwork.domain.models.MessageDTO;
-import socialNetwork.domain.models.ReplyMessage;
-import socialNetwork.domain.models.User;
+import socialNetwork.domain.models.*;
 import socialNetwork.repository.RepositoryInterface;
 import socialNetwork.repository.database.MessageDTODatabaseRepository;
 import socialNetwork.repository.database.UserDatabaseRepository;
@@ -50,7 +47,14 @@ public class MessageDTODatabaseRepositoryTest {
                 new Message(new User(2L,"Maria","Maria"),
                         Arrays.asList(new User(1L,"Gigi","Gigi"),
                                 new User(3L,"Bob","Bob")),
-                        "Salut")
+                        "Salut"),
+                new Message(new User(3L,"Bob","Bob"),
+                        Arrays.asList(new User(1L,"Gigi","Gigi"),
+                                new User(2L,"Maria","Maria")),
+                        "Iondaime Hokage Sama"),
+                new Message(new User(3L,"Bob","Bob"),
+                        Arrays.asList(new User(2L,"Maria","Maria")),
+                        "Fire Ball Tense")
         );
     }
 
@@ -93,28 +97,75 @@ public class MessageDTODatabaseRepositoryTest {
         }
     }
 
+    private MessageDTO constructDTOMessage(Message message){
+        MessageDTO messageDTO = new MessageDTO(message);
+        return messageDTO;
+    }
+
+    private MessageDTO constructDTOReplyMessage(Message message,Message replyMessage){
+        MessageDTO messageDTO = new MessageDTO(message);
+        messageDTO.setMessageToRespondTo(replyMessage);
+        return messageDTO;
+    }
+
     @Test
     void saveDtoMessagesTest(){
-        List<Message> listOfMessages = getMessageTestData();
-        Message message1 = listOfMessages.get(0);
-        Message message2 = listOfMessages.get(1);
-        MessageDTO messageDTONotReply = new MessageDTO(message1);
-        getRepository().save(messageDTONotReply);
-        MessageDTO messageDTOReply = new MessageDTO(message2);
-        List<MessageDTO> listOfMessagesDTO = getRepository().getAll();
-        MessageDTO messageWeWantToRespond = listOfMessagesDTO.get(0);
-        messageDTOReply.setMessageToRespondTo(messageWeWantToRespond.getMainMessage());
-        getRepository().save(messageDTOReply);
+        List<Message> messageList = getMessageTestData();
+        Message messageAtIndex0 = messageList.get(0); //1->2,3
+        Message messageAtIndex1 = messageList.get(1); //2->1,3
+        Message messageAtIndex2 = messageList.get(2); //3->1,2
+        Message messageAtIndex3 = messageList.get(3); //3->2
 
-        List<MessageDTO> testGetAllMessageDTO = getRepository().getAll();
-        MessageDTO messageDTOAtZeroIndex = testGetAllMessageDTO.get(0);
-        Assertions.assertNull(messageDTOAtZeroIndex.getMessageToRespondTo());
-        //System.out.println(messageDTOAtZeroIndex.getMainMessage());
+        MessageDTO messageDTOForIndex0 = constructDTOMessage(messageAtIndex0);
+        MessageDTO messageDTOForIndex1 = constructDTOMessage(messageAtIndex1);
+        MessageDTO replyMessageDTOForIndex2 = constructDTOReplyMessage(messageAtIndex2,messageAtIndex0);
+        MessageDTO messageDTOForIndex3 = constructDTOMessage(messageAtIndex3);
 
-        MessageDTO messageDtoAtOneIndex = testGetAllMessageDTO.get(1);
-        Assertions.assertNotNull(messageDtoAtOneIndex.getMessageToRespondTo());
-
-        //System.out.println(messageDtoAtOneIndex.getMainMessage());
-        //System.out.println(messageDtoAtOneIndex.getMessageToRespondTo());
+        Assertions.assertEquals(Optional.empty(),getRepository().save(messageDTOForIndex0));
+        Assertions.assertEquals(Optional.empty(),getRepository().save(messageDTOForIndex1));
+        Assertions.assertEquals(Optional.empty(),getRepository().save(replyMessageDTOForIndex2));
+        Assertions.assertEquals(Optional.empty(),getRepository().save(messageDTOForIndex3));
     }
+
+    @Test
+    void findDTOMessagesTest(){
+        List<Message> messageList = getMessageTestData();
+        Message messageAtIndex0 = messageList.get(0); //1->2,3
+        Message messageAtIndex1 = messageList.get(1); //2->1,3
+        Message messageAtIndex2 = messageList.get(2); //3->1,2
+        Message messageAtIndex3 = messageList.get(3); //3->2
+
+        MessageDTO messageDTOForIndex0 = constructDTOMessage(messageAtIndex0);
+        MessageDTO messageDTOForIndex1 = constructDTOMessage(messageAtIndex1);
+        MessageDTO replyMessageDTOForIndex2 = constructDTOReplyMessage(messageAtIndex2,messageAtIndex0);
+        MessageDTO messageDTOForIndex3 = constructDTOMessage(messageAtIndex3);
+        getRepository().save(messageDTOForIndex0);
+        getRepository().save(messageDTOForIndex1);
+        getRepository().save(replyMessageDTOForIndex2);
+        getRepository().save(messageDTOForIndex3);
+
+        List<Long> allIDOFMessages = getRepository().getAll()
+                .stream()
+                .map( messageDTO -> {
+                    return messageDTO.getMainMessage().getId();
+                } )
+                .toList();
+
+        Long idOfFirstSavedDTOMessage = allIDOFMessages.get(0);
+        Assertions.assertEquals(Optional.of (messageDTOForIndex0 ),
+                getRepository().find(idOfFirstSavedDTOMessage));
+        Long idOfSecondSavedDTOMessage = allIDOFMessages.get(1);
+        Assertions.assertEquals(Optional.of( messageDTOForIndex1 ) ,
+                getRepository().find(idOfSecondSavedDTOMessage));
+        Long idOfThirdSavedDTOMessage = allIDOFMessages.get(2);
+        Assertions.assertEquals(Optional.of( replyMessageDTOForIndex2 ) ,
+                getRepository().find(idOfThirdSavedDTOMessage));
+        Long idOfFourthSavedDToMessage = allIDOFMessages.get(3);
+        Assertions.assertEquals( Optional.of( messageDTOForIndex3 ),
+                getRepository().find(idOfFourthSavedDToMessage));
+
+        //test the find method for a message that doesn't exist
+        Assertions.assertEquals(Optional.empty() , getRepository().find(idOfFirstSavedDTOMessage-1));
+    }
+
 }
