@@ -168,4 +168,34 @@ public class MessageDTODatabaseRepositoryTest {
         Assertions.assertEquals(Optional.empty() , getRepository().find(idOfFirstSavedDTOMessage-1));
     }
 
+    @Test
+    void removeMessageTest(){
+        List<Message> messageList = getMessageTestData();
+        Message messageAtIndex0 = messageList.get(0); //1->2,3
+        Message messageAtIndex1 = messageList.get(1); //2->1,3
+        Message messageAtIndex2 = messageList.get(2); //3->1,2
+        Message messageAtIndex3 = messageList.get(3); //3->2
+
+        MessageDTO messageDTOForIndex0 = constructDTOMessage(messageAtIndex0);
+        MessageDTO messageDTOForIndex1 = constructDTOMessage(messageAtIndex1);
+        MessageDTO replyMessageDTOForIndex2 = constructDTOReplyMessage(messageAtIndex2,messageAtIndex0);
+        MessageDTO messageDTOForIndex3 = constructDTOMessage(messageAtIndex3);
+        getRepository().save(messageDTOForIndex0);
+        getRepository().save(messageDTOForIndex1);
+        getRepository().save(replyMessageDTOForIndex2);
+        getRepository().save(messageDTOForIndex3);
+
+        List<Long> allIDOFMessages = getRepository().getAll()
+                .stream()
+                .map( messageDTO -> {
+                    return messageDTO.getMainMessage().getId();
+                } )
+                .toList();
+
+        var idMessage = allIDOFMessages.get(2);
+        Assertions.assertEquals(getRepository().find(idMessage).get().getMainMessage(), messageAtIndex2);
+        getRepository().remove(idMessage);
+        Assertions.assertEquals(getRepository().find(idMessage), Optional.empty());
+    }
+
 }

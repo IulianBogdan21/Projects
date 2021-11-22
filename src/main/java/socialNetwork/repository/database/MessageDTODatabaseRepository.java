@@ -195,8 +195,19 @@ public class MessageDTODatabaseRepository implements RepositoryInterface<Long, M
     }
 
     @Override
-    public Optional<MessageDTO> remove(Long idEntity) {
-        return Optional.empty();
+    public Optional<MessageDTO> remove(Long idMessageToRemove) {
+        try(Connection connection = DriverManager.getConnection(url, user, password)) {
+            var oldMessage = find(idMessageToRemove);
+            PreparedStatement deleteFromMessages = connection.prepareStatement
+                    ("delete from messages where id = ?");
+            deleteFromMessages.setLong(1, idMessageToRemove);
+            int rowsAffected = deleteFromMessages.executeUpdate();
+            if(rowsAffected == 0)
+                return Optional.empty();
+            return oldMessage;
+        } catch (SQLException exception) {
+            throw new DatabaseException(exception.getMessage());
+        }
     }
 
     @Override
