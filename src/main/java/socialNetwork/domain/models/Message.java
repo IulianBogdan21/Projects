@@ -67,7 +67,7 @@ public class Message extends Entity<Long>{
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
         Message message = (Message) o;
-        return Objects.equals(from, message.from) && Objects.equals(to, message.to) && Objects.equals(text, message.text) && Objects.equals(date, message.date);
+        return Objects.equals(from, message.from) && Objects.equals(to, message.to) && Objects.equals(text, message.text); //&& Objects.equals(date, message.date);
     }
 
     @Override
