@@ -58,7 +58,10 @@ public class NetworkController {
      * @return Optional with the user that was removed, empty optional if user did not exist
      */
     public Optional<User> removeUser(Long id){
-        return userService.removeUserService(id);
+        List<Message> messageList = messageService.allMessagesUserAppear(id);
+        Optional<User> removeUser = userService.removeUserService(id);
+        messageList.forEach(message -> messageService.removeMessageService(message.getId()));
+        return removeUser;
     }
 
     /**
