@@ -89,8 +89,8 @@ public class MessageService {
         });
 
         Predicate<Message> isThere = message -> {
-            return message.getFrom().getId().equals(firstUser.getId()) && userInList(secondUser,message.getTo()) ||
-                    message.getFrom().getId().equals(secondUser.getId()) && userInList(firstUser,message.getTo());
+            return message.getFrom().getId().equals(firstUser.getId()) && userInList(secondUser.getId(),message.getTo()) ||
+                    message.getFrom().getId().equals(secondUser.getId()) && userInList(firstUser.getId(),message.getTo());
         };
 
         List<Message> filterMessage =  messageList.stream()
@@ -109,7 +109,7 @@ public class MessageService {
             if(message.getFrom().getId().equals(firstUser.getId()))
                 listHistoryConversation.add(
                         new HistoryConversationDTO(firstUser.getFirstName(), firstUser.getLastName(), message.getText()
-                        , message.getDate()));
+                                , message.getDate()));
             if(message.getFrom().getId().equals(secondUser.getId()))
                 listHistoryConversation.add(
                         new HistoryConversationDTO(secondUser.getFirstName(), secondUser.getLastName(),
@@ -124,7 +124,7 @@ public class MessageService {
                 getMessageUserAlreadyRespond(idUser);
         Predicate<MessageDTO> notReplyMessageUser = messageDTO -> {
             return (messageDTO.getMessageToRespondTo() == null) &&
-                    userInList(user, messageDTO.getMainMessage().getTo()) &&
+                    userInList(idUser, messageDTO.getMainMessage().getTo()) &&
                     !messageInList(messageDTO.getMainMessage(),messageListUserAlreadyRespondTo);
         };
 
@@ -138,6 +138,22 @@ public class MessageService {
                 .toList();
     }
 
+    public Optional < MessageDTO > removeMessageService(Long idMessage) {
+        return repoMessagesDTO.remove(idMessage);
+    }
+
+    public List<Message> allMessagesUserAppear(Long idUser){
+        Predicate<MessageDTO> allUserMessage = messageDTO -> {
+            return messageDTO.getMainMessage().getFrom().getId().equals(idUser) ||
+                    userInList(idUser,messageDTO.getMainMessage().getTo());
+        };
+
+        return repoMessagesDTO.getAll()
+                .stream()
+                .filter(allUserMessage)
+                .map(messageDTO -> messageDTO.getMainMessage())
+                .toList();
+    }
 
     private boolean messageInList(Message message,List<Message> messageList){
         for(Message messageFromTheList : messageList)
@@ -171,9 +187,9 @@ public class MessageService {
         return userFrom;
     }
 
-    private boolean userInList(User user,List<User> list){
+    private boolean userInList(Long idUser,List<User> list){
         for(User userTo: list)
-            if( user.getId().equals(userTo.getId()) )
+            if( userTo.getId().equals(idUser) )
                 return true;
         return false;
     }

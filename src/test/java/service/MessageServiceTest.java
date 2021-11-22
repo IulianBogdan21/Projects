@@ -200,6 +200,8 @@ public class MessageServiceTest {
         Assertions.assertEquals("Gigi",historyConversationDTO.get(0).getFirstName());
         Assertions.assertEquals("HELLO",historyConversationDTO.get(1).getText());
         Assertions.assertEquals("Maria",historyConversationDTO.get(1).getFirstName());
+        Assertions.assertEquals("Buna si tie",historyConversationDTO.get(2).getText());
+        Assertions.assertEquals("Maria",historyConversationDTO.get(2).getFirstName());
 
         //if one of the users doesn't exist
         Assertions.assertThrows(EntityMissingValidationException.class,
