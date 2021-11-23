@@ -141,8 +141,8 @@ public class NetworkController {
         return messageService.sendMessagesService(idUserFrom, to, text);
     }
 
-    public Optional<ReplyMessage> respondMessage(Long idUserFrom, Long idMessageAgregate, String text){
-        return messageService.respondMessageService(idUserFrom, idMessageAgregate, text);
+    public Optional<ReplyMessage> respondMessage(Long idUserFrom, Long idMessageAggregate, String text){
+        return messageService.respondMessageService(idUserFrom, idMessageAggregate, text);
     }
 
     public List<HistoryConversationDTO> historyConversation(Long idFirstUser, Long idSecondUser){
