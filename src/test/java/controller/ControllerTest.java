@@ -10,7 +10,6 @@ import socialNetwork.domain.models.User;
 import socialNetwork.domain.validators.EntityValidatorInterface;
 import socialNetwork.domain.validators.FriendshipValidator;
 import socialNetwork.domain.validators.UserValidator;
-import socialNetwork.repository.RepositoryInterface;
 import socialNetwork.repository.database.FriendshipDatabaseRepository;
 import socialNetwork.repository.database.MessageDTODatabaseRepository;
 import socialNetwork.repository.database.UserDatabaseRepository;
@@ -125,7 +124,7 @@ public class ControllerTest {
         getNetworkController().respondMessage(3L,listOfAllId.get(0),"Noapte buna pa si pusi!");
         getNetworkController().respondMessage(5L,listOfAllId.get(1),"Gaina");
 
-        List<Long> listOfID = testMessageService.allMessagesUserAppear(1L)
+        List<Long> listOfID = testMessageService.allMessagesUserAppearsIn(1L)
                 .stream()
                 .map(message -> message.getId())
                 .toList();
