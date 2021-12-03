@@ -5,10 +5,13 @@ import socialNetwork.exceptions.CorruptedDataException;
 import socialNetwork.exceptions.EntityMissingValidationException;
 import socialNetwork.repository.RepositoryInterface;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class MessageService {
     RepositoryInterface<Long, User> repoUser;
@@ -67,7 +70,7 @@ public class MessageService {
      * @param idSecondUser Long
      * @return a list of HistoryConversationDTO
      */
-    public List<HistoryConversationDTO> historyConversationService(Long idFirstUser, Long idSecondUser){
+    public List< List< HistoryConversationDTO > > historyConversationService(Long idFirstUser, Long idSecondUser){
         User firstUser = getUserById(idFirstUser);
         User secondUser = getUserById(idSecondUser);
         List < Message > messageList = getAllMainMessagesFromRepository();
@@ -75,7 +78,23 @@ public class MessageService {
         List<Message> filteredMessages = getMessagesThatBothUsersAreInvolvedIntoAndSortByDate(firstUser,
                 secondUser, messageList);
 
-        return getHistoryConversationDTOListFromFilteredMessages(firstUser, secondUser, filteredMessages);
+        Map<List<Long> , List<Message> > usersGroupByChat = filteredMessages.stream()
+                .collect(Collectors.groupingBy(message -> {
+                    List<Long> listIdUser = new ArrayList<>();
+                    listIdUser.add(message.getFrom().getId());
+                    message.getTo().forEach(user -> listIdUser.add(user.getId()));
+                    List<Long> sortedListByIdUser = listIdUser.stream()
+                            .sorted((x,y) -> x.compareTo(y))
+                            .toList();
+                    return sortedListByIdUser;
+                }));
+
+        return usersGroupByChat.entrySet()
+                .stream()
+                .map(x ->{
+                    return getHistoryConversationDTOListFromFilteredMessages(firstUser,secondUser,x.getValue());
+                })
+                .toList();
     }
 
     /**
@@ -360,6 +379,7 @@ public class MessageService {
                     return REVERSE_ORDER_OF_MESSAGES;
                 })
                 .toList();
+
     }
 
     /**

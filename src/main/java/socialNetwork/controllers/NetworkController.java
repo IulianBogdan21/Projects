@@ -145,7 +145,7 @@ public class NetworkController {
         return messageService.respondMessageService(idUserFrom, idMessageAggregate, text);
     }
 
-    public List<HistoryConversationDTO> historyConversation(Long idFirstUser, Long idSecondUser){
+    public List< List < HistoryConversationDTO > > historyConversation(Long idFirstUser, Long idSecondUser){
         return messageService.historyConversationService(idFirstUser, idSecondUser);
     }
 

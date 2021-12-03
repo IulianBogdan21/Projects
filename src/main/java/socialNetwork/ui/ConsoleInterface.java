@@ -211,12 +211,17 @@ public class ConsoleInterface {
         Long idFirstUser = readLongFromUser("Invalid value for ID");
         System.out.print("ID second user: ");
         Long idSecondUser = readLongFromUser("Invalid value for ID");
-        List<HistoryConversationDTO> conversation =
+        List< List< HistoryConversationDTO > > conversation =
                 networkController.historyConversation(idFirstUser, idSecondUser);
         if(conversation.size() == 0)
             System.out.println("No conversation between users");
         else
-            conversation.forEach(System.out::println);
+            conversation.stream()
+                    .forEach(listHistoryConversationDTO->{
+                        System.out.println("------------------------------------");
+                        listHistoryConversationDTO.stream()
+                                .forEach(System.out::println);
+                    });
     }
 
     private void respondMessage() {
