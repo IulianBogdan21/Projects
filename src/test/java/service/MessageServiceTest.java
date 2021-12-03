@@ -186,6 +186,8 @@ public class MessageServiceTest {
                 Arrays.asList(6L), "Noapte buna");
         getService().sendMessagesService(2L,
                 Arrays.asList(1L,3L), "HELLO");
+        getService().sendMessagesService(2L,
+                Arrays.asList(1L,3L,6L), "Let's go Kurama");
         List<MessagesToRespondDTO> messagesToRespondDTOList =
                 getService().getAllMessagesToRespondForUserService(2L);
         Assertions.assertEquals(messagesToRespondDTOList.get(0).getText(),"Buna");
@@ -193,15 +195,21 @@ public class MessageServiceTest {
 
         Long id = messagesToRespondDTOList.get(0).getId();
         getService().respondMessageService(2L, id, "Buna si tie");
-        List<HistoryConversationDTO> historyConversationDTO =
+        List < List<HistoryConversationDTO> > historyConversationDTO =
                 getService().historyConversationService(1L,2L);
 
-        Assertions.assertEquals("Buna",historyConversationDTO.get(0).getText());
-        Assertions.assertEquals("Gigi",historyConversationDTO.get(0).getFirstName());
-        Assertions.assertEquals("HELLO",historyConversationDTO.get(1).getText());
-        Assertions.assertEquals("Maria",historyConversationDTO.get(1).getFirstName());
-        Assertions.assertEquals("Buna si tie",historyConversationDTO.get(2).getText());
-        Assertions.assertEquals("Maria",historyConversationDTO.get(2).getFirstName());
+        List<HistoryConversationDTO> chatHistoryConversationDTO = historyConversationDTO.get(0);
+        Assertions.assertEquals("Buna",chatHistoryConversationDTO.get(0).getText());
+        Assertions.assertEquals("Gigi",chatHistoryConversationDTO.get(0).getFirstName());
+        Assertions.assertEquals("HELLO",chatHistoryConversationDTO.get(1).getText());
+        Assertions.assertEquals("Maria",chatHistoryConversationDTO.get(1).getFirstName());
+        Assertions.assertEquals("Buna si tie",chatHistoryConversationDTO.get(2).getText());
+        Assertions.assertEquals("Maria",chatHistoryConversationDTO.get(2).getFirstName());
+
+        chatHistoryConversationDTO = historyConversationDTO.get(1);
+        Assertions.assertEquals("Let's go Kurama",chatHistoryConversationDTO.get(0).getText());
+
+        Assertions.assertEquals(2,historyConversationDTO.size());
 
         //if one of the users doesn't exist
         Assertions.assertThrows(EntityMissingValidationException.class,
