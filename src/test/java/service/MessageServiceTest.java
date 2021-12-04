@@ -56,7 +56,7 @@ public class MessageServiceTest {
                     connection.prepareStatement("DELETE FROM users");
             deleteUsersStatement.executeUpdate();
             var deleteChatMessagesStatement =
-                    connection.prepareStatement("DELETE FROM chatmessages");
+                    connection.prepareStatement("DELETE FROM messages_id_correlation");
             deleteChatMessagesStatement.executeUpdate();
             var deleteMessagesStatement =
                     connection.prepareStatement("DELETE FROM messages");
