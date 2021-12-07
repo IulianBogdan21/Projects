@@ -23,7 +23,8 @@ tasks.withType(JavaCompile) {
 }
 
 application {
-
+    mainModule = 'socialNetwork.ui'
+    mainClass = 'socialNetwork.ui.HelloAplication'
 }
 
 javafx {
