@@ -1,18 +1,48 @@
 plugins {
     id 'java'
+    id 'application'
+    id 'org.openjfx.javafxplugin' version '0.0.10'
 }
 
 group 'org.example'
 version '1.0-SNAPSHOT'
 
+ext {
+    junitVersion = '5.8.1'
+}
+
+sourceCompatibility = '17'
+targetCompatibility = '17'
+
 repositories {
     mavenCentral()
 }
 
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+application {
+
+}
+
+javafx {
+    version = '17-ea+11'
+    modules = ['javafx.controls', 'javafx.fxml']
+}
+
 dependencies {
+    implementation('org.controlsfx:controlsfx:11.1.0')
+    implementation('com.dlsc.formsfx:formsfx-core:11.3.2') {
+        exclude(group: 'org.openjfx')
+    }
+    implementation('org.kordamp.bootstrapfx:bootstrapfx-core:0.4.0')
+
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
-    implementation 'org.postgresql:postgresql:42.3.1'
+
+    // https://mvnrepository.com/artifact/org.postgresql/postgresql
+    implementation group: 'org.postgresql', name: 'postgresql', version: '42.3.1'
 }
 
 test {
