@@ -39,8 +39,9 @@ public class MessageDTODatabaseRepository implements RepositoryInterface<Long, M
             resultSetUsers.next();
             Long idUser = resultSetUsers.getLong("id");
             String firstName = resultSetUsers.getString("first_name");
-            String lastname =resultSetUsers.getString("last_name");
-            return buildUser(idUser, firstName, lastname);
+            String lastname = resultSetUsers.getString("last_name");
+            String username = resultSetUsers.getString("username");
+            return buildUser(idUser, firstName, lastname,username);
         } catch (SQLException throwable) {
             throw new DatabaseException(throwable.getMessage());
         }
@@ -53,8 +54,8 @@ public class MessageDTODatabaseRepository implements RepositoryInterface<Long, M
      * @param lastname - String
      * @return User
      */
-    private User buildUser(Long idUser, String firstName, String lastname) {
-        User user = new User(idUser, firstName, lastname);
+    private User buildUser(Long idUser, String firstName, String lastname ,String username) {
+        User user = new User(idUser, firstName, lastname ,username);
         user.setIdEntity(idUser);
         return user;
     }

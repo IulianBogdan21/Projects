@@ -12,7 +12,7 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 
-public class FriendshipCsvFileRepositoryTest extends FriendshipRepositorySetterTest {
+public class FriendshipCsvFileRepositoryTest extends FriendshipCsvFileRepositorySetterTest {
     String TEST_FILE_PATH = ApplicationContext.getProperty("repository.csv.friendships.test");
     FriendshipCsvFileRepository testRepository;
 

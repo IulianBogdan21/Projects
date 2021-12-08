@@ -312,16 +312,14 @@ public class ConsoleInterface {
     }
 
     private void addUser(){
-        System.out.print("ID: ");
-        Long id = readLongFromUser("Invalid value for id");
-
         System.out.print("First name: ");
         String firstName = readStringFromUser();
 
         System.out.print("Last name: ");
         String lastName = readStringFromUser();
 
-        Optional<User> existingUserOptional = networkController.addUser(id, firstName, lastName);
+        Optional<User> existingUserOptional = networkController.addUser(firstName, lastName,"");
+
 
         if(existingUserOptional.isPresent()){
             User existingUser = existingUserOptional.get();
@@ -341,7 +339,7 @@ public class ConsoleInterface {
         System.out.print("Last name: ");
         String lastName = readStringFromUser();
 
-        Optional<User> existingUserOptional = networkController.updateUser(id, firstName, lastName);
+        Optional<User> existingUserOptional = networkController.updateUser(id, firstName, lastName,"");
 
         if(existingUserOptional.isPresent()){
             System.out.println("User has been updated");

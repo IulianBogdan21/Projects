@@ -7,11 +7,12 @@ import socialNetwork.domain.models.User;
 import socialNetwork.repository.RepositoryInterface;
 import socialNetwork.repository.csv.UserCsvFileRepository;
 
+
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 
-public class UserCsvFileRepositoryTest extends UserRepositorySetterTest {
+public class UserCsvFileRepositoryTest extends UserCsvFileRepositorySetterTest {
     UserCsvFileRepository testRepository;
     String TEST_FILE_PATH = ApplicationContext.getProperty("repository.csv.users.test");
     @Override
@@ -35,7 +36,7 @@ public class UserCsvFileRepositoryTest extends UserRepositorySetterTest {
 
         try(BufferedWriter writer = new BufferedWriter(new FileWriter(TEST_FILE_PATH))) {
             for(User user : getTestData()){
-                String line = "" + user.getId() + "," + user.getFirstName() + "," + user.getLastName();
+                String line = "" + user.getId() + "," + user.getFirstName() + "," + user.getLastName() + "," + user.getUsername();
                 writer.write(line);
                 writer.newLine();
             }

@@ -1,6 +1,7 @@
 package socialNetwork.controllers;
 
 import socialNetwork.domain.models.*;
+import socialNetwork.service.AuthentificationService;
 import socialNetwork.service.MessageService;
 import socialNetwork.service.NetworkService;
 import socialNetwork.service.UserService;
@@ -17,6 +18,7 @@ public class NetworkController {
     private UserService userService;
     private NetworkService networkService;
     private MessageService messageService;
+    private AuthentificationService authentificationService;
 
     /**
      * constructor - creates a controller that accesses the given services
@@ -24,21 +26,22 @@ public class NetworkController {
      * @param networkService - service for friendships
      */
     public NetworkController(UserService userService, NetworkService networkService,
-                             MessageService messageService) {
+                             MessageService messageService, AuthentificationService authentificationService) {
         this.userService = userService;
         this.networkService = networkService;
         this.messageService = messageService;
+        this.authentificationService = authentificationService;
     }
 
     /**
      * adds a new user
-     * @param id - int
      * @param firstName - String
      * @param lastName - String
      * @return - empty Optional if the user was added, Optional containing the existing user otherwise
      */
-    public Optional<User> addUser(Long id, String firstName, String lastName){
-        return userService.addUserService(id, firstName, lastName);
+
+    public Optional<User> addUser(String firstName, String lastName ,String username){
+        return userService.addUserService(firstName, lastName ,username);
     }
 
     /**
@@ -48,8 +51,8 @@ public class NetworkController {
      * @param lastName - String
      * @return - old value Optional if the user was updated, empty Optional otherwise
      */
-    public Optional<User> updateUser(Long id, String firstName, String lastName){
-        return userService.updateUserService(id, firstName, lastName);
+    public Optional<User> updateUser(Long id, String firstName, String lastName, String username){
+        return userService.updateUserService(id, firstName, lastName ,username);
     }
 
     /**
@@ -163,5 +166,17 @@ public class NetworkController {
 
     public Optional<Friendship> sendInvitationForFriendships(Long firstUserId,Long secondUserId){
         return networkService.sendInvitationForFriendshipsService(firstUserId,secondUserId);
+    }
+
+    public Optional<Autentification> saveAuthentification(String username,String password){
+        return authentificationService.saveAuthentificationService(username,password);
+    }
+
+    public Optional<Autentification> findAuthentification(String username){
+        return authentificationService.findAuthentificationService(username);
+    }
+
+    public List<Autentification> getAllAuthentification(String username){
+        return authentificationService.getAllAuthentificationService();
     }
 }

@@ -58,7 +58,7 @@ class NetworkServiceTest {
         Map<Long, User> expectedUsers = new HashMap<>();
 
         for(long i = 1; i <= 6; i++)
-            expectedUsers.put(i, new User(i, "" + i, "" + i));
+            expectedUsers.put(i, new User(i, "" + i, "" + i, "" + i));
 
         for(User user : users) {
             var friends = user.getListOfFriends();
@@ -103,6 +103,6 @@ class NetworkServiceTest {
 
 
         for(long i = 9; i <= 18; i++)
-            mostSocialCommunity.contains(new User(i, "" + i, "" + i));
+            mostSocialCommunity.contains(new User(i, "" + i, "" + i, "" + i));
     }
 }
