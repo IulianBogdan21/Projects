@@ -10,6 +10,7 @@ import socialNetwork.domain.models.User;
 import socialNetwork.domain.validators.EntityValidatorInterface;
 import socialNetwork.domain.validators.FriendshipValidator;
 import socialNetwork.domain.validators.UserValidator;
+import socialNetwork.exceptions.DatabaseException;
 import socialNetwork.repository.database.FriendshipDatabaseRepository;
 import socialNetwork.repository.database.MessageDTODatabaseRepository;
 import socialNetwork.repository.database.UserDatabaseRepository;
@@ -18,10 +19,7 @@ import socialNetwork.service.NetworkService;
 import socialNetwork.service.UserService;
 import socialNetwork.utilitaries.UnorderedPair;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -55,14 +53,38 @@ public class ControllerTest {
         return testNetworkController;
     }
 
+    public Long getMaximumId(){
+        try(Connection connection = DriverManager.getConnection(url, user, password)){
+            String findMaximumString = "select max(id) from users";
+            PreparedStatement findSql = connection.prepareStatement(findMaximumString);
+            ResultSet resultSet = findSql.executeQuery();
+            resultSet.next();
+            return resultSet.getLong(1);
+        } catch (SQLException exception){
+            throw new DatabaseException(exception.getMessage());
+        }
+    }
+
+    public Long getMinimumId(){
+        try(Connection connection = DriverManager.getConnection(url, user, password)){
+            String findMinimumString = "select min(id) from users";
+            PreparedStatement findSql = connection.prepareStatement(findMinimumString);
+            ResultSet resultSet = findSql.executeQuery();
+            resultSet.next();
+            return resultSet.getLong(1);
+        } catch (SQLException exception){
+            throw new DatabaseException(exception.getMessage());
+        }
+    }
+
     private List<User> getUserTestData(){
         return Arrays.asList(
-                new User(1L,"Gigi","Gigi"),
-                new User(2L,"Maria","Maria"),
-                new User(3L,"Bob","Bob"),
-                new User(4L,"Johnny","Test"),
-                new User(5L,"Paul","Paul"),
-                new User(6L,"Andrei","Andrei")
+                new User("Gigi","Gigi"),
+                new User("Maria","Maria"),
+                new User("Bob","Bob"),
+                new User("Johnny","Test"),
+                new User("Paul","Paul"),
+                new User("Andrei","Andrei")
         );
     }
 
@@ -93,13 +115,12 @@ public class ControllerTest {
         tearDown();
 
         try(Connection connection = DriverManager.getConnection(url, user, password)) {
-            String insertStatementString = "INSERT INTO users(id, first_name, last_name) VALUES (?,?,?)";
+            String insertStatementString = "INSERT INTO users(first_name, last_name) VALUES (?,?)";
             PreparedStatement insertStatement = connection.prepareStatement(insertStatementString);
 
             for(User user : getUserTestData()){
-                insertStatement.setLong(1, user.getId());
-                insertStatement.setString(2, user.getFirstName());
-                insertStatement.setString(3, user.getLastName());
+                insertStatement.setString(1, user.getFirstName());
+                insertStatement.setString(2, user.getLastName());
                 insertStatement.executeUpdate();
             }
 
@@ -110,9 +131,9 @@ public class ControllerTest {
 
     @Test
     void removeUser(){
-        getNetworkController().sendMessages(1L,Arrays.asList(3L,4L),"Buna");
-        getNetworkController().sendMessages(4L,Arrays.asList(5L,6L),"Vulpe");
-        getNetworkController().sendMessages(1L,Arrays.asList(6L),"Buna");
+        getNetworkController().sendMessages(getMinimumId(),Arrays.asList(getMinimumId() + 2,getMinimumId() + 3),"Buna");
+        getNetworkController().sendMessages(getMaximumId() - 2,Arrays.asList(getMaximumId() - 1,getMaximumId()),"Vulpe");
+        getNetworkController().sendMessages(getMinimumId(),Arrays.asList(getMaximumId()),"Buna");
 
         List<Long> listOfAllId = testMessageRepository.getAll()
                 .stream()
@@ -121,16 +142,16 @@ public class ControllerTest {
                 } )
                 .toList();
 
-        getNetworkController().respondMessage(3L,listOfAllId.get(0),"Noapte buna pa si pusi!");
-        getNetworkController().respondMessage(5L,listOfAllId.get(1),"Gaina");
+        getNetworkController().respondMessage(getMinimumId() + 2,listOfAllId.get(0),"Noapte buna pa si pusi!");
+        getNetworkController().respondMessage(getMaximumId() - 1,listOfAllId.get(1),"Gaina");
 
-        List<Long> listOfID = testMessageService.allMessagesUserAppearsIn(1L)
+        List<Long> listOfID = testMessageService.allMessagesUserAppearsIn(getMinimumId())
                 .stream()
                 .map(message -> message.getId())
                 .toList();
 
 
-        getNetworkController().removeUser(1L);
+        getNetworkController().removeUser(getMinimumId());
         listOfID.forEach( idMessage -> Assertions.assertEquals(Optional.empty(),
                 testMessageRepository.find(idMessage)));
     }

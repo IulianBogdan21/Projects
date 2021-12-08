@@ -13,7 +13,7 @@ import socialNetwork.repository.database.UserDatabaseRepository;
 import java.sql.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class UserDataBaseRepositoryTest extends UserRepositorySetterTest {
+ class UserDataBaseRepositoryTest extends UserRepositorySetterTest {
     String url = ApplicationContext.getProperty("network.database.url");
     String user = ApplicationContext.getProperty("network.database.user");
     String password = ApplicationContext.getProperty("network.database.password");

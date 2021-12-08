@@ -15,6 +15,8 @@ public abstract class RepositoryAbstractTest<ID, E extends Entity<ID>> {
     public abstract E createValidEntity();
     public abstract ID createNotExistingId();
     public abstract ID getExistingId();
+    public abstract ID getMinimumId();
+    public abstract ID getMaximumId();
     public abstract RepositoryInterface<ID, E> getRepository();
     public abstract List<E> getTestData();
 
@@ -44,13 +46,6 @@ public abstract class RepositoryAbstractTest<ID, E extends Entity<ID>> {
         Assertions.assertTrue(optionalEntity.isEmpty());
     }
 
-    @Test
-    void entityWithSameIdAlreadyExistsSave(){
-        E validEntity = createValidEntity();
-        getRepository().save(validEntity);
-        Optional<E> existingEntity = getRepository().save(validEntity);
-        Assertions.assertTrue(existingEntity.isPresent());
-    }
 
     @Test
     void testGetAll(){
@@ -73,7 +68,7 @@ public abstract class RepositoryAbstractTest<ID, E extends Entity<ID>> {
     void updateReturnsOldValue(){
         var newEntity = createValidEntity();
         List<E> testInformation = getTestData();
-        newEntity.setIdEntity(testInformation.get(0).getId());
+        newEntity.setIdEntity(getMinimumId());
         var oldValue = testInformation.get(0);
         var entityOptional = getRepository().update(newEntity);
         Assertions.assertTrue(entityOptional.isPresent());

@@ -15,12 +15,27 @@ public abstract class UserRepositorySetterTest extends RepositoryAbstractTest<Lo
     String user = ApplicationContext.getProperty("network.database.user");
     String password = ApplicationContext.getProperty("network.database.password");
 
+    @Override
     public Long getMaximumId(){
         try(Connection connection = DriverManager.getConnection(url, user, password)){
             String findMaximumString = "select max(id) from users";
             PreparedStatement findSql = connection.prepareStatement(findMaximumString);
             ResultSet resultSet = findSql.executeQuery();
-            return resultSet.getLong("");
+            resultSet.next();
+            return resultSet.getLong(1);
+        } catch (SQLException exception){
+            throw new DatabaseException(exception.getMessage());
+        }
+    }
+
+    @Override
+    public Long getMinimumId(){
+        try(Connection connection = DriverManager.getConnection(url, user, password)){
+            String findMinimumString = "select min(id) from users";
+            PreparedStatement findSql = connection.prepareStatement(findMinimumString);
+            ResultSet resultSet = findSql.executeQuery();
+            resultSet.next();
+            return resultSet.getLong(1);
         } catch (SQLException exception){
             throw new DatabaseException(exception.getMessage());
         }

@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import socialNetwork.domain.models.*;
+import socialNetwork.exceptions.DatabaseException;
 import socialNetwork.repository.RepositoryInterface;
 import socialNetwork.repository.database.MessageDTODatabaseRepository;
 import socialNetwork.repository.database.UserDatabaseRepository;
@@ -29,31 +30,55 @@ public class MessageDTODatabaseRepositoryTest {
         return testRepository;
     }
 
+    public Long getMaximumId(){
+        try(Connection connection = DriverManager.getConnection(url, user, password)){
+            String findMaximumString = "select max(id) from users";
+            PreparedStatement findSql = connection.prepareStatement(findMaximumString);
+            ResultSet resultSet = findSql.executeQuery();
+            resultSet.next();
+            return resultSet.getLong(1);
+        } catch (SQLException exception){
+            throw new DatabaseException(exception.getMessage());
+        }
+    }
+
+    public Long getMinimumId(){
+        try(Connection connection = DriverManager.getConnection(url, user, password)){
+            String findMinimumString = "select min(id) from users";
+            PreparedStatement findSql = connection.prepareStatement(findMinimumString);
+            ResultSet resultSet = findSql.executeQuery();
+            resultSet.next();
+            return resultSet.getLong(1);
+        } catch (SQLException exception){
+            throw new DatabaseException(exception.getMessage());
+        }
+    }
+
     public List<User> getUserTestData(){
         return Arrays.asList(
-          new User(1L,"Gigi","Gigi"),
-          new User(2L,"Maria","Maria"),
-          new User(3L,"Bob","Bob")
+          new User("Gigi","Gigi"),
+          new User("Maria","Maria"),
+          new User("Bob","Bob")
         );
     }
 
     public List<Message> getMessageTestData(){
         return Arrays.asList(
-          new Message(new User(1L,"Gigi","Gigi"),
-                  Arrays.asList(new User(2L,"Maria","Maria"),
-                          new User(3L,"Bob","Bob")),
+          new Message(new User(getMinimumId(),"Gigi","Gigi"),
+                  Arrays.asList(new User(getMinimumId() + 1,"Maria","Maria"),
+                          new User(getMinimumId() + 2,"Bob","Bob")),
                   "Buna"
                   ),
-                new Message(new User(2L,"Maria","Maria"),
-                        Arrays.asList(new User(1L,"Gigi","Gigi"),
-                                new User(3L,"Bob","Bob")),
+                new Message(new User(getMinimumId() + 1,"Maria","Maria"),
+                        Arrays.asList(new User(getMinimumId(),"Gigi","Gigi"),
+                                new User(getMinimumId() + 2,"Bob","Bob")),
                         "Salut"),
-                new Message(new User(3L,"Bob","Bob"),
-                        Arrays.asList(new User(1L,"Gigi","Gigi"),
-                                new User(2L,"Maria","Maria")),
+                new Message(new User(getMinimumId() + 2,"Bob","Bob"),
+                        Arrays.asList(new User(getMinimumId(),"Gigi","Gigi"),
+                                new User(getMinimumId() + 1,"Maria","Maria")),
                         "Iondaime Hokage Sama"),
-                new Message(new User(3L,"Bob","Bob"),
-                        Arrays.asList(new User(2L,"Maria","Maria")),
+                new Message(new User(getMinimumId() + 2,"Bob","Bob"),
+                        Arrays.asList(new User(getMinimumId() + 1,"Maria","Maria")),
                         "Fire Ball Tense")
         );
     }
@@ -82,13 +107,12 @@ public class MessageDTODatabaseRepositoryTest {
         tearDown();
 
         try(Connection connection = DriverManager.getConnection(url, user, password)) {
-            String insertStatementString = "INSERT INTO users(id, first_name, last_name) VALUES (?,?,?)";
+            String insertStatementString = "INSERT INTO users(first_name, last_name) VALUES (?,?)";
             PreparedStatement insertStatement = connection.prepareStatement(insertStatementString);
 
             for(User user : getUserTestData()){
-                insertStatement.setLong(1, user.getId());
-                insertStatement.setString(2, user.getFirstName());
-                insertStatement.setString(3, user.getLastName());
+                insertStatement.setString(1, user.getFirstName());
+                insertStatement.setString(2, user.getLastName());
                 insertStatement.executeUpdate();
             }
 
