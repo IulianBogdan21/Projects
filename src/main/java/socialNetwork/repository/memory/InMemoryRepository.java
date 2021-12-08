@@ -23,12 +23,18 @@ public class InMemoryRepository<ID, E extends Entity<ID>> implements RepositoryI
         return entitiesMap.values().stream().toList();
     }
 
+//    @Override
+//    public Optional<E> save(E entityToSave) {
+//        if(entitiesMap.containsKey(entityToSave.getId())){
+//            E valueAtKey = entitiesMap.get(entityToSave.getId());
+//            return Optional.of(valueAtKey);
+//        }
+//        entitiesMap.put(entityToSave.getId(), entityToSave);
+//        return Optional.empty();
+//    }
+
     @Override
     public Optional<E> save(E entityToSave) {
-        if(entitiesMap.containsKey(entityToSave.getId())){
-            E valueAtKey = entitiesMap.get(entityToSave.getId());
-            return Optional.of(valueAtKey);
-        }
         entitiesMap.put(entityToSave.getId(), entityToSave);
         return Optional.empty();
     }

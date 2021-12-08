@@ -36,13 +36,13 @@ public class UserService {
 
     /**
      * adds a user to the userRepository
-     * @param id - Long - identifier of user
      * @param firstName - String - first name of user
      * @param lastName - String - last name of user
      * @return empty Optional if the user was added, Optional containing the existing user with same id otherwise
      */
-    public Optional<User> addUserService(Long id, String firstName, String lastName ,String username) {
-        User user = new User(id, firstName, lastName ,username);
+
+    public Optional<User> addUserService( String firstName, String lastName ,String username) {
+        User user = new User( firstName, lastName ,username);
         userValidator.validate(user);
         return userRepository.save(user);
     }
@@ -123,7 +123,6 @@ public class UserService {
                 .stream()
                 .filter(entry -> entry.getValue().getMonth().getValue() == month )
                 .forEach(entry -> {
-                    //System.out.println(entry);
                     friendshipsMonth.put(entry.getKey(),entry.getValue());
                 });
         return friendshipsMonth;

@@ -59,8 +59,8 @@ public class AuthentificationServiceTest {
     @BeforeEach
     private void setUp(){
         tearDown();
-        getUserRepository().save(new User(1L,"andrei78","balanici","andrei"));
-        getUserRepository().save(new User(2L,"razvan34","bogdan","razvan"));
+        getUserRepository().save(new User("andrei78","balanici","andrei"));
+        getUserRepository().save(new User("razvan34","bogdan","razvan"));
     }
 
     @Test

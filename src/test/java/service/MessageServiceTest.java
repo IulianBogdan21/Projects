@@ -7,15 +7,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import socialNetwork.domain.models.*;
 import socialNetwork.exceptions.CorruptedDataException;
+import socialNetwork.exceptions.DatabaseException;
 import socialNetwork.exceptions.EntityMissingValidationException;
 import socialNetwork.repository.database.MessageDTODatabaseRepository;
 import socialNetwork.repository.database.UserDatabaseRepository;
 import socialNetwork.service.MessageService;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -38,15 +37,40 @@ public class MessageServiceTest {
         return testService;
     }
 
-    public List<User> getUserTestData(){
-        return Arrays.asList(
-                new User(1L,"Gigi","Gigi","g1"),
-                new User(2L,"Maria","Maria","g2"),
-                new User(3L,"Bob","Bob","g3"),
-                new User(4L,"Johnny","Test","g4"),
-                new User(5L,"Paul","Paul","g5"),
-                new User(6L,"Andrei","Andrei","g6")
-        );
+    public List<User> getUserData() {
+        return new ArrayList<>(Arrays.asList(
+                new User("Gigi","Gigi","g1"),
+                new User("Maria","Maria","g2"),
+                new User("Bob","Bob","g3"),
+                new User("Johnny","Test","g4"),
+                new User("Paul","Paul","g5"),
+                new User("Andrei","Andrei","g6")
+        ));
+    }
+
+    public Long getMaximumId(){
+        try(Connection connection = DriverManager.getConnection(url, user, password)){
+            String findMaximumString = "select max(id) from users";
+            PreparedStatement findSql = connection.prepareStatement(findMaximumString);
+            ResultSet resultSet = findSql.executeQuery();
+            resultSet.next();
+            return resultSet.getLong(1);
+        } catch (SQLException exception){
+            throw new DatabaseException(exception.getMessage());
+        }
+    }
+
+    public Long getMinimumId(){
+        try(Connection connection = DriverManager.getConnection(url, user, password)){
+            String findMinimumString = "select min(id) from users";
+            PreparedStatement findSql = connection.prepareStatement(findMinimumString);
+            ResultSet resultSet = findSql.executeQuery();
+            resultSet.next();
+            return resultSet.getLong(1);
+        } catch (SQLException exception){
+            throw new DatabaseException(exception.getMessage());
+        }
+
     }
 
 
@@ -74,14 +98,15 @@ public class MessageServiceTest {
         tearDown();
 
         try(Connection connection = DriverManager.getConnection(url, user, password)) {
-            String insertStatementString = "INSERT INTO users(id, first_name, last_name,username) VALUES (?,?,?,?)";
+
+            String insertStatementString = "INSERT INTO users( first_name, last_name,username) VALUES (?,?,?)";
             PreparedStatement insertStatement = connection.prepareStatement(insertStatementString);
 
-            for(User user : getUserTestData()){
-                insertStatement.setLong(1, user.getId());
-                insertStatement.setString(2, user.getFirstName());
-                insertStatement.setString(3, user.getLastName());
-                insertStatement.setString(4, user.getUsername());
+            for(User user : getUserData()){
+                insertStatement.setString(1, user.getFirstName());
+                insertStatement.setString(2, user.getLastName());
+                insertStatement.setString(3, user.getUsername());
+
                 insertStatement.executeUpdate();
             }
 
@@ -92,10 +117,10 @@ public class MessageServiceTest {
 
     @Test
     void sendMessagesTest(){
-        getService().sendMessagesService(1L,
-                Arrays.asList(2L, 3L), "Buna");
-        getService().sendMessagesService(3L,
-                Arrays.asList(2L), "Noapte buna");
+        getService().sendMessagesService(getMinimumId(),
+                Arrays.asList(getMinimumId() + 1, getMinimumId() + 2), "Buna");
+        getService().sendMessagesService(getMinimumId() + 2,
+                Arrays.asList(getMinimumId() + 1), "Noapte buna");
         List<Long> listOfAllId = testMessageRepository.getAll()
                 .stream()
                 .map( messageDTO -> {
@@ -104,37 +129,37 @@ public class MessageServiceTest {
                 .toList();
 
         Long idOfTheFirstMessageSend = listOfAllId.get(0);
-        Assertions.assertEquals(Arrays.asList(testUserRepository.find(2L).get(),
-                        testUserRepository.find(3L).get()),
+        Assertions.assertEquals(Arrays.asList(testUserRepository.find(getMinimumId() + 1).get(),
+                        testUserRepository.find(getMinimumId() + 2).get()),
                 testMessageRepository.find(idOfTheFirstMessageSend).get().getMainMessage().getTo());
-        Assertions.assertEquals(testUserRepository.find(1L).get(),
+        Assertions.assertEquals(testUserRepository.find(getMinimumId()).get(),
                 testMessageRepository.find(idOfTheFirstMessageSend).get().getMainMessage().getFrom());
         Assertions.assertEquals("Buna",
                 testMessageRepository.find(idOfTheFirstMessageSend).get().getMainMessage().getText());
 
         Long idOfTheSecondMessageSend = listOfAllId.get(1);
-        Assertions.assertEquals(Arrays.asList( testUserRepository.find(2L).get() ),
+        Assertions.assertEquals(Arrays.asList( testUserRepository.find(getMinimumId() + 1).get() ),
                 testMessageRepository.find(idOfTheSecondMessageSend).get().getMainMessage().getTo());
-        Assertions.assertEquals(testUserRepository.find(3L).get(),
+        Assertions.assertEquals(testUserRepository.find(getMinimumId() + 2).get(),
                 testMessageRepository.find(idOfTheSecondMessageSend).get().getMainMessage().getFrom());
         Assertions.assertEquals("Noapte buna",
                 testMessageRepository.find(idOfTheSecondMessageSend).get().getMainMessage().getText());
 
 //throw exception if the user that send the message doesn't exist
         Assertions.assertThrows(EntityMissingValidationException.class,
-                () -> getService().sendMessagesService(-2L,Arrays.asList(2L,1L),"gaga"));
+                () -> getService().sendMessagesService(getMinimumId() - 1,Arrays.asList(getMinimumId() + 1,getMinimumId()),"gaga"));
 
 //throw exception if one of the receivers doesn't exist
         Assertions.assertThrows(EntityMissingValidationException.class,
-                () -> getService().sendMessagesService(1L,Arrays.asList(2L,3L,-1L),"mama"));
+                () -> getService().sendMessagesService(getMinimumId(),Arrays.asList(getMinimumId() + 1,getMinimumId() + 2,getMinimumId() - 1),"mama"));
     }
 
     @Test
     void replyMessagesTest(){
-        getService().sendMessagesService(1L,
-                Arrays.asList(2L, 3L), "Buna");
-        getService().sendMessagesService(3L,
-                Arrays.asList(2L), "Noapte buna");
+        getService().sendMessagesService(getMinimumId(),
+                Arrays.asList(getMinimumId() + 1, getMinimumId() + 2), "Buna");
+        getService().sendMessagesService(getMinimumId() + 2,
+                Arrays.asList(getMinimumId() + 1), "Noapte buna");
         List<Long> listOfAllIdOfAllSentMessages = testMessageRepository.getAll()
                 .stream()
                 .map( messageDTO -> {
@@ -143,16 +168,16 @@ public class MessageServiceTest {
                 .toList();
 
         Long idOfTheReplyMessage = listOfAllIdOfAllSentMessages.get(0);
-        getService().respondMessageService(3L,idOfTheReplyMessage,"Wake up to reality");
+        getService().respondMessageService(getMinimumId() + 2,idOfTheReplyMessage,"Wake up to reality");
         Optional< MessageDTO > responseMessage = testMessageRepository.getAll()
                 .stream()
                 .max( (MessageDTO x,MessageDTO y) ->{
                     return x.getMainMessage().getId().compareTo(y.getMainMessage().getId());
                 } );
-        Assertions.assertEquals(testUserRepository.find(3L).get(),
+        Assertions.assertEquals(testUserRepository.find(getMinimumId() + 2).get(),
                 responseMessage.get().getMainMessage().getFrom());
-        Assertions.assertEquals(Arrays.asList( testUserRepository.find(1L).get() ,
-                testUserRepository.find(2L).get() ),
+        Assertions.assertEquals(Arrays.asList( testUserRepository.find(getMinimumId()).get() ,
+                testUserRepository.find(getMinimumId() + 1).get() ),
                 responseMessage.get().getMainMessage().getTo());
         Assertions.assertEquals("Wake up to reality",
                 responseMessage.get().getMainMessage().getText());
@@ -160,7 +185,7 @@ public class MessageServiceTest {
                 responseMessage.get().getMessageToRespondTo().getText());
 
         Long idOfSecondSentMessage = listOfAllIdOfAllSentMessages.get(1);
-        getService().respondMessageService(2L, idOfSecondSentMessage,"Nothing ever goes as planned");
+        getService().respondMessageService(getMinimumId() + 1, idOfSecondSentMessage,"Nothing ever goes as planned");
         Optional< MessageDTO > responseMessageToSecond = testMessageRepository.getAll()
                 .stream()
                 .max( (MessageDTO x,MessageDTO y) ->{
@@ -173,31 +198,31 @@ public class MessageServiceTest {
 
         //if user that reply doesn't exist
         Assertions.assertThrows(EntityMissingValidationException.class,
-                () -> getService().respondMessageService(-1L,idOfTheReplyMessage,"kopac"));
+                () -> getService().respondMessageService(getMinimumId() - 1,idOfTheReplyMessage,"kopac"));
         //if the message that I want to respond doesn't exist
         Assertions.assertThrows(CorruptedDataException.class,
-                () -> getService().respondMessageService(1L,-1L,"casa"));
+                () -> getService().respondMessageService(getMinimumId(),-1L,"casa"));
     }
 
     @Test
     void conversationMessagesTest(){
-        getService().sendMessagesService(1L,
-                Arrays.asList(2L, 3L), "Buna");
-        getService().sendMessagesService(1L,
-                Arrays.asList(6L), "Noapte buna");
-        getService().sendMessagesService(2L,
-                Arrays.asList(1L,3L), "HELLO");
-        getService().sendMessagesService(2L,
-                Arrays.asList(1L,3L,6L), "Let's go Kurama");
+        getService().sendMessagesService(getMinimumId(),
+                Arrays.asList(getMinimumId() + 1, getMinimumId() + 2), "Buna");
+        getService().sendMessagesService(getMinimumId(),
+                Arrays.asList(getMaximumId()), "Noapte buna");
+        getService().sendMessagesService(getMinimumId() + 1,
+                Arrays.asList(getMinimumId(),getMinimumId() + 2), "HELLO");
+        getService().sendMessagesService(getMinimumId() + 1,
+                Arrays.asList(getMinimumId(),getMinimumId() + 2,getMaximumId()), "Let's go Kurama");
         List<MessagesToRespondDTO> messagesToRespondDTOList =
-                getService().getAllMessagesToRespondForUserService(2L);
+                getService().getAllMessagesToRespondForUserService(getMinimumId() + 1);
         Assertions.assertEquals(messagesToRespondDTOList.get(0).getText(),"Buna");
         Assertions.assertEquals(messagesToRespondDTOList.size(),1);
 
         Long id = messagesToRespondDTOList.get(0).getId();
-        getService().respondMessageService(2L, id, "Buna si tie");
+        getService().respondMessageService(getMinimumId() + 1, id, "Buna si tie");
         List < List<HistoryConversationDTO> > historyConversationDTO =
-                getService().historyConversationService(1L,2L);
+                getService().historyConversationService(getMinimumId(),getMinimumId() + 1);
 
         List<HistoryConversationDTO> chatHistoryConversationDTO = historyConversationDTO.get(0);
         Assertions.assertEquals("Buna",chatHistoryConversationDTO.get(0).getText());
@@ -214,6 +239,6 @@ public class MessageServiceTest {
 
         //if one of the users doesn't exist
         Assertions.assertThrows(EntityMissingValidationException.class,
-                () -> getService().historyConversationService(-1L,2L));
+                () -> getService().historyConversationService(getMinimumId() - 1,getMinimumId() + 1));
     }
 }

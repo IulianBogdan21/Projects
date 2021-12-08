@@ -56,9 +56,11 @@ public class UserDatabaseRepository implements RepositoryInterface<Long, User>{
         }
     }
 
+
     @Override
     public Optional<User> save(User entityToSave) {
         try(Connection connection = DriverManager.getConnection(url, user, password)){
+
             PreparedStatement findSql = createFindUserUsernameStatement(entityToSave.getUsername(), connection);
             ResultSet resultSet = findSql.executeQuery();
             if(resultSet.next())
@@ -181,12 +183,11 @@ public class UserDatabaseRepository implements RepositoryInterface<Long, User>{
      */
     private PreparedStatement createInsertStatementForUser(User user, Connection connection){
         try{
-            String insertSqlString = "INSERT INTO users(id, first_name, last_name, username) values (?,?,?,?)";
+            String insertSqlString = "INSERT INTO users(first_name, last_name, username) values (?,?,?)";
             PreparedStatement insertSql = connection.prepareStatement(insertSqlString);
-            insertSql.setLong(1, user.getId());
-            insertSql.setString(2, user.getFirstName());
-            insertSql.setString(3, user.getLastName());
-            insertSql.setString(4,user.getUsername());
+            insertSql.setString(1, user.getFirstName());
+            insertSql.setString(2, user.getLastName());
+            insertSql.setString(3,user.getUsername());
             return insertSql;
         }catch (SQLException exception){
             throw new DatabaseException(exception.getMessage());
