@@ -56,18 +56,20 @@ public class UserDatabaseRepository implements RepositoryInterface<Long, User>{
         }
     }
 
+
     @Override
     public Optional<User> save(User entityToSave) {
         try(Connection connection = DriverManager.getConnection(url, user, password)){
-            PreparedStatement findSql = createFindUserIdStatement(entityToSave.getId(), connection);
-            ResultSet resultSet = findSql.executeQuery();
-            if(resultSet.next())
-                return Optional.of(createUserFromResultSet(resultSet));
-            else{
+//            PreparedStatement findSql = createFindUserIdStatement(entityToSave.getId(), connection);
+//            ResultSet resultSet = findSql.executeQuery();
+//            if(resultSet.next())
+//                return Optional.of(createUserFromResultSet(resultSet));
+//            else{
+
                 PreparedStatement insertSql = createInsertStatementForUser(entityToSave, connection);
                 insertSql.executeUpdate();
                 return Optional.empty();
-            }
+            //}
         } catch (SQLException exception){
             throw new DatabaseException(exception.getMessage());
         }
@@ -169,11 +171,10 @@ public class UserDatabaseRepository implements RepositoryInterface<Long, User>{
      */
     private PreparedStatement createInsertStatementForUser(User user, Connection connection){
         try{
-            String insertSqlString = "INSERT INTO users(id, first_name, last_name) values (?,?,?)";
+            String insertSqlString = "INSERT INTO users(first_name, last_name) values (?,?)";
             PreparedStatement insertSql = connection.prepareStatement(insertSqlString);
-            insertSql.setLong(1, user.getId());
-            insertSql.setString(2, user.getFirstName());
-            insertSql.setString(3, user.getLastName());
+            insertSql.setString(1, user.getFirstName());
+            insertSql.setString(2, user.getLastName());
             return insertSql;
         }catch (SQLException exception){
             throw new DatabaseException(exception.getMessage());

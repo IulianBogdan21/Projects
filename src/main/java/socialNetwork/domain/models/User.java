@@ -17,7 +17,18 @@ public class User extends Entity<Long> {
      * @param firstName - String
      * @param lastName - String
      */
-    public User(Long id, String firstName, String lastName) {
+    public User(String firstName, String lastName) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+    }
+
+    /**
+     * constructor that also sets the id of the user
+     * @param id Long
+     * @param firstName String
+     * @param lastName String
+     */
+    public User(Long id, String firstName, String lastName){
         setIdEntity(id);
         this.firstName = firstName;
         this.lastName = lastName;

@@ -32,13 +32,12 @@ public class NetworkController {
 
     /**
      * adds a new user
-     * @param id - int
      * @param firstName - String
      * @param lastName - String
      * @return - empty Optional if the user was added, Optional containing the existing user otherwise
      */
-    public Optional<User> addUser(Long id, String firstName, String lastName){
-        return userService.addUserService(id, firstName, lastName);
+    public Optional<User> addUser(String firstName, String lastName){
+        return userService.addUserService(firstName, lastName);
     }
 
     /**
