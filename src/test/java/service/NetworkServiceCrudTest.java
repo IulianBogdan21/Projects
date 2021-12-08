@@ -43,6 +43,7 @@ public class NetworkServiceCrudTest {
     void setUp(){
         FriendshipDatabaseTableSetter.tearDown();
         UserDatabaseTableSetter.tearDown();
+    //    System.out.println(localFriendships.getAll());
         UserDatabaseTableSetter.setUp(localUsers.getAll());
         FriendshipDatabaseTableSetter.setUp(localFriendships.getAll());
     }

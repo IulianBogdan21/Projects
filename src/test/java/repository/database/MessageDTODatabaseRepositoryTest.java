@@ -31,29 +31,29 @@ public class MessageDTODatabaseRepositoryTest {
 
     public List<User> getUserTestData(){
         return Arrays.asList(
-          new User(1L,"Gigi","Gigi"),
-          new User(2L,"Maria","Maria"),
-          new User(3L,"Bob","Bob")
+          new User(1L,"Gigi","Gigi","e1"),
+          new User(2L,"Maria","Maria","e2"),
+          new User(3L,"Bob","Bob","e3")
         );
     }
 
     public List<Message> getMessageTestData(){
         return Arrays.asList(
-          new Message(new User(1L,"Gigi","Gigi"),
-                  Arrays.asList(new User(2L,"Maria","Maria"),
-                          new User(3L,"Bob","Bob")),
+          new Message(new User(1L,"Gigi","Gigi","e1"),
+                  Arrays.asList(new User(2L,"Maria","Maria","e2"),
+                          new User(3L,"Bob","Bob","e3")),
                   "Buna"
                   ),
-                new Message(new User(2L,"Maria","Maria"),
-                        Arrays.asList(new User(1L,"Gigi","Gigi"),
-                                new User(3L,"Bob","Bob")),
+                new Message(new User(2L,"Maria","Maria","e2"),
+                        Arrays.asList(new User(1L,"Gigi","Gigi","e1"),
+                                new User(3L,"Bob","Bob","e3")),
                         "Salut"),
-                new Message(new User(3L,"Bob","Bob"),
-                        Arrays.asList(new User(1L,"Gigi","Gigi"),
-                                new User(2L,"Maria","Maria")),
+                new Message(new User(3L,"Bob","Bob","e3"),
+                        Arrays.asList(new User(1L,"Gigi","Gigi","e1"),
+                                new User(2L,"Maria","Maria","e2")),
                         "Iondaime Hokage Sama"),
-                new Message(new User(3L,"Bob","Bob"),
-                        Arrays.asList(new User(2L,"Maria","Maria")),
+                new Message(new User(3L,"Bob","Bob","e3"),
+                        Arrays.asList(new User(2L,"Maria","Maria","e2")),
                         "Fire Ball Tense")
         );
     }
@@ -82,13 +82,14 @@ public class MessageDTODatabaseRepositoryTest {
         tearDown();
 
         try(Connection connection = DriverManager.getConnection(url, user, password)) {
-            String insertStatementString = "INSERT INTO users(id, first_name, last_name) VALUES (?,?,?)";
+            String insertStatementString = "INSERT INTO users(id, first_name, last_name,username) VALUES (?,?,?,?)";
             PreparedStatement insertStatement = connection.prepareStatement(insertStatementString);
 
             for(User user : getUserTestData()){
                 insertStatement.setLong(1, user.getId());
                 insertStatement.setString(2, user.getFirstName());
                 insertStatement.setString(3, user.getLastName());
+                insertStatement.setString(4, user.getUsername());
                 insertStatement.executeUpdate();
             }
 

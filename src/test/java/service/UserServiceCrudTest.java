@@ -43,17 +43,17 @@ public class UserServiceCrudTest {
     @Test
     void addWithInvalidUser(){
         Assertions.assertThrows(InvalidEntityException.class,
-                ()->testService.addUserService(-1000L, "", ""));
+                ()->testService.addUserService(-1000L, "", "",""));
     }
 
     @Test
     void addWithValidUser(){
-        Assertions.assertTrue(testService.addUserService(1000L, "John", "Snow").isEmpty());
+        Assertions.assertTrue(testService.addUserService(1000L, "John", "Snow","t1").isEmpty());
     }
 
     @Test
     void addWithExistingUser(){
-        Assertions.assertTrue(testService.addUserService(1L, "John", "Snow").isPresent());
+        Assertions.assertTrue(testService.addUserService(1L, "John", "Snow","ba1").isPresent());
     }
 
     @Test

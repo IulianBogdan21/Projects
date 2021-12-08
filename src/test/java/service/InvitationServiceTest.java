@@ -52,11 +52,11 @@ public class InvitationServiceTest {
 
     public List<User> getTestData() {
         return new ArrayList<>(Arrays.asList(
-                new User(1L,"Baltazar","Baltazar"),
-                new User(2L, "Bradley","Bradley"),
-                new User(3L,"Frank","Frank"),
-                new User(4L,"Johnny","John"),
-                new User(5L, "Johnny","John")
+                new User(1L,"Baltazar","Baltazar","f1"),
+                new User(2L, "Bradley","Bradley","f2"),
+                new User(3L,"Frank","Frank","f3"),
+                new User(4L,"Johnny","John","f4"),
+                new User(5L, "Johnny","John","f5")
         ));
     }
 
@@ -78,13 +78,14 @@ public class InvitationServiceTest {
         tearDown();
 
         try(Connection connection = DriverManager.getConnection(url, user, password)) {
-            String insertStatementString = "INSERT INTO users(id, first_name, last_name) VALUES (?,?,?)";
+            String insertStatementString = "INSERT INTO users(id, first_name, last_name,username) VALUES (?,?,?,?)";
             PreparedStatement insertStatement = connection.prepareStatement(insertStatementString);
 
             for(User user : getTestData()){
                 insertStatement.setLong(1, user.getId());
                 insertStatement.setString(2, user.getFirstName());
                 insertStatement.setString(3, user.getLastName());
+                insertStatement.setString(4, user.getUsername());
                 insertStatement.executeUpdate();
             }
 

@@ -28,13 +28,14 @@ public class UserDatabaseTableSetter {
         tearDown();
 
         try(Connection connection = DriverManager.getConnection(url, user, password)) {
-            String insertStatementString = "INSERT INTO users(id, first_name, last_name) VALUES (?,?,?)";
+            String insertStatementString = "INSERT INTO users(id, first_name, last_name ,username) VALUES (?,?,?,?)";
             PreparedStatement insertStatement = connection.prepareStatement(insertStatementString);
 
             for(User user : testData){
                 insertStatement.setLong(1, user.getId());
                 insertStatement.setString(2, user.getFirstName());
                 insertStatement.setString(3, user.getLastName());
+                insertStatement.setString(4, user.getUsername());
                 insertStatement.executeUpdate();
             }
 

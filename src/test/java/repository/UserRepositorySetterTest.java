@@ -22,17 +22,17 @@ public abstract class UserRepositorySetterTest extends RepositoryAbstractTest<Lo
     @Override
     public List<User> getTestData() {
         return new ArrayList<>(Arrays.asList(
-                new User(1L,"Baltazar","Baltazar"),
-                new User(2L, "Bradley","Bradley"),
-                new User(3L,"Frank","Frank"),
-                new User(1234L,"Johnny","John"),
-                new User(5678L, "Johnny","John")
+                new User(1L,"Baltazar","Baltazar","d1"),
+                new User(2L, "Bradley","Bradley","d2"),
+                new User(3L,"Frank","Frank","d3"),
+                new User(1234L,"Johnny","John","d4"),
+                new User(5678L, "Johnny","John","d5")
                 ));
     }
 
     @Override
     public User createValidEntity() {
-        return new User(10L,"Brutus","Brutus");
+        return new User(10L,"Brutus","Brutus","d6");
     }
 
 }

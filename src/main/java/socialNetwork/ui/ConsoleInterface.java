@@ -321,7 +321,7 @@ public class ConsoleInterface {
         System.out.print("Last name: ");
         String lastName = readStringFromUser();
 
-        Optional<User> existingUserOptional = networkController.addUser(id, firstName, lastName);
+        Optional<User> existingUserOptional = networkController.addUser(id, firstName, lastName,"");
 
         if(existingUserOptional.isPresent()){
             User existingUser = existingUserOptional.get();
@@ -341,7 +341,7 @@ public class ConsoleInterface {
         System.out.print("Last name: ");
         String lastName = readStringFromUser();
 
-        Optional<User> existingUserOptional = networkController.updateUser(id, firstName, lastName);
+        Optional<User> existingUserOptional = networkController.updateUser(id, firstName, lastName,"");
 
         if(existingUserOptional.isPresent()){
             System.out.println("User has been updated");

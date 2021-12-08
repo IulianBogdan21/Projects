@@ -4,15 +4,21 @@ import config.ApplicationContext;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import repository.database.AuthentificationDatabaseRepositoryTest;
 import socialNetwork.controllers.NetworkController;
+import socialNetwork.domain.models.Autentification;
 import socialNetwork.domain.models.Friendship;
 import socialNetwork.domain.models.User;
+import socialNetwork.domain.validators.AuthentificationValidator;
 import socialNetwork.domain.validators.EntityValidatorInterface;
 import socialNetwork.domain.validators.FriendshipValidator;
 import socialNetwork.domain.validators.UserValidator;
+import socialNetwork.repository.database.AutentificationDatabaseRepository;
 import socialNetwork.repository.database.FriendshipDatabaseRepository;
 import socialNetwork.repository.database.MessageDTODatabaseRepository;
 import socialNetwork.repository.database.UserDatabaseRepository;
+import socialNetwork.service.AuthentificationService;
 import socialNetwork.service.MessageService;
 import socialNetwork.service.NetworkService;
 import socialNetwork.service.UserService;
@@ -26,6 +32,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ControllerTest {
 
     String url = ApplicationContext.getProperty("network.database.url");
@@ -33,12 +40,15 @@ public class ControllerTest {
     String password = ApplicationContext.getProperty("network.database.password");
     EntityValidatorInterface<Long,User> testUserValidator = new UserValidator();
     EntityValidatorInterface<UnorderedPair<Long,Long>, Friendship> testFriendshipValidator;
+    EntityValidatorInterface<String, Autentification> testAuthentificationValidator;
+    AutentificationDatabaseRepository testAutentificationRepository;
     MessageDTODatabaseRepository testMessageRepository;
     UserDatabaseRepository testUserRepository;
     FriendshipDatabaseRepository testFriendshipRepository;
     UserService testUserService;
     NetworkService testNetworkService;
     MessageService testMessageService;
+    AuthentificationService testAuthentificationService;
     NetworkController testNetworkController = null;
 
     public NetworkController getNetworkController() {
@@ -46,23 +56,27 @@ public class ControllerTest {
             testUserRepository = new UserDatabaseRepository(url,user,password);
             testFriendshipRepository = new FriendshipDatabaseRepository(url,user,password);
             testMessageRepository = new MessageDTODatabaseRepository(url,user,password);
+            testAutentificationRepository = new AutentificationDatabaseRepository(url,user,password);
             testFriendshipValidator = new FriendshipValidator(testUserRepository);
+            testAuthentificationValidator = new AuthentificationValidator();
             testUserService = new UserService(testUserRepository,testFriendshipRepository,testUserValidator);
             testNetworkService = new NetworkService(testFriendshipRepository,testUserRepository,testFriendshipValidator);
             testMessageService = new MessageService(testUserRepository,testMessageRepository);
-            testNetworkController = new NetworkController(testUserService,testNetworkService,testMessageService);
+            testAuthentificationService = new AuthentificationService(testAutentificationRepository,testAuthentificationValidator);
+            testNetworkController = new NetworkController(testUserService,testNetworkService
+                    ,testMessageService,testAuthentificationService);
         }
         return testNetworkController;
     }
 
     private List<User> getUserTestData(){
         return Arrays.asList(
-                new User(1L,"Gigi","Gigi"),
-                new User(2L,"Maria","Maria"),
-                new User(3L,"Bob","Bob"),
-                new User(4L,"Johnny","Test"),
-                new User(5L,"Paul","Paul"),
-                new User(6L,"Andrei","Andrei")
+                new User(1L,"Gigi","Gigi","a1"),
+                new User(2L,"Maria","Maria","a2"),
+                new User(3L,"Bob","Bob","a3"),
+                new User(4L,"Johnny","Test","a4"),
+                new User(5L,"Paul","Paul","a5"),
+                new User(6L,"Andrei","Andrei","a6")
         );
     }
 
@@ -93,13 +107,14 @@ public class ControllerTest {
         tearDown();
 
         try(Connection connection = DriverManager.getConnection(url, user, password)) {
-            String insertStatementString = "INSERT INTO users(id, first_name, last_name) VALUES (?,?,?)";
+            String insertStatementString = "INSERT INTO users(id, first_name, last_name,username) VALUES (?,?,?,?)";
             PreparedStatement insertStatement = connection.prepareStatement(insertStatementString);
 
             for(User user : getUserTestData()){
                 insertStatement.setLong(1, user.getId());
                 insertStatement.setString(2, user.getFirstName());
                 insertStatement.setString(3, user.getLastName());
+                insertStatement.setString(4,user.getUsername());
                 insertStatement.executeUpdate();
             }
 

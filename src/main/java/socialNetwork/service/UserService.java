@@ -41,8 +41,8 @@ public class UserService {
      * @param lastName - String - last name of user
      * @return empty Optional if the user was added, Optional containing the existing user with same id otherwise
      */
-    public Optional<User> addUserService(Long id, String firstName, String lastName) {
-        User user = new User(id, firstName, lastName);
+    public Optional<User> addUserService(Long id, String firstName, String lastName ,String username) {
+        User user = new User(id, firstName, lastName ,username);
         userValidator.validate(user);
         return userRepository.save(user);
     }
@@ -54,8 +54,8 @@ public class UserService {
      * @param lastName - String
      * @return optional with old value if user updated, empty optional otherwise
      */
-    public Optional<User> updateUserService(Long id, String firstName, String lastName){
-        User user = new User(id, firstName, lastName);
+    public Optional<User> updateUserService(Long id, String firstName, String lastName ,String username){
+        User user = new User(id, firstName, lastName, username);
         userValidator.validate(user);
         return userRepository.update(user);
     }

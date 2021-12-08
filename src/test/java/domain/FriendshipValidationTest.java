@@ -23,9 +23,9 @@ class FriendshipValidationTest {
 
     void setUpUserRepository(RepositoryInterface<Long, User> userRepository){
         List<User> userTestData = new ArrayList<>(Arrays.asList(
-                new User(1L, "Michael", "Michael"),
-                new User(2L, "John", "John"),
-                new User(3L, "Marcel", "Marcel")));
+                new User(1L, "Michael", "Michael","b1"),
+                new User(2L, "John", "John","b2"),
+                new User(3L, "Marcel", "Marcel","b3")));
         for(User user : userTestData)
             userRepository.save(user);
     }

@@ -40,12 +40,12 @@ public class MessageServiceTest {
 
     public List<User> getUserTestData(){
         return Arrays.asList(
-                new User(1L,"Gigi","Gigi"),
-                new User(2L,"Maria","Maria"),
-                new User(3L,"Bob","Bob"),
-                new User(4L,"Johnny","Test"),
-                new User(5L,"Paul","Paul"),
-                new User(6L,"Andrei","Andrei")
+                new User(1L,"Gigi","Gigi","g1"),
+                new User(2L,"Maria","Maria","g2"),
+                new User(3L,"Bob","Bob","g3"),
+                new User(4L,"Johnny","Test","g4"),
+                new User(5L,"Paul","Paul","g5"),
+                new User(6L,"Andrei","Andrei","g6")
         );
     }
 
@@ -74,13 +74,14 @@ public class MessageServiceTest {
         tearDown();
 
         try(Connection connection = DriverManager.getConnection(url, user, password)) {
-            String insertStatementString = "INSERT INTO users(id, first_name, last_name) VALUES (?,?,?)";
+            String insertStatementString = "INSERT INTO users(id, first_name, last_name,username) VALUES (?,?,?,?)";
             PreparedStatement insertStatement = connection.prepareStatement(insertStatementString);
 
             for(User user : getUserTestData()){
                 insertStatement.setLong(1, user.getId());
                 insertStatement.setString(2, user.getFirstName());
                 insertStatement.setString(3, user.getLastName());
+                insertStatement.setString(4, user.getUsername());
                 insertStatement.executeUpdate();
             }
 

@@ -35,7 +35,7 @@ public class UserCsvFileRepositoryTest extends UserRepositorySetterTest {
 
         try(BufferedWriter writer = new BufferedWriter(new FileWriter(TEST_FILE_PATH))) {
             for(User user : getTestData()){
-                String line = "" + user.getId() + "," + user.getFirstName() + "," + user.getLastName();
+                String line = "" + user.getId() + "," + user.getFirstName() + "," + user.getLastName() + "," + user.getUsername();
                 writer.write(line);
                 writer.newLine();
             }
