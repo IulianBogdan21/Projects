@@ -207,13 +207,13 @@ public class MessageServiceTest {
     @Test
     void conversationMessagesTest(){
         getService().sendMessagesService(getMinimumId(),
-                Arrays.asList(getMinimumId() + 1, getMinimumId() + 2), "Buna");
-        getService().sendMessagesService(getMinimumId(),
+                Arrays.asList(getMinimumId() + 1, getMinimumId() + 2), "Buna"); //1 -> 2,3
+        getService().sendMessagesService(getMinimumId(), // 1 -> 6
                 Arrays.asList(getMaximumId()), "Noapte buna");
         getService().sendMessagesService(getMinimumId() + 1,
-                Arrays.asList(getMinimumId(),getMinimumId() + 2), "HELLO");
+                Arrays.asList(getMinimumId(),getMinimumId() + 2), "HELLO"); //2 -> 1,3
         getService().sendMessagesService(getMinimumId() + 1,
-                Arrays.asList(getMinimumId(),getMinimumId() + 2,getMaximumId()), "Let's go Kurama");
+                Arrays.asList(getMinimumId(),getMinimumId() + 2,getMaximumId()), "Let's go Kurama"); //2->1,3,6
         List<MessagesToRespondDTO> messagesToRespondDTOList =
                 getService().getAllMessagesToRespondForUserService(getMinimumId() + 1);
         Assertions.assertEquals(messagesToRespondDTOList.get(0).getText(),"Buna");
@@ -222,9 +222,10 @@ public class MessageServiceTest {
         Long id = messagesToRespondDTOList.get(0).getId();
         getService().respondMessageService(getMinimumId() + 1, id, "Buna si tie");
         List < List<HistoryConversationDTO> > historyConversationDTO =
-                getService().historyConversationService(getMinimumId(),getMinimumId() + 1);
+                getService().historyConversationService(getMinimumId(),getMinimumId() + 1);//1 2
 
-        List<HistoryConversationDTO> chatHistoryConversationDTO = historyConversationDTO.get(0);
+        List<HistoryConversationDTO> chatHistoryConversationDTO = historyConversationDTO.get(1);
+        System.out.println(chatHistoryConversationDTO);
         Assertions.assertEquals("Buna",chatHistoryConversationDTO.get(0).getText());
         Assertions.assertEquals("Gigi",chatHistoryConversationDTO.get(0).getFirstName());
         Assertions.assertEquals("HELLO",chatHistoryConversationDTO.get(1).getText());
@@ -232,7 +233,7 @@ public class MessageServiceTest {
         Assertions.assertEquals("Buna si tie",chatHistoryConversationDTO.get(2).getText());
         Assertions.assertEquals("Maria",chatHistoryConversationDTO.get(2).getFirstName());
 
-        chatHistoryConversationDTO = historyConversationDTO.get(1);
+        chatHistoryConversationDTO = historyConversationDTO.get(0);
         Assertions.assertEquals("Let's go Kurama",chatHistoryConversationDTO.get(0).getText());
 
         Assertions.assertEquals(2,historyConversationDTO.size());

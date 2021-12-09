@@ -94,6 +94,9 @@ public class MessageService {
                 .map(x ->{
                     return getHistoryConversationDTOListFromFilteredMessages(firstUser,secondUser,x.getValue());
                 })
+                .sorted((List<HistoryConversationDTO> x,List<HistoryConversationDTO> y) ->{
+                    return (int)(x.size()-y.size());
+                })
                 .toList();
     }
 
