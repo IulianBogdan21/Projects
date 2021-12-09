@@ -14,6 +14,7 @@ import socialNetwork.domain.validators.AuthentificationValidator;
 import socialNetwork.domain.validators.EntityValidatorInterface;
 import socialNetwork.domain.validators.FriendshipValidator;
 import socialNetwork.domain.validators.UserValidator;
+import socialNetwork.exceptions.LogInException;
 import socialNetwork.repository.database.AutentificationDatabaseRepository;
 import socialNetwork.exceptions.DatabaseException;
 import socialNetwork.repository.database.FriendshipDatabaseRepository;
@@ -39,7 +40,7 @@ public class ControllerTest {
     EntityValidatorInterface<Long,User> testUserValidator = new UserValidator();
     EntityValidatorInterface<UnorderedPair<Long,Long>, Friendship> testFriendshipValidator;
     EntityValidatorInterface<String, Autentification> testAuthentificationValidator;
-    AutentificationDatabaseRepository testAutentificationRepository;
+    AutentificationDatabaseRepository testAutentificationRepository = new AutentificationDatabaseRepository(url,user,password);
     MessageDTODatabaseRepository testMessageRepository;
     UserDatabaseRepository testUserRepository;
     FriendshipDatabaseRepository testFriendshipRepository;
@@ -54,7 +55,6 @@ public class ControllerTest {
             testUserRepository = new UserDatabaseRepository(url,user,password);
             testFriendshipRepository = new FriendshipDatabaseRepository(url,user,password);
             testMessageRepository = new MessageDTODatabaseRepository(url,user,password);
-            testAutentificationRepository = new AutentificationDatabaseRepository(url,user,password);
             testFriendshipValidator = new FriendshipValidator(testUserRepository);
             testAuthentificationValidator = new AuthentificationValidator();
             testUserService = new UserService(testUserRepository,testFriendshipRepository,testUserValidator);
@@ -102,6 +102,17 @@ public class ControllerTest {
         );
     }
 
+    private List<Autentification> getAutentificationTestData(){
+        return Arrays.asList(
+                new Autentification("a1","pa1"),
+                new Autentification("a2","pa2"),
+                new Autentification("a3","pa3"),
+                new Autentification("a4","pa4"),
+                new Autentification("a5","pa5"),
+                new Autentification("a6","pa6")
+        );
+    }
+
     public void tearDown(){
         try(Connection connection = DriverManager.getConnection(url, user, password)) {
             var deleteUsersStatement =
@@ -130,7 +141,7 @@ public class ControllerTest {
 
         try(Connection connection = DriverManager.getConnection(url, user, password)) {
 
-            String insertStatementString = "INSERT INTO users( first_name, last_name,username) VALUES (?,?,?)";
+            String insertStatementString = "INSERT INTO users( first_name, last_name, username) VALUES (?,?,?)";
             PreparedStatement insertStatement = connection.prepareStatement(insertStatementString);
 
             for(User user : getUserTestData()){
@@ -143,6 +154,8 @@ public class ControllerTest {
         } catch (SQLException exception) {
             exception.printStackTrace();
         }
+
+        getAutentificationTestData().forEach( x -> testAutentificationRepository.save(x));
     }
 
     @Test
@@ -170,5 +183,25 @@ public class ControllerTest {
         getNetworkController().removeUser(getMinimumId());
         listOfID.forEach( idMessage -> Assertions.assertEquals(Optional.empty(),
                 testMessageRepository.find(idMessage)));
+    }
+
+    @Test
+    void signUpTest(){
+        Assertions.assertTrue(getNetworkController().
+                signUp("Naruto","Uzumaky","naruzu","casa"));
+        Assertions.assertFalse(getNetworkController()
+                .signUp("Yahiko","Akatsuzy","naruzu","copac"));
+    }
+
+    @Test
+    void logInTest(){
+        Assertions.assertTrue(getNetworkController().
+                signUp("Naruto","Uzumaky","naruzu","casa"));
+        Assertions.assertEquals(new User("Naruto","Uzumaky","naruzu"),
+                getNetworkController().logIn("naruzu","casa").get());
+        Assertions.assertThrows(LogInException.class,()->
+                getNetworkController().logIn("naruzu","casA"));
+        Assertions.assertThrows(LogInException.class,()->
+                getNetworkController().logIn("Naruzu","casa"));
     }
 }

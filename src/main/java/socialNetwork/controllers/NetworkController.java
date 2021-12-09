@@ -1,6 +1,7 @@
 package socialNetwork.controllers;
 
 import socialNetwork.domain.models.*;
+import socialNetwork.exceptions.LogInException;
 import socialNetwork.service.AuthentificationService;
 import socialNetwork.service.MessageService;
 import socialNetwork.service.NetworkService;
@@ -179,4 +180,29 @@ public class NetworkController {
     public List<Autentification> getAllAuthentification(String username){
         return authentificationService.getAllAuthentificationService();
     }
+
+    public boolean signUp(String firstName,String lastName,String username,String password){
+        Optional<User> signUpUser = userService.addUserService(firstName,lastName,username);
+        if(signUpUser.isEmpty()){
+            Optional<Autentification> savedAutentification = authentificationService
+                    .saveAuthentificationService(username,password);
+            return true;
+        }
+        return false;
+    }
+
+    public Optional<User> logIn(String username,String password){
+        Optional<Autentification> findAutentification = authentificationService
+                .findAuthentificationService(username);
+        if(findAutentification.isEmpty())
+            throw new LogInException("Username is invalid!");
+        if(!findAutentification.get().getPassword().equals(password))
+            throw new LogInException("Password is invalid!");
+        return Optional.of( userService.getAllService()
+                .stream()
+                .filter(user -> user.getUsername().equals(username))
+                .toList()
+                .get(0) );
+    }
+
 }
