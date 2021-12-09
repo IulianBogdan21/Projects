@@ -9,5 +9,9 @@ module socialNetwork.ui {
 
     opens socialNetwork.ui to javafx.fxml;
     exports socialNetwork.ui;
+    exports socialNetwork.gui;
+    opens socialNetwork.gui to javafx.fxml;
+    exports socialNetwork.guiControllers;
+    opens socialNetwork.guiControllers to javafx.fxml;
 
 }
