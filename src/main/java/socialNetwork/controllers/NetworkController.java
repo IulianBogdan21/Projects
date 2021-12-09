@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * controller between ui and business layer
+ * controller between socialNetwork.gui and business layer
  */
 public class NetworkController {
     private UserService userService;

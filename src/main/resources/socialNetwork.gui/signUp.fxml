@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="280.0" prefWidth="456.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="socialNetwork.guiControllers.SignUpController">
+   <children>
+      <TextField fx:id="firstNameTextField" layoutX="257.0" layoutY="36.0" />
+      <TextField fx:id="lastNameTextField" layoutX="257.0" layoutY="74.0" />
+      <TextField fx:id="usernameSignUpTextField" layoutX="257.0" layoutY="113.0" />
+      <PasswordField fx:id="passwordSignUpField" layoutX="257.0" layoutY="154.0" />
+      <PasswordField fx:id="passwordConfirmationSignUpField" layoutX="257.0" layoutY="194.0" />
+      <Label layoutX="87.0" layoutY="36.0" prefHeight="18.0" prefWidth="101.0" text="First Name">
+         <font>
+            <Font size="20.0" />
+         </font>
+      </Label>
+      <Label layoutX="87.0" layoutY="74.0" prefHeight="18.0" prefWidth="102.0" text="Last Name">
+         <font>
+            <Font size="20.0" />
+         </font>
+      </Label>
+      <Label layoutX="87.0" layoutY="110.0" prefHeight="18.0" prefWidth="102.0" text="Username">
+         <font>
+            <Font size="20.0" />
+         </font>
+      </Label>
+      <Label layoutX="87.0" layoutY="151.0" prefHeight="18.0" prefWidth="102.0" text="Password">
+         <font>
+            <Font size="20.0" />
+         </font>
+      </Label>
+      <Label layoutX="87.0" layoutY="191.0" prefHeight="30.0" prefWidth="162.0" text="Confirm password">
+         <font>
+            <Font size="20.0" />
+         </font>
+      </Label>
+      <Button fx:id="signUpButton" layoutX="280.0" layoutY="231.0" mnemonicParsing="false" onAction="#doSignUp" text="Sign up" />
+      <Button fx:id="cancelButton" layoutX="355.0" layoutY="231.0" mnemonicParsing="false" onAction="#exitWindow" text="Cancel" />
+   </children>
+</AnchorPane>
