@@ -170,7 +170,10 @@ public class NetworkController implements Observable <Event> {
     }
 
     public Optional<Friendship> updateApprovedFriendship(Long firstUserId,Long secondUserId){
-        return networkService.updateApprovedFriendshipService(firstUserId,secondUserId);
+        Optional<Friendship> friendshipOptional = networkService.
+                updateApprovedFriendshipService(firstUserId,secondUserId);
+        notifyObservers(new FriendshipChangeEvent(ChangeEventType.UPDATE, friendshipOptional.get()));
+        return friendshipOptional;
     }
 
     public Optional<Friendship> updateRejectedFriendship(Long firstUserId,Long secondUserId){
@@ -223,6 +226,10 @@ public class NetworkController implements Observable <Event> {
 
     public List<User> getAllUsers(){
         return userService.getAllService();
+    }
+
+    public List<FriendshipRequestDTO> findAllRequestFriendsForUser(Long idUser){
+        return userService.findAllRequestFriendsForUserService(idUser);
     }
 
     @Override

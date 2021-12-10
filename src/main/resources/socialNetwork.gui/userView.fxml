@@ -6,7 +6,7 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="470.0" prefWidth="674.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="socialNetwork.guiControllers.UserViewController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="470.0" prefWidth="751.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="socialNetwork.guiControllers.UserViewController">
    <children>
       <TableView fx:id="friendshipTableView" layoutX="36.0" layoutY="71.0" prefHeight="316.0" prefWidth="265.599960327">
         <columns>
@@ -25,5 +25,6 @@
             <TableColumn fx:id="tableColumnSearchLastName" minWidth="0.0" prefWidth="132.79998016357422" text="Last Name" />
          </columns>
       </TableView>
+      <Button fx:id="friendRequestButton" layoutX="644.0" layoutY="14.0" mnemonicParsing="false" onAction="#handleFriendRequests" text="Friend requests " />
    </children>
 </AnchorPane>
