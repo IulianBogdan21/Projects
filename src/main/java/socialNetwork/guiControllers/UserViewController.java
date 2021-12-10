@@ -1,6 +1,7 @@
 package socialNetwork.guiControllers;
 
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -8,13 +9,17 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 import socialNetwork.controllers.NetworkController;
 import socialNetwork.domain.models.User;
+import socialNetwork.exceptions.ExceptionBaseClass;
 import socialNetwork.utilitaries.MessageAlert;
+import socialNetwork.utilitaries.events.Event;
+import socialNetwork.utilitaries.observer.Observer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
 
-public class UserViewController {
+public class UserViewController implements Observer<Event> {
     ObservableList<User> modelFriends = FXCollections.observableArrayList();
     ObservableList<User> modelSearchFriends = FXCollections.observableArrayList();
 
@@ -49,13 +54,14 @@ public class UserViewController {
 
     public void setNetworkController(Stage primaryStage, NetworkController service,User user){
         this.networkController = service;
+        networkController.addObserver(this);
         this.displayStage = primaryStage;
         this.mainUser = user;
         initModelFriends();
     }
 
     private void initModelFriends(){
-        List< User > friendListForUser = networkController.findAllFriendshipsForUser(mainUser.getId())
+        List< User > friendListForUser = networkController.findAllApprovedFriendshipsForUser(mainUser.getId())
                 .entrySet()
                 .stream()
                 .map(x -> x.getKey().get())
@@ -76,6 +82,12 @@ public class UserViewController {
         tableColumnSearchLastName.setCellValueFactory(new PropertyValueFactory<User,String>("lastName"));
         friendshipSearchTableView.setItems(modelSearchFriends);
 
+        searchFriendshipField.textProperty().addListener(o -> handleFilter());
+    }
+
+    @Override
+    public void update(Event event) {
+        initModelFriends();
     }
 
     @FXML
@@ -92,4 +104,33 @@ public class UserViewController {
             MessageAlert.showErrorMessage(displayStage,"There is not selection!");
         }
     }
+
+    @FXML
+    public void handleFriendshipRequest(){
+        if(friendshipSearchTableView.getSelectionModel().getSelectedItem() != null){
+            User user = friendshipSearchTableView.getSelectionModel().getSelectedItem();
+            Long idFirstUser = mainUser.getId();
+            Long idSecondUser = user.getId();
+            try {
+                networkController.sendInvitationForFriendships(idFirstUser, idSecondUser);
+                MessageAlert.showMessage(displayStage, Alert.AlertType.INFORMATION,
+                        "Sent invitation", "The invitation has just been sent");
+            } catch (ExceptionBaseClass exceptionBaseClass){
+                MessageAlert.showErrorMessage(displayStage, exceptionBaseClass.getMessage());
+            }
+        }
+        else{
+            MessageAlert.showErrorMessage(displayStage,"There is not selection!");
+        }
+    }
+
+    private void handleFilter(){
+        Predicate<User> nameOfUserPredicate = u -> u.getFirstName()
+                .startsWith(searchFriendshipField.getText());
+        modelSearchFriends.setAll(networkController.getAllUsers()
+                .stream()
+                .filter(nameOfUserPredicate)
+                .toList());
+    }
+
 }
