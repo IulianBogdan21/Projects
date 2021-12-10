@@ -3,7 +3,6 @@ package socialNetwork.gui;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 import socialNetwork.config.ApplicationContext;
 import socialNetwork.controllers.NetworkController;
@@ -16,6 +15,7 @@ import socialNetwork.domain.validators.EntityValidatorInterface;
 import socialNetwork.domain.validators.FriendshipValidator;
 import socialNetwork.domain.validators.UserValidator;
 import socialNetwork.guiControllers.LoginController;
+import socialNetwork.guiControllers.UserViewController;
 import socialNetwork.repository.RepositoryInterface;
 import socialNetwork.repository.database.AutentificationDatabaseRepository;
 import socialNetwork.repository.database.FriendshipDatabaseRepository;
@@ -71,6 +71,7 @@ public class StartApplication extends Application {
         LoginController loginController = fxmlLoader.getController();
         loginController.setNetworkController(stage, networkController);
         stage.show();
+
     }
 
     public static void main(String[] args) {

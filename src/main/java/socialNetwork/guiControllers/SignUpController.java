@@ -8,6 +8,7 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import socialNetwork.controllers.NetworkController;
 import socialNetwork.exceptions.ExceptionBaseClass;
+import socialNetwork.utilitaries.MessageAlert;
 
 public class SignUpController {
 
