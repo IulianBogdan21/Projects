@@ -1,4 +1,4 @@
-package socialNetwork.guiControllers;
+package socialNetwork.utilitaries;
 
 import javafx.scene.control.Alert;
 import javafx.stage.Stage;

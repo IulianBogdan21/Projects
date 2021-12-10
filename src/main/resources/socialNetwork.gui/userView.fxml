@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="470.0" prefWidth="674.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="socialNetwork.guiControllers.UserViewController">
+   <children>
+      <TableView fx:id="friendshipTableView" layoutX="36.0" layoutY="71.0" prefHeight="316.0" prefWidth="265.599960327">
+        <columns>
+          <TableColumn fx:id="tableColumnId" prefWidth="75.0" text="Id" visible="false" />
+          <TableColumn fx:id="tableColumnFirstName" prefWidth="132.79998016357422" text="First Name" />
+            <TableColumn fx:id="tableColumnLastName" minWidth="0.0" prefWidth="132.79998016357422" text="Last Name" />
+        </columns>
+      </TableView>
+      <Button fx:id="deleteFriendshipButton" layoutX="116.0" layoutY="406.0" mnemonicParsing="false" onAction="#handleFriendshipDelete" text="DeleteFriendship" />
+      <Button fx:id="addFriendshipButton" layoutX="445.0" layoutY="406.0" mnemonicParsing="false" text="Add new friend" />
+      <TextField fx:id="searchFriendshipField" layoutX="419.0" layoutY="37.0" />
+      <TableView fx:id="friendshipSearchTableView" layoutX="361.0" layoutY="71.0" prefHeight="316.0" prefWidth="265.599960327">
+         <columns>
+            <TableColumn fx:id="tableColumnSearchId" prefWidth="75.0" text="Id" visible="false" />
+            <TableColumn fx:id="tableColumnSearchFirstName" prefWidth="132.79998016357422" text="First Name" />
+            <TableColumn fx:id="tableColumnSearchLastName" minWidth="0.0" prefWidth="132.79998016357422" text="Last Name" />
+         </columns>
+      </TableView>
+   </children>
+</AnchorPane>
