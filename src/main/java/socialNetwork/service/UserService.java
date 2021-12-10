@@ -1,6 +1,7 @@
 package socialNetwork.service;
 
 import socialNetwork.domain.models.Friendship;
+import socialNetwork.domain.models.InvitationStage;
 import socialNetwork.domain.models.User;
 import socialNetwork.domain.validators.EntityValidatorInterface;
 import socialNetwork.repository.RepositoryInterface;
@@ -106,6 +107,22 @@ public class UserService {
         List<Friendship> friendships = friendshipRepository.getAll();
         friendships.stream()
                 .filter(friendship -> friendship.hasUser(idUser))
+                .forEach(friendship -> {
+                    Long idOfFriend;
+                    if(friendship.getId().left == idUser)
+                        idOfFriend = friendship.getId().right;
+                    else
+                        idOfFriend = friendship.getId().left;
+                    mapOfFriendships.put(userRepository.find(idOfFriend), friendship.getDate());
+                });
+        return mapOfFriendships;
+    }
+
+    public Map<Optional<User>, LocalDateTime> findAllApprovedFriendshipsForUserService(Long idUser){
+        Map<Optional<User>, LocalDateTime> mapOfFriendships = new HashMap<>();
+        List<Friendship> friendships = friendshipRepository.getAll();
+        friendships.stream()
+                .filter(friendship -> (friendship.hasUser(idUser) && friendship.getInvitationStage().equals(InvitationStage.APPROVED)) )
                 .forEach(friendship -> {
                     Long idOfFriend;
                     if(friendship.getId().left == idUser)

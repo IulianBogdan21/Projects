@@ -15,8 +15,8 @@
             <TableColumn fx:id="tableColumnLastName" minWidth="0.0" prefWidth="132.79998016357422" text="Last Name" />
         </columns>
       </TableView>
-      <Button fx:id="deleteFriendshipButton" layoutX="116.0" layoutY="406.0" mnemonicParsing="false" onAction="#handleFriendshipDelete" text="DeleteFriendship" />
-      <Button fx:id="addFriendshipButton" layoutX="445.0" layoutY="406.0" mnemonicParsing="false" text="Add new friend" />
+      <Button fx:id="deleteFriendshipButton" layoutX="116.0" layoutY="406.0" mnemonicParsing="false" onAction="#handleFriendshipDelete" text="Delete Friendship" />
+      <Button fx:id="addFriendshipButton" layoutX="445.0" layoutY="406.0" mnemonicParsing="false" onAction="#handleFriendshipRequest" text="Add new friend" />
       <TextField fx:id="searchFriendshipField" layoutX="419.0" layoutY="37.0" />
       <TableView fx:id="friendshipSearchTableView" layoutX="361.0" layoutY="71.0" prefHeight="316.0" prefWidth="265.599960327">
          <columns>

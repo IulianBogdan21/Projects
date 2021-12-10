@@ -6,8 +6,14 @@ import socialNetwork.service.AuthentificationService;
 import socialNetwork.service.MessageService;
 import socialNetwork.service.NetworkService;
 import socialNetwork.service.UserService;
+import socialNetwork.utilitaries.events.ChangeEventType;
+import socialNetwork.utilitaries.events.Event;
+import socialNetwork.utilitaries.events.FriendshipChangeEvent;
+import socialNetwork.utilitaries.observer.Observable;
+import socialNetwork.utilitaries.observer.Observer;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -15,11 +21,12 @@ import java.util.Optional;
 /**
  * controller between socialNetwork.gui and business layer
  */
-public class NetworkController {
+public class NetworkController implements Observable <Event> {
     private UserService userService;
     private NetworkService networkService;
     private MessageService messageService;
     private AuthentificationService authentificationService;
+    private List<Observer<Event>> observers = new ArrayList<>();
 
     /**
      * constructor - creates a controller that accesses the given services
@@ -95,7 +102,12 @@ public class NetworkController {
      * @return Optional containing removed friendship, empty Optional if users do not exist
      */
     public Optional<Friendship> removeFriendship(Long firstUserId, Long secondUserId){
-        return networkService.removeFriendshipService(firstUserId, secondUserId);
+        Optional<Friendship> removedFriendship =
+                networkService.removeFriendshipService(firstUserId, secondUserId);
+        if(removedFriendship.isEmpty())
+            return Optional.empty();
+        notifyObservers(new FriendshipChangeEvent(ChangeEventType.DELETE, removedFriendship.get()));
+        return removedFriendship;
     }
 
     /**
@@ -169,6 +181,10 @@ public class NetworkController {
         return networkService.sendInvitationForFriendshipsService(firstUserId,secondUserId);
     }
 
+    public Map<Optional<User>, LocalDateTime> findAllApprovedFriendshipsForUser(Long idUser){
+        return userService.findAllApprovedFriendshipsForUserService(idUser);
+    }
+
     public Optional<Autentification> saveAuthentification(String username,String password){
         return authentificationService.saveAuthentificationService(username,password);
     }
@@ -205,4 +221,22 @@ public class NetworkController {
                 .get(0) );
     }
 
+    public List<User> getAllUsers(){
+        return userService.getAllService();
+    }
+
+    @Override
+    public void addObserver(Observer<Event> observer) {
+        observers.add(observer);
+    }
+
+    @Override
+    public void removeObserver(Observer<Event> observer) {
+        observers.remove(observer);
+    }
+
+    @Override
+    public void notifyObservers(Event event) {
+        observers.forEach(e -> e.update(event));
+    }
 }
