@@ -198,7 +198,9 @@ public class InvitationServiceTest {
                 ()-> getService().updateApprovedFriendshipService(getMinimumId() + 1, getMaximumId() - 1),
                 "Approving an invitation already rejected");
         getService().addFriendshipService(getMinimumId(), getMaximumId(), LocalDateTime.now());
-        getService().updateApprovedFriendshipService(getMinimumId(), getMaximumId());
+        Assertions.assertThrows(InvitationStatusException.class,
+                ()-> getService().updateApprovedFriendshipService(getMinimumId() , getMaximumId() ),
+                "Approving an invitation already approved");
         Assertions.assertEquals(getService().findFriendshipService(getMinimumId(), getMaximumId()).get().getInvitationStage(),
                 InvitationStage.APPROVED);
         Assertions.assertThrows(EntityMissingValidationException.class,

@@ -63,7 +63,13 @@ public class NetworkService {
             throw new EntityMissingValidationException("Friendship between users doesn't exist");
         Friendship friendship = optionalFriendshipBetweenUsers.get();
         throwExceptionIfInvitationIsRejected(friendship);
+        throwExceptionIfInvitationIsApproved(friendship);
         return setInvitationStatusToApproved(friendship);
+    }
+
+    public Optional<Friendship> updateRejectedToPendingFriendshipService(Long idUserThatSends,Long idUserThatReceive){
+        friendshipRepository.remove(new UnorderedPair<>(idUserThatReceive,idUserThatSends));
+        return sendInvitationForFriendshipsService(idUserThatSends,idUserThatReceive);
     }
 
     /**
@@ -215,5 +221,10 @@ public class NetworkService {
     private void throwExceptionIfInvitationIsRejected(Friendship friendship) throws InvitationStatusException{
         if(friendship.getInvitationStage().equals(InvitationStage.REJECTED))
             throw new InvitationStatusException("Invitation has already been rejected");
+    }
+
+    private void throwExceptionIfInvitationIsApproved(Friendship friendship) throws InvitationStatusException{
+        if(friendship.getInvitationStage().equals(InvitationStage.APPROVED))
+            throw new InvitationStatusException("Invitation has already been approved");
     }
 }

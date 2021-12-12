@@ -170,18 +170,31 @@ public class NetworkController implements Observable <Event> {
     }
 
     public Optional<Friendship> updateApprovedFriendship(Long firstUserId,Long secondUserId){
-        return networkService.updateApprovedFriendshipService(firstUserId,secondUserId);
+        Optional<Friendship> friendshipOptional = networkService.
+                updateApprovedFriendshipService(firstUserId,secondUserId);
+        notifyObservers(new FriendshipChangeEvent(ChangeEventType.UPDATE, friendshipOptional.get()));
+        return friendshipOptional;
     }
 
     public Optional<Friendship> updateRejectedFriendship(Long firstUserId,Long secondUserId){
-        return networkService.updateRejectedFriendshipService(firstUserId,secondUserId);
+        Optional<Friendship> friendshipOptional = networkService.
+                updateRejectedFriendshipService(firstUserId,secondUserId);
+        notifyObservers(new FriendshipChangeEvent(ChangeEventType.UPDATE, friendshipOptional.get()));
+        return friendshipOptional;
     }
 
     public Optional<Friendship> sendInvitationForFriendships(Long firstUserId,Long secondUserId){
         return networkService.sendInvitationForFriendshipsService(firstUserId,secondUserId);
     }
 
-    public Map<Optional<User>, LocalDateTime> findAllApprovedFriendshipsForUser(Long idUser){
+    public Optional<Friendship> updateRejectedToPendingFriendship(Long idUserThatSends,Long idUserThatReceive) {
+        Optional<Friendship> friendshipOptional = networkService
+                .updateRejectedToPendingFriendshipService(idUserThatSends,idUserThatReceive);
+        notifyObservers(new FriendshipChangeEvent(ChangeEventType.UPDATE, friendshipOptional.get()));
+        return friendshipOptional;
+    }
+
+        public Map<Optional<User>, LocalDateTime> findAllApprovedFriendshipsForUser(Long idUser){
         return userService.findAllApprovedFriendshipsForUserService(idUser);
     }
 
@@ -223,6 +236,10 @@ public class NetworkController implements Observable <Event> {
 
     public List<User> getAllUsers(){
         return userService.getAllService();
+    }
+
+    public List<FriendshipRequestDTO> findAllRequestFriendsForUser(Long idUser){
+        return userService.findAllRequestFriendsForUserService(idUser);
     }
 
     @Override

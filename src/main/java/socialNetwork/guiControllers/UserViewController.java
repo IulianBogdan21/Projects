@@ -3,7 +3,12 @@ package socialNetwork.guiControllers;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
@@ -12,8 +17,10 @@ import socialNetwork.domain.models.User;
 import socialNetwork.exceptions.ExceptionBaseClass;
 import socialNetwork.utilitaries.MessageAlert;
 import socialNetwork.utilitaries.events.Event;
+import socialNetwork.utilitaries.events.FriendshipChangeEvent;
 import socialNetwork.utilitaries.observer.Observer;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
@@ -45,6 +52,8 @@ public class UserViewController implements Observer<Event> {
     Button deleteFriendshipButton;
     @FXML
     Button addFriendshipButton;
+    @FXML
+    Button friendRequestButton;
     @FXML
     TextField searchFriendshipField;
 
@@ -101,7 +110,7 @@ public class UserViewController implements Observer<Event> {
                     "Delete Friendship","The Friendship has been deleted successfully!");
         }
         else{
-            MessageAlert.showErrorMessage(displayStage,"There is not selection!");
+            MessageAlert.showErrorMessage(displayStage,"There is no selection!");
         }
     }
 
@@ -120,15 +129,29 @@ public class UserViewController implements Observer<Event> {
             }
         }
         else{
-            MessageAlert.showErrorMessage(displayStage,"There is not selection!");
+            MessageAlert.showErrorMessage(displayStage,"There is no selection!");
         }
+    }
+
+    @FXML
+    public void handleFriendRequests(ActionEvent event) throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/socialNetwork.gui/friendshipStatusView.fxml"));
+        Parent root = loader.load();
+        displayStage =  (Stage)(((Node)event.getSource()).getScene().getWindow());
+        displayStage.setScene(new Scene(root));
+        FriendshipStatusController friendshipStatusController = loader.getController();
+        friendshipStatusController.setNetworkController(displayStage,networkController,mainUser);
+        displayStage.show();
     }
 
     private void handleFilter(){
         Predicate<User> nameOfUserPredicate = u -> u.getFirstName()
                 .startsWith(searchFriendshipField.getText());
-        modelSearchFriends.setAll(networkController.getAllUsers()
-                .stream()
+        List<User> userListWithoutMainUser = networkController.getAllUsers()
+                                .stream()
+                                .filter(x -> !x.getId().equals(mainUser.getId()))
+                                .toList();
+        modelSearchFriends.setAll(userListWithoutMainUser.stream()
                 .filter(nameOfUserPredicate)
                 .toList());
     }

@@ -1,6 +1,7 @@
 package socialNetwork.service;
 
 import socialNetwork.domain.models.Friendship;
+import socialNetwork.domain.models.FriendshipRequestDTO;
 import socialNetwork.domain.models.InvitationStage;
 import socialNetwork.domain.models.User;
 import socialNetwork.domain.validators.EntityValidatorInterface;
@@ -8,10 +9,7 @@ import socialNetwork.repository.RepositoryInterface;
 import socialNetwork.utilitaries.UnorderedPair;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * business layer for User model
@@ -132,6 +130,21 @@ public class UserService {
                     mapOfFriendships.put(userRepository.find(idOfFriend), friendship.getDate());
                 });
         return mapOfFriendships;
+    }
+
+    public List<FriendshipRequestDTO> findAllRequestFriendsForUserService(Long idUser){
+        List<FriendshipRequestDTO> allRequestFriendList = new ArrayList<>();
+        List<Friendship> friendships = friendshipRepository.getAll();
+        friendships.stream()
+                .filter(friendship -> friendship.hasUser(idUser) )
+                .forEach(friendship -> {
+                    User userThatSendsRequest = userRepository.find(friendship.getId().left).get();
+                    User userThatReceivesRequest = userRepository.find(friendship.getId().right).get();
+                    allRequestFriendList.add(
+                            new FriendshipRequestDTO(userThatSendsRequest,userThatReceivesRequest,
+                                    friendship.getDate(),friendship.getInvitationStage()));
+                });
+        return allRequestFriendList;
     }
 
     public Map<Optional<User>, LocalDateTime > findAllFriendsForUserMonthService(Long idUser,int month){
