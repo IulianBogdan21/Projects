@@ -17,6 +17,7 @@ import javafx.stage.Stage;
 import socialNetwork.controllers.NetworkController;
 import socialNetwork.domain.models.FriendshipRequestDTO;
 import socialNetwork.domain.models.InvitationStage;
+import socialNetwork.domain.models.RequestInvitationGUIDTO;
 import socialNetwork.domain.models.User;
 import socialNetwork.exceptions.ExceptionBaseClass;
 import socialNetwork.utilitaries.MessageAlert;
@@ -33,30 +34,47 @@ import java.util.stream.Collectors;
 
 public class FriendshipStatusController implements Observer<Event> {
 
-    ObservableList<FriendshipRequestDTO> modelFriendshipRequestDTO = FXCollections.observableArrayList();
+    ObservableList<RequestInvitationGUIDTO> modelFriendshipRequestDTO = FXCollections.observableArrayList();
+    ObservableList<RequestInvitationGUIDTO> modelFriendshipRequestDTOReact = FXCollections.observableArrayList();
 
     NetworkController networkController;
     User mainUser;
     Stage displayStage;
 
     @FXML
-    TableView<FriendshipRequestDTO> requestFriendshipTableView;
+    TableView<RequestInvitationGUIDTO> requestFriendshipTableView;
     @FXML
-    TableColumn<FriendshipRequestDTO,Long> tableColumnRequestId;
+    TableColumn<RequestInvitationGUIDTO,Long> tableColumnRequestId;
     @FXML
-    TableColumn<FriendshipRequestDTO,String> tableColumnRequestFirstName;
+    TableColumn<RequestInvitationGUIDTO,String> tableColumnRequestFirstName;
     @FXML
-    TableColumn<FriendshipRequestDTO,String> tableColumnRequestLastName;
+    TableColumn<RequestInvitationGUIDTO,String> tableColumnRequestLastName;
     @FXML
-    TableColumn<FriendshipRequestDTO,LocalDateTime> tableColumnRequestDate;
+    TableColumn<RequestInvitationGUIDTO,LocalDateTime> tableColumnRequestDate;
     @FXML
-    TableColumn<FriendshipRequestDTO,InvitationStage> tableColumnRequestStatus;
+    TableColumn<RequestInvitationGUIDTO,InvitationStage> tableColumnRequestStatus;
+
+    @FXML
+    TableView<RequestInvitationGUIDTO> requestFriendshipTableViewReact;
+    @FXML
+    TableColumn<RequestInvitationGUIDTO,Long> tableColumnRequestIdReact;
+    @FXML
+    TableColumn<RequestInvitationGUIDTO,String> tableColumnRequestFirstNameReact;
+    @FXML
+    TableColumn<RequestInvitationGUIDTO,String> tableColumnRequestLastNameReact;
+    @FXML
+    TableColumn<RequestInvitationGUIDTO,LocalDateTime> tableColumnRequestDateReact;
+    @FXML
+    TableColumn<RequestInvitationGUIDTO,InvitationStage> tableColumnRequestStatusReact;
+
     @FXML
     Button approveRequestButton;
     @FXML
     Button rejectRequestButton;
     @FXML
     Button closeButton;
+    @FXML
+    Button resubmissionRequestButton;
 
     public void setNetworkController(Stage primaryStage, NetworkController service,User user){
         this.networkController = service;
@@ -69,34 +87,50 @@ public class FriendshipStatusController implements Observer<Event> {
     private void initModelFriendRequest(){
         List<FriendshipRequestDTO> friendshipRequestDTOList = networkController
                 .findAllRequestFriendsForUser(mainUser.getId());
-        /*
-        mainuser
-        mainuser   otheruser  (Avem o pritenie intre mainUSer si otherUser in care mainUser a trimis si OtherUser primest
-        Din perspectiva a lui mainUSer ca aplicatie ,in tabela va fi afisat frien requestul cu user ul other user,dar nu v a putea acepta
-        Din perspectiva lui otherUSer ca aplicatie,in tabela vi di afisa mainuser  ,si vamputea raspunde
-         */
 
-        List<FriendshipRequestDTO> mainUserIsOneWhoSendsRequests = friendshipRequestDTOList
+        List<RequestInvitationGUIDTO> mainUserIsOneWhoSendsRequests = friendshipRequestDTOList
                 .stream()
                 .filter(x-> mainUser.getId().equals(x.getUserThatSendsRequest().getId()))
+                .map(friendshipRequestDTO -> {
+                    return new RequestInvitationGUIDTO(friendshipRequestDTO.getUserThatReceivesRequest().getId(),
+                            friendshipRequestDTO.getUserThatReceivesRequest().getFirstName(),
+                            friendshipRequestDTO.getUserThatReceivesRequest().getLastName(),
+                            friendshipRequestDTO.getLocalDateTime(),
+                            friendshipRequestDTO.getInvitationStage());
+                })
                 .toList();
-        List<FriendshipRequestDTO> notMainUSerSendsRequests = friendshipRequestDTOList
+
+        List<RequestInvitationGUIDTO> notMainUserSendsRequests = friendshipRequestDTOList
                 .stream()
                 .filter(x-> mainUser.getId().equals(x.getUserThatReceivesRequest().getId()))
-                .collect(Collectors.toList());;
+                .map(friendshipRequestDTO -> {
+                    return new RequestInvitationGUIDTO(friendshipRequestDTO.getUserThatSendsRequest().getId(),
+                            friendshipRequestDTO.getUserThatSendsRequest().getFirstName(),
+                            friendshipRequestDTO.getUserThatSendsRequest().getLastName(),
+                            friendshipRequestDTO.getLocalDateTime(),
+                            friendshipRequestDTO.getInvitationStage());
+                })
+                .toList();
 
-        modelFriendshipRequestDTO.setAll(friendshipRequestDTOList);
+        modelFriendshipRequestDTO.setAll(mainUserIsOneWhoSendsRequests);
+        modelFriendshipRequestDTOReact.setAll(notMainUserSendsRequests);
     }
 
     @FXML
     public void initialize(){
-        tableColumnRequestId.setCellValueFactory(new PropertyValueFactory<FriendshipRequestDTO,Long>("id"));
-        tableColumnRequestFirstName.setCellValueFactory(new PropertyValueFactory<FriendshipRequestDTO,String>("firstName"));
-        tableColumnRequestLastName.setCellValueFactory(new PropertyValueFactory<FriendshipRequestDTO,String >("lastName"));
-        tableColumnRequestDate.setCellValueFactory(new PropertyValueFactory<FriendshipRequestDTO,LocalDateTime>("localDateTime"));
-        tableColumnRequestStatus.setCellValueFactory(new PropertyValueFactory<FriendshipRequestDTO,InvitationStage>("invitationStage"));
-
+        tableColumnRequestId.setCellValueFactory(new PropertyValueFactory<RequestInvitationGUIDTO,Long>("id"));
+        tableColumnRequestFirstName.setCellValueFactory(new PropertyValueFactory<RequestInvitationGUIDTO,String>("firstName"));
+        tableColumnRequestLastName.setCellValueFactory(new PropertyValueFactory<RequestInvitationGUIDTO,String >("lastName"));
+        tableColumnRequestDate.setCellValueFactory(new PropertyValueFactory<RequestInvitationGUIDTO,LocalDateTime>("localDateTime"));
+        tableColumnRequestStatus.setCellValueFactory(new PropertyValueFactory<RequestInvitationGUIDTO,InvitationStage>("invitationStage"));
         requestFriendshipTableView.setItems(modelFriendshipRequestDTO);
+
+        tableColumnRequestIdReact.setCellValueFactory(new PropertyValueFactory<RequestInvitationGUIDTO,Long>("id"));
+        tableColumnRequestFirstNameReact.setCellValueFactory(new PropertyValueFactory<RequestInvitationGUIDTO,String>("firstName"));
+        tableColumnRequestLastNameReact.setCellValueFactory(new PropertyValueFactory<RequestInvitationGUIDTO,String >("lastName"));
+        tableColumnRequestDateReact.setCellValueFactory(new PropertyValueFactory<RequestInvitationGUIDTO,LocalDateTime>("localDateTime"));
+        tableColumnRequestStatusReact.setCellValueFactory(new PropertyValueFactory<RequestInvitationGUIDTO,InvitationStage>("invitationStage"));
+        requestFriendshipTableViewReact.setItems(modelFriendshipRequestDTOReact);
     }
 
     @Override
@@ -117,16 +151,11 @@ public class FriendshipStatusController implements Observer<Event> {
 
     @FXML
     public void handleApprovedFriend(){
-        FriendshipRequestDTO friendshipRequestDTO = requestFriendshipTableView
+        RequestInvitationGUIDTO requestInvitationGUIDTO = requestFriendshipTableViewReact
                 .getSelectionModel().getSelectedItem();
-        if(friendshipRequestDTO != null){
-            Long idFirstUser = mainUser.getId();
-            Long idSecondUser = friendshipRequestDTO.getFriendUser().getId();
-            if(idFirstUser.equals(friendshipRequestDTO.getIdUserThatSendsRequest())){
-                MessageAlert.showErrorMessage(displayStage,
-                        "You are the one who sent the request!You cannot accept!You have to wait for the other user to accept your request!");
-                return;
-            }
+        if(requestInvitationGUIDTO != null){
+            Long idSecondUser = mainUser.getId();
+            Long idFirstUser = requestInvitationGUIDTO.getId();
             try {
                 networkController.updateApprovedFriendship(idFirstUser, idSecondUser);
                 MessageAlert.showMessage(displayStage, Alert.AlertType.INFORMATION,"Approved Request",
@@ -135,9 +164,65 @@ public class FriendshipStatusController implements Observer<Event> {
             catch(ExceptionBaseClass exceptionBaseClass){
                 MessageAlert.showErrorMessage(displayStage,exceptionBaseClass.getMessage());
             }
+            finally {
+                requestFriendshipTableViewReact.getSelectionModel().clearSelection();
+            }
         }
         else{
-            MessageAlert.showErrorMessage(displayStage,"There is not selection!");
+            MessageAlert.showErrorMessage(displayStage,"There is no selection!");
+        }
+   }
+
+    @FXML
+    public void handleRejectFriend(){
+        RequestInvitationGUIDTO requestInvitationGUIDTO = requestFriendshipTableViewReact
+                .getSelectionModel().getSelectedItem();
+        if(requestInvitationGUIDTO != null){
+            Long idSecondUser = mainUser.getId();
+            Long idFirstUser = requestInvitationGUIDTO.getId();
+            try {
+                networkController.updateRejectedFriendship(idFirstUser, idSecondUser);
+                MessageAlert.showMessage(displayStage, Alert.AlertType.INFORMATION,"Rejected Request",
+                        "The friendship request has been rejected!");
+            }
+            catch(ExceptionBaseClass exceptionBaseClass){
+                MessageAlert.showErrorMessage(displayStage,exceptionBaseClass.getMessage());
+            }
+            finally {
+                requestFriendshipTableViewReact.getSelectionModel().clearSelection();
+            }
+        }
+        else{
+            MessageAlert.showErrorMessage(displayStage,"There is no selection!");
+        }
+    }
+
+    @FXML
+    public void handleResubmissionRequest(){
+        RequestInvitationGUIDTO requestInvitationGUIDTO = requestFriendshipTableViewReact
+                .getSelectionModel().getSelectedItem();
+        if(requestInvitationGUIDTO == null){
+            MessageAlert.showErrorMessage(displayStage,"There is no selection!");
+            return;
+        }
+
+        if(!requestInvitationGUIDTO.getInvitationStage().equals(InvitationStage.REJECTED)){
+            MessageAlert.showErrorMessage(displayStage,"You cannot resubmit request that is already pending/approved");
+            return;
+        }
+
+        try{
+            Long idUserThatSend = mainUser.getId();
+            Long idUserThatReceive = requestInvitationGUIDTO.getId();
+            networkController.updateRejectedToPendingFriendship(idUserThatSend,idUserThatReceive);
+            MessageAlert.showMessage(displayStage, Alert.AlertType.INFORMATION,"Resubmitted Request",
+                    "The friendship request has been resubmitted!");
+        }
+        catch(ExceptionBaseClass exceptionBaseClass){
+            MessageAlert.showErrorMessage(displayStage,exceptionBaseClass.getMessage());
+        }
+        finally {
+            requestFriendshipTableViewReact.getSelectionModel().clearSelection();
         }
     }
 

@@ -110,7 +110,7 @@ public class UserViewController implements Observer<Event> {
                     "Delete Friendship","The Friendship has been deleted successfully!");
         }
         else{
-            MessageAlert.showErrorMessage(displayStage,"There is not selection!");
+            MessageAlert.showErrorMessage(displayStage,"There is no selection!");
         }
     }
 
@@ -129,7 +129,7 @@ public class UserViewController implements Observer<Event> {
             }
         }
         else{
-            MessageAlert.showErrorMessage(displayStage,"There is not selection!");
+            MessageAlert.showErrorMessage(displayStage,"There is no selection!");
         }
     }
 

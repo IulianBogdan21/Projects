@@ -67,6 +67,11 @@ public class NetworkService {
         return setInvitationStatusToApproved(friendship);
     }
 
+    public Optional<Friendship> updateRejectedToPendingFriendshipService(Long idUserThatSends,Long idUserThatReceive){
+        friendshipRepository.remove(new UnorderedPair<>(idUserThatReceive,idUserThatSends));
+        return sendInvitationForFriendshipsService(idUserThatSends,idUserThatReceive);
+    }
+
     /**
      * sets invitation stage of a friendship to rejected
      * exception thrown if there is no invitation from one user to another
