@@ -17,7 +17,7 @@
       </TableView>
       <Button fx:id="deleteFriendshipButton" layoutX="116.0" layoutY="406.0" mnemonicParsing="false" onAction="#handleFriendshipDelete" text="Delete Friendship" />
       <Button fx:id="addFriendshipButton" layoutX="445.0" layoutY="406.0" mnemonicParsing="false" onAction="#handleFriendshipRequest" text="Add new friend" />
-      <TextField fx:id="searchFriendshipField" layoutX="419.0" layoutY="37.0" />
+      <TextField fx:id="searchFriendshipField" layoutX="419.0" layoutY="37.0" promptText="Search friend..." />
       <TableView fx:id="friendshipSearchTableView" layoutX="361.0" layoutY="71.0" prefHeight="316.0" prefWidth="265.599960327">
          <columns>
             <TableColumn fx:id="tableColumnSearchId" prefWidth="75.0" text="Id" visible="false" />

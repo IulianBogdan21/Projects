@@ -118,13 +118,12 @@ public class FriendshipStatusController implements Observer<Event> {
 
     @FXML
     public void initialize(){
-        tableColumnRequestId.setCellValueFactory(new PropertyValueFactory<RequestInvitationGUIDTO,Long>("id"));
-        tableColumnRequestFirstName.setCellValueFactory(new PropertyValueFactory<RequestInvitationGUIDTO,String>("firstName"));
-        tableColumnRequestLastName.setCellValueFactory(new PropertyValueFactory<RequestInvitationGUIDTO,String >("lastName"));
-        tableColumnRequestDate.setCellValueFactory(new PropertyValueFactory<RequestInvitationGUIDTO,LocalDateTime>("localDateTime"));
-        tableColumnRequestStatus.setCellValueFactory(new PropertyValueFactory<RequestInvitationGUIDTO,InvitationStage>("invitationStage"));
-        requestFriendshipTableView.setItems(modelFriendshipRequestDTO);
+        nonDuplicate(tableColumnRequestId, tableColumnRequestFirstName, tableColumnRequestLastName, tableColumnRequestDate, tableColumnRequestStatus, requestFriendshipTableView, modelFriendshipRequestDTO);
 
+        nonDuplicate(tableColumnRequestIdReact, tableColumnRequestFirstNameReact, tableColumnRequestLastNameReact, tableColumnRequestDateReact, tableColumnRequestStatusReact, requestFriendshipTableViewReact, modelFriendshipRequestDTOReact);
+    }
+
+    private void nonDuplicate(TableColumn<RequestInvitationGUIDTO, Long> tableColumnRequestIdReact, TableColumn<RequestInvitationGUIDTO, String> tableColumnRequestFirstNameReact, TableColumn<RequestInvitationGUIDTO, String> tableColumnRequestLastNameReact, TableColumn<RequestInvitationGUIDTO, LocalDateTime> tableColumnRequestDateReact, TableColumn<RequestInvitationGUIDTO, InvitationStage> tableColumnRequestStatusReact, TableView<RequestInvitationGUIDTO> requestFriendshipTableViewReact, ObservableList<RequestInvitationGUIDTO> modelFriendshipRequestDTOReact) {
         tableColumnRequestIdReact.setCellValueFactory(new PropertyValueFactory<RequestInvitationGUIDTO,Long>("id"));
         tableColumnRequestFirstNameReact.setCellValueFactory(new PropertyValueFactory<RequestInvitationGUIDTO,String>("firstName"));
         tableColumnRequestLastNameReact.setCellValueFactory(new PropertyValueFactory<RequestInvitationGUIDTO,String >("lastName"));

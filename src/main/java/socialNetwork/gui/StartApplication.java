@@ -3,6 +3,7 @@ package socialNetwork.gui;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import socialNetwork.config.ApplicationContext;
 import socialNetwork.controllers.NetworkController;
@@ -65,7 +66,10 @@ public class StartApplication extends Application {
         FXMLLoader fxmlLoader = new FXMLLoader();
         fxmlLoader.setLocation(getClass().getResource("/socialNetwork.gui/loginView.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
-        stage.setTitle("Authentication");
+        scene.getStylesheets().add(getClass().getResource("/css/logIn.css").toExternalForm());
+        Image icon = new Image("images/loginPicture.jpg");
+        stage.getIcons().add(icon);
+        stage.setTitle("Kage");
         stage.setScene(scene);
 
         LoginController loginController = fxmlLoader.getController();

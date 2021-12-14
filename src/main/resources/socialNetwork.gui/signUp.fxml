@@ -1,45 +1,58 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.effect.InnerShadow?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="280.0" prefWidth="456.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="socialNetwork.guiControllers.SignUpController">
+<AnchorPane fx:id="signUpScene" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="576.0" prefWidth="769.0" style="-fx-background-image: images\BackSignUp.jpg;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="socialNetwork.guiControllers.SignUpController">
    <children>
-      <TextField fx:id="firstNameTextField" layoutX="257.0" layoutY="36.0" />
-      <TextField fx:id="lastNameTextField" layoutX="257.0" layoutY="74.0" />
-      <TextField fx:id="usernameSignUpTextField" layoutX="257.0" layoutY="113.0" />
-      <PasswordField fx:id="passwordSignUpField" layoutX="257.0" layoutY="154.0" />
-      <PasswordField fx:id="passwordConfirmationSignUpField" layoutX="257.0" layoutY="194.0" />
-      <Label layoutX="87.0" layoutY="36.0" prefHeight="18.0" prefWidth="101.0" text="First Name">
+      <TextField fx:id="firstNameTextField" layoutX="393.0" layoutY="138.0">
+         <opaqueInsets>
+            <Insets right="80.0" />
+         </opaqueInsets></TextField>
+      <TextField fx:id="lastNameTextField" layoutX="393.0" layoutY="195.0" />
+      <TextField fx:id="usernameSignUpTextField" layoutX="393.0" layoutY="249.0" />
+      <PasswordField fx:id="passwordSignUpField" layoutX="393.0" layoutY="305.0" />
+      <PasswordField fx:id="passwordConfirmationSignUpField" layoutX="393.0" layoutY="361.0" />
+      <Label layoutX="190.0" layoutY="135.0" prefHeight="18.0" prefWidth="101.0" text="First Name" textFill="#5e2b2b">
          <font>
-            <Font size="20.0" />
+            <Font name="Cambria Italic" size="21.0" />
          </font>
       </Label>
-      <Label layoutX="87.0" layoutY="74.0" prefHeight="18.0" prefWidth="102.0" text="Last Name">
+      <Label layoutX="190.0" layoutY="192.0" prefHeight="18.0" prefWidth="102.0" text="Last Name">
          <font>
-            <Font size="20.0" />
+            <Font name="Cambria Italic" size="21.0" />
          </font>
       </Label>
-      <Label layoutX="87.0" layoutY="110.0" prefHeight="18.0" prefWidth="102.0" text="Username">
+      <Label layoutX="190.0" layoutY="246.0" prefHeight="18.0" prefWidth="102.0" text="Username">
          <font>
-            <Font size="20.0" />
+            <Font name="Cambria Italic" size="21.0" />
          </font>
       </Label>
-      <Label layoutX="87.0" layoutY="151.0" prefHeight="18.0" prefWidth="102.0" text="Password">
+      <Label layoutX="190.0" layoutY="302.0" prefHeight="18.0" prefWidth="102.0" text="Password">
          <font>
-            <Font size="20.0" />
+            <Font name="Cambria Italic" size="21.0" />
          </font>
       </Label>
-      <Label layoutX="87.0" layoutY="191.0" prefHeight="30.0" prefWidth="162.0" text="Confirm password">
+      <Label layoutX="160.0" layoutY="358.0" prefHeight="30.0" prefWidth="162.0" text="Confirm password">
          <font>
-            <Font size="20.0" />
+            <Font name="Cambria Italic" size="21.0" />
          </font>
       </Label>
-      <Button fx:id="signUpButton" layoutX="280.0" layoutY="231.0" mnemonicParsing="false" onAction="#doSignUp" text="Sign up" />
-      <Button fx:id="cancelButton" layoutX="355.0" layoutY="231.0" mnemonicParsing="false" onAction="#exitWindow" text="Cancel" />
+      <Button fx:id="signUpButton" layoutX="101.0" layoutY="457.0" mnemonicParsing="false" onAction="#doSignUp" prefHeight="26.0" prefWidth="162.0" text="Sign up" />
+      <Button fx:id="cancelButton" layoutX="526.0" layoutY="457.0" mnemonicParsing="false" onAction="#exitWindow" prefHeight="26.0" prefWidth="162.0" text="Cancel" />
+      <Label alignment="CENTER" contentDisplay="CENTER" graphicTextGap="7.0" layoutX="101.0" layoutY="26.0" lineSpacing="70.0" prefHeight="18.0" prefWidth="566.0" text="Kage Sign up" textFill="#c17926" textOverrun="WORD_ELLIPSIS">
+         <font>
+            <Font size="36.0" />
+         </font>
+         <effect>
+            <InnerShadow height="10.5" radius="2.125" width="0.0" />
+         </effect>
+      </Label>
    </children>
 </AnchorPane>
