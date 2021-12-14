@@ -42,7 +42,10 @@ public class LoginController {
         try {
             Optional<User> userOptional =  networkController.logIn(username, password);
             User user = userOptional.get();
-            UnorderedPair<Stage,FXMLLoader> unorderedPair = StageBuilder.buildStage(getClass(), "/socialNetwork.gui/userView.fxml","Kage");
+            UnorderedPair<Stage,FXMLLoader> unorderedPair = StageBuilder.buildStage(
+                    getClass(),
+                    "/socialNetwork.gui/userView.fxml",
+                    Optional.empty(),"Kage");
             Stage userViewStage = unorderedPair.left;
             FXMLLoader loader = unorderedPair.right;
             UserViewController userViewController = loader.getController();
@@ -60,7 +63,9 @@ public class LoginController {
 
     @FXML
     public void handleSignUp() throws IOException {
-        UnorderedPair<Stage, FXMLLoader> unorderedPair = StageBuilder.buildStage(getClass(),"/socialNetwork.gui/signUp.fxml","Sign up");
+        UnorderedPair<Stage, FXMLLoader> unorderedPair = StageBuilder
+                .buildStage(getClass(),"/socialNetwork.gui/signUp.fxml",
+                        Optional.of("/socialNetwork.gui/css/signUp.css") ,"Sign up");
         Stage signUpStage = unorderedPair.left;
         FXMLLoader loader = unorderedPair.right;
         SignUpController signUpController = loader.getController();

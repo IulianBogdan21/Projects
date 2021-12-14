@@ -9,9 +9,10 @@ import javafx.stage.Stage;
 import socialNetwork.controllers.NetworkController;
 
 import java.io.IOException;
+import java.util.Optional;
 
 public class StageBuilder {
-    public static UnorderedPair<Stage, FXMLLoader> buildStage(Class sourceClass , String path, String title) throws IOException {
+    public static UnorderedPair<Stage, FXMLLoader> buildStage(Class sourceClass , String path, Optional<String> pathCSSFile, String title) throws IOException {
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(sourceClass.getResource(path));
         Parent root = loader.load();
@@ -19,6 +20,8 @@ public class StageBuilder {
         stage.setTitle(title);
         stage.initModality(Modality.WINDOW_MODAL);
         Scene newScene = new Scene(root);
+        if(pathCSSFile.isPresent())
+            newScene.getStylesheets().add(sourceClass.getResource(pathCSSFile.get()).toExternalForm());
         stage.setScene(newScene);
         return new UnorderedPair<>(stage,loader);
     }
