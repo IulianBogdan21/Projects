@@ -1,6 +1,3 @@
-.root{
-     -fx-background-image: url("/socialNetwork.gui/images/BackSignUp.jpg");
-}
 
 
 #signUpButton,#cancelButton{
@@ -9,6 +6,7 @@
     -fx-background-insets: 0;
     -fx-text-fill: white;
 }
+
 #firstNameTextField{
     border: none;
     -webkit-appearance: none;

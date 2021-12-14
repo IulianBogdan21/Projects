@@ -65,7 +65,7 @@ public class LoginController {
     public void handleSignUp() throws IOException {
         UnorderedPair<Stage, FXMLLoader> unorderedPair = StageBuilder
                 .buildStage(getClass(),"/socialNetwork.gui/signUp.fxml",
-                        Optional.of("/socialNetwork.gui/css/signUp.css") ,"Sign up");
+                        Optional.of("/css/signUp.css") ,"Kage");
         Stage signUpStage = unorderedPair.left;
         FXMLLoader loader = unorderedPair.right;
         SignUpController signUpController = loader.getController();

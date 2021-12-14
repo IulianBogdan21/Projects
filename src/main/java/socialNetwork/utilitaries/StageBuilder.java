@@ -3,6 +3,7 @@ package socialNetwork.utilitaries;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -17,6 +18,8 @@ public class StageBuilder {
         loader.setLocation(sourceClass.getResource(path));
         Parent root = loader.load();
         Stage stage = new Stage();
+        Image icon = new Image("images/loginPicture.jpg");
+        stage.getIcons().add(icon);
         stage.setTitle(title);
         stage.initModality(Modality.WINDOW_MODAL);
         Scene newScene = new Scene(root);
