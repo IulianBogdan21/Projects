@@ -1,15 +1,13 @@
 package socialNetwork.service;
 
-import socialNetwork.domain.models.Friendship;
-import socialNetwork.domain.models.FriendshipRequestDTO;
-import socialNetwork.domain.models.InvitationStage;
-import socialNetwork.domain.models.User;
+import socialNetwork.domain.models.*;
 import socialNetwork.domain.validators.EntityValidatorInterface;
 import socialNetwork.repository.RepositoryInterface;
 import socialNetwork.utilitaries.UnorderedPair;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.function.Predicate;
 
 /**
  * business layer for User model
@@ -17,6 +15,7 @@ import java.util.*;
 public class UserService {
     private RepositoryInterface<Long, User> userRepository;
     private RepositoryInterface<UnorderedPair<Long, Long>, Friendship> friendshipRepository;
+    private RepositoryInterface<UnorderedPair<Long, Long>, FriendRequest> friendRequestRepository;
     private EntityValidatorInterface<Long, User> userValidator;
 
     /**
@@ -27,10 +26,12 @@ public class UserService {
      */
     public UserService(RepositoryInterface<Long, User> userRepository,
                        RepositoryInterface<UnorderedPair<Long, Long>, Friendship> friendshipRepository,
+                       RepositoryInterface<UnorderedPair<Long, Long>, FriendRequest> friendRequestRepository,
                        EntityValidatorInterface<Long, User> userValidator) {
         this.userRepository = userRepository;
         this.friendshipRepository = friendshipRepository;
         this.userValidator = userValidator;
+        this.friendRequestRepository = friendRequestRepository;
     }
 
     /**
@@ -116,33 +117,19 @@ public class UserService {
         return mapOfFriendships;
     }
 
-    public Map<Optional<User>, LocalDateTime> findAllApprovedFriendshipsForUserService(Long idUser){
-        Map<Optional<User>, LocalDateTime> mapOfFriendships = new HashMap<>();
-        List<Friendship> friendships = friendshipRepository.getAll();
-        friendships.stream()
-                .filter(friendship -> (friendship.hasUser(idUser) && friendship.getInvitationStage().equals(InvitationStage.APPROVED)) )
-                .forEach(friendship -> {
-                    Long idOfFriend;
-                    if(friendship.getId().left == idUser)
-                        idOfFriend = friendship.getId().right;
-                    else
-                        idOfFriend = friendship.getId().left;
-                    mapOfFriendships.put(userRepository.find(idOfFriend), friendship.getDate());
-                });
-        return mapOfFriendships;
-    }
-
     public List<FriendshipRequestDTO> findAllRequestFriendsForUserService(Long idUser){
         List<FriendshipRequestDTO> allRequestFriendList = new ArrayList<>();
-        List<Friendship> friendships = friendshipRepository.getAll();
-        friendships.stream()
-                .filter(friendship -> friendship.hasUser(idUser) )
-                .forEach(friendship -> {
-                    User userThatSendsRequest = userRepository.find(friendship.getId().left).get();
-                    User userThatReceivesRequest = userRepository.find(friendship.getId().right).get();
+        List<FriendRequest> friendRequestList = friendRequestRepository.getAll();
+        Predicate<FriendRequest> hasID = friendRequest -> friendRequest.getFromUserID().equals(idUser) ||
+                friendRequest.getToUserID().equals(idUser);
+        friendRequestList.stream()
+                .filter(hasID)
+                .forEach(friendRequest -> {
+                    User userThatSendsRequest = userRepository.find(friendRequest.getFromUserID()).get();
+                    User userThatReceivesRequest = userRepository.find(friendRequest.getToUserID()).get();
                     allRequestFriendList.add(
                             new FriendshipRequestDTO(userThatSendsRequest,userThatReceivesRequest,
-                                    friendship.getDate(),friendship.getInvitationStage()));
+                                    friendRequest.getDateRequest(),friendRequest.getInvitationStage()));
                 });
         return allRequestFriendList;
     }

@@ -6,12 +6,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import repository.database.FriendshipDatabaseTableSetter;
 import repository.database.UserDatabaseTableSetter;
+import socialNetwork.domain.models.FriendRequest;
 import socialNetwork.domain.models.Friendship;
 import socialNetwork.domain.models.User;
 import socialNetwork.domain.validators.UserValidator;
 import socialNetwork.exceptions.DatabaseException;
 import socialNetwork.exceptions.InvalidEntityException;
 import socialNetwork.repository.RepositoryInterface;
+import socialNetwork.repository.database.FriendRequestDatabaseRepository;
 import socialNetwork.repository.database.FriendshipDatabaseRepository;
 import socialNetwork.repository.database.UserDatabaseRepository;
 import socialNetwork.service.UserService;
@@ -30,8 +32,11 @@ public class UserServiceCrudTest {
     private String password = ApplicationContext.getProperty("network.database.password");
     RepositoryInterface<Long, User> userTestRepository = new UserDatabaseRepository(url, user, password);;
     RepositoryInterface<UnorderedPair<Long, Long>, Friendship> friendshipTestRepository
-            = new FriendshipDatabaseRepository(url, user, password);;
-    UserService testService = new UserService(userTestRepository, friendshipTestRepository, new UserValidator());
+            = new FriendshipDatabaseRepository(url, user, password);
+    RepositoryInterface<UnorderedPair<Long, Long>, FriendRequest> friendRequestTestRepository
+            = new FriendRequestDatabaseRepository(url, user, password);
+    UserService testService = new UserService(userTestRepository, friendshipTestRepository,
+            friendRequestTestRepository,new UserValidator());
 
     public List<User> getUserData() {
         return new ArrayList<>(Arrays.asList(

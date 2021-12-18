@@ -8,22 +8,14 @@ import org.junit.jupiter.api.TestInstance;
 import repository.database.AuthentificationDatabaseRepositoryTest;
 import socialNetwork.controllers.NetworkController;
 import socialNetwork.domain.models.Autentification;
+import socialNetwork.domain.models.FriendRequest;
 import socialNetwork.domain.models.Friendship;
 import socialNetwork.domain.models.User;
-import socialNetwork.domain.validators.AuthentificationValidator;
-import socialNetwork.domain.validators.EntityValidatorInterface;
-import socialNetwork.domain.validators.FriendshipValidator;
-import socialNetwork.domain.validators.UserValidator;
+import socialNetwork.domain.validators.*;
 import socialNetwork.exceptions.LogInException;
-import socialNetwork.repository.database.AutentificationDatabaseRepository;
+import socialNetwork.repository.database.*;
 import socialNetwork.exceptions.DatabaseException;
-import socialNetwork.repository.database.FriendshipDatabaseRepository;
-import socialNetwork.repository.database.MessageDTODatabaseRepository;
-import socialNetwork.repository.database.UserDatabaseRepository;
-import socialNetwork.service.AuthentificationService;
-import socialNetwork.service.MessageService;
-import socialNetwork.service.NetworkService;
-import socialNetwork.service.UserService;
+import socialNetwork.service.*;
 import socialNetwork.utilitaries.UnorderedPair;
 
 import java.sql.*;
@@ -39,30 +31,37 @@ public class ControllerTest {
     String password = ApplicationContext.getProperty("network.database.password");
     EntityValidatorInterface<Long,User> testUserValidator = new UserValidator();
     EntityValidatorInterface<UnorderedPair<Long,Long>, Friendship> testFriendshipValidator;
+    EntityValidatorInterface<UnorderedPair<Long,Long>, FriendRequest> testFriendRequestValidator;
     EntityValidatorInterface<String, Autentification> testAuthentificationValidator;
     AutentificationDatabaseRepository testAutentificationRepository = new AutentificationDatabaseRepository(url,user,password);
     MessageDTODatabaseRepository testMessageRepository;
     UserDatabaseRepository testUserRepository;
     FriendshipDatabaseRepository testFriendshipRepository;
+    FriendRequestDatabaseRepository testFriendRequestRepository;
     UserService testUserService;
     NetworkService testNetworkService;
     MessageService testMessageService;
     AuthentificationService testAuthentificationService;
+    FriendRequestService testFriendRequestService;
     NetworkController testNetworkController = null;
 
     public NetworkController getNetworkController() {
         if(testNetworkController == null) {
             testUserRepository = new UserDatabaseRepository(url,user,password);
             testFriendshipRepository = new FriendshipDatabaseRepository(url,user,password);
+            testFriendRequestRepository = new FriendRequestDatabaseRepository(url,user,password);
             testMessageRepository = new MessageDTODatabaseRepository(url,user,password);
             testFriendshipValidator = new FriendshipValidator(testUserRepository);
+            testFriendRequestValidator = new FriendRequestValidator(testUserRepository);
             testAuthentificationValidator = new AuthentificationValidator();
-            testUserService = new UserService(testUserRepository,testFriendshipRepository,testUserValidator);
+            testUserService = new UserService(testUserRepository,testFriendshipRepository,testFriendRequestRepository,testUserValidator);
             testNetworkService = new NetworkService(testFriendshipRepository,testUserRepository,testFriendshipValidator);
             testMessageService = new MessageService(testUserRepository,testMessageRepository);
             testAuthentificationService = new AuthentificationService(testAutentificationRepository,testAuthentificationValidator);
+            testFriendRequestService = new FriendRequestService(testFriendRequestRepository,testFriendRequestValidator
+                                                                ,testNetworkService);
             testNetworkController = new NetworkController(testUserService,testNetworkService
-                    ,testMessageService,testAuthentificationService);
+                    ,testMessageService,testAuthentificationService,testFriendRequestService);
         }
         return testNetworkController;
     }
