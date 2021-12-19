@@ -33,6 +33,7 @@ public abstract class RepositoryAbstractTest<ID, E extends Entity<ID>> {
         Assertions.assertTrue(foundEntityById.isPresent());
         var foundEntity = foundEntityById.get();
         Predicate<E> equalEntities = e -> e.equals(foundEntity);
+        List<E> rez= getTestData();
         boolean isEntityInInformationForTesting = getTestData()
                 .stream()
                 .anyMatch(equalEntities);

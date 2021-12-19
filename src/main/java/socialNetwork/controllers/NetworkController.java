@@ -2,12 +2,10 @@ package socialNetwork.controllers;
 
 import socialNetwork.domain.models.*;
 import socialNetwork.exceptions.LogInException;
-import socialNetwork.service.AuthentificationService;
-import socialNetwork.service.MessageService;
-import socialNetwork.service.NetworkService;
-import socialNetwork.service.UserService;
+import socialNetwork.service.*;
 import socialNetwork.utilitaries.events.ChangeEventType;
 import socialNetwork.utilitaries.events.Event;
+import socialNetwork.utilitaries.events.FriendRequestChangeEvent;
 import socialNetwork.utilitaries.events.FriendshipChangeEvent;
 import socialNetwork.utilitaries.observer.Observable;
 import socialNetwork.utilitaries.observer.Observer;
@@ -24,6 +22,7 @@ import java.util.Optional;
 public class NetworkController implements Observable <Event> {
     private UserService userService;
     private NetworkService networkService;
+    private FriendRequestService friendRequestService;
     private MessageService messageService;
     private AuthentificationService authentificationService;
     private List<Observer<Event>> observers = new ArrayList<>();
@@ -34,11 +33,13 @@ public class NetworkController implements Observable <Event> {
      * @param networkService - service for friendships
      */
     public NetworkController(UserService userService, NetworkService networkService,
-                             MessageService messageService, AuthentificationService authentificationService) {
+                             MessageService messageService, AuthentificationService authentificationService,
+                             FriendRequestService friendRequestService) {
         this.userService = userService;
         this.networkService = networkService;
         this.messageService = messageService;
         this.authentificationService = authentificationService;
+        this.friendRequestService = friendRequestService;
     }
 
     /**
@@ -170,32 +171,32 @@ public class NetworkController implements Observable <Event> {
     }
 
     public Optional<Friendship> updateApprovedFriendship(Long firstUserId,Long secondUserId){
-        Optional<Friendship> friendshipOptional = networkService.
-                updateApprovedFriendshipService(firstUserId,secondUserId);
+        Optional<Friendship> friendshipOptional = friendRequestService.
+                updateApprovedFriendRequestService(firstUserId,secondUserId);
         notifyObservers(new FriendshipChangeEvent(ChangeEventType.UPDATE, friendshipOptional.get()));
         return friendshipOptional;
     }
 
     public Optional<Friendship> updateRejectedFriendship(Long firstUserId,Long secondUserId){
-        Optional<Friendship> friendshipOptional = networkService.
-                updateRejectedFriendshipService(firstUserId,secondUserId);
+        Optional<Friendship> friendshipOptional = friendRequestService.
+                updateRejectedFriendRequestService(firstUserId,secondUserId);
         notifyObservers(new FriendshipChangeEvent(ChangeEventType.UPDATE, friendshipOptional.get()));
         return friendshipOptional;
     }
 
-    public Optional<Friendship> sendInvitationForFriendships(Long firstUserId,Long secondUserId){
-        return networkService.sendInvitationForFriendshipsService(firstUserId,secondUserId);
+    public Optional<FriendRequest> sendInvitationForFriendships(Long firstUserId,Long secondUserId){
+        return friendRequestService.sendInvitationForFriendRequestService(firstUserId,secondUserId);
     }
 
-    public Optional<Friendship> updateRejectedToPendingFriendship(Long idUserThatSends,Long idUserThatReceive) {
-        Optional<Friendship> friendshipOptional = networkService
-                .updateRejectedToPendingFriendshipService(idUserThatSends,idUserThatReceive);
-        notifyObservers(new FriendshipChangeEvent(ChangeEventType.UPDATE, friendshipOptional.get()));
+    public Optional<FriendRequest> updateRejectedToPendingFriendship(Long idUserThatSends,Long idUserThatReceive) {
+        Optional<FriendRequest> friendshipOptional = friendRequestService
+                .updateRejectedToPendingFriendRequestService(idUserThatSends,idUserThatReceive);
+        notifyObservers(new FriendRequestChangeEvent(ChangeEventType.UPDATE, friendshipOptional.get()));
         return friendshipOptional;
     }
 
-        public Map<Optional<User>, LocalDateTime> findAllApprovedFriendshipsForUser(Long idUser){
-        return userService.findAllApprovedFriendshipsForUserService(idUser);
+    public Map<Optional<User>, LocalDateTime> findAllApprovedFriendshipsForUser(Long idUser){
+        return userService.findAllFriendsForUserService(idUser);
     }
 
     public Optional<Autentification> saveAuthentification(String username,String password){

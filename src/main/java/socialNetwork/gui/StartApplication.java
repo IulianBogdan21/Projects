@@ -7,25 +7,13 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import socialNetwork.config.ApplicationContext;
 import socialNetwork.controllers.NetworkController;
-import socialNetwork.domain.models.Autentification;
-import socialNetwork.domain.models.Friendship;
-import socialNetwork.domain.models.MessageDTO;
-import socialNetwork.domain.models.User;
-import socialNetwork.domain.validators.AuthentificationValidator;
-import socialNetwork.domain.validators.EntityValidatorInterface;
-import socialNetwork.domain.validators.FriendshipValidator;
-import socialNetwork.domain.validators.UserValidator;
+import socialNetwork.domain.models.*;
+import socialNetwork.domain.validators.*;
 import socialNetwork.guiControllers.LoginController;
 import socialNetwork.guiControllers.UserViewController;
 import socialNetwork.repository.RepositoryInterface;
-import socialNetwork.repository.database.AutentificationDatabaseRepository;
-import socialNetwork.repository.database.FriendshipDatabaseRepository;
-import socialNetwork.repository.database.MessageDTODatabaseRepository;
-import socialNetwork.repository.database.UserDatabaseRepository;
-import socialNetwork.service.AuthentificationService;
-import socialNetwork.service.MessageService;
-import socialNetwork.service.NetworkService;
-import socialNetwork.service.UserService;
+import socialNetwork.repository.database.*;
+import socialNetwork.service.*;
 import socialNetwork.utilitaries.UnorderedPair;
 
 import java.io.IOException;
@@ -45,6 +33,11 @@ public class StartApplication extends Application {
         EntityValidatorInterface<UnorderedPair<Long, Long>, Friendship> friendshipValidator =
                 new FriendshipValidator(userRepository);
 
+        RepositoryInterface<UnorderedPair<Long,Long>, FriendRequest> friendRequestRepository =
+                new FriendRequestDatabaseRepository(url,user,password);
+        EntityValidatorInterface<UnorderedPair<Long, Long>, FriendRequest> friendRequesttValidator =
+                new FriendRequestValidator(userRepository);
+
         RepositoryInterface<Long, MessageDTO> messagesRepository =
                 new MessageDTODatabaseRepository(url, user, password);
 
@@ -53,15 +46,18 @@ public class StartApplication extends Application {
         EntityValidatorInterface<String,Autentification> autentificationValidator =
                 new AuthentificationValidator();
 
-        UserService userService = new UserService(userRepository, friendshipRepository, userValidator);
-        NetworkService networkService = new NetworkService(friendshipRepository, userRepository,
-                friendshipValidator);
+        UserService userService = new UserService(userRepository, friendshipRepository
+                ,friendRequestRepository,userValidator);
+        NetworkService networkService = new NetworkService(friendshipRepository, friendRequestRepository,
+                userRepository,friendshipValidator);
         MessageService messageService = new MessageService(userRepository, messagesRepository);
         AuthentificationService authentificationService = new AuthentificationService(
                 autentificationRepository,autentificationValidator);
+        FriendRequestService friendRequestService = new FriendRequestService(friendRequestRepository,
+                friendshipRepository,friendRequesttValidator);
         NetworkController networkController =
-                new NetworkController(userService, networkService, messageService,authentificationService);
-
+                new NetworkController(userService, networkService, messageService,
+                        authentificationService,friendRequestService);
 
         FXMLLoader fxmlLoader = new FXMLLoader();
         fxmlLoader.setLocation(getClass().getResource("/socialNetwork.gui/loginView.fxml"));

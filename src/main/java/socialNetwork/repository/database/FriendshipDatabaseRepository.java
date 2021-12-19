@@ -95,19 +95,7 @@ public class FriendshipDatabaseRepository
 
     @Override
     public Optional<Friendship> update(Friendship newValue) {
-        try(Connection connection = DriverManager.getConnection(url, user, password)) {
-            PreparedStatement findSql = createFindStatementForFriendshipId(newValue.getId(), connection);
-            ResultSet resultSet = findSql.executeQuery();
-            if(resultSet.next()){
-                var oldValue = createFriendshipFromResultSet(resultSet);
-                PreparedStatement updateSql = createUpdateStatementForFriendship(connection, newValue);
-                updateSql.executeUpdate();
-                return Optional.of(oldValue);
-            }
-            return Optional.empty();
-        } catch (SQLException exception) {
-            throw new DatabaseException(exception.getMessage());
-        }
+        return Optional.empty();
     }
 
     /**
@@ -120,9 +108,7 @@ public class FriendshipDatabaseRepository
             Long id1 = resultSet.getLong("id_first_user");
             Long id2 = resultSet.getLong("id_second_user");
             LocalDateTime dateWhenFriendshipWasCreated = resultSet.getTimestamp("date").toLocalDateTime();
-            InvitationStage invitationStage = InvitationStage.valueOf(resultSet.getString("status"));
             Friendship friendship = new Friendship(id1, id2, dateWhenFriendshipWasCreated);
-            friendship.setInvitationStage(invitationStage);
             return  friendship;
         }catch (SQLException exception){
             throw new DatabaseException(exception.getMessage());
@@ -195,19 +181,4 @@ public class FriendshipDatabaseRepository
         return findStatement;
     }
 
-    private PreparedStatement createUpdateStatementForFriendship(Connection connection, Friendship newValue) {
-        try{
-            String updateSqlStr = "UPDATE friendships SET status=? WHERE id_first_user=? AND id_second_user=? OR " +
-                    "id_second_user=? AND id_first_user=?";
-            PreparedStatement updateSql = connection.prepareStatement(updateSqlStr);
-            updateSql.setString(1, newValue.getInvitationStage().toString() );
-            updateSql.setLong(2, newValue.getId().left);
-            updateSql.setLong(3, newValue.getId().right);
-            updateSql.setLong(4, newValue.getId().left);
-            updateSql.setLong(5, newValue.getId().right);
-            return updateSql;
-        } catch (SQLException exception){
-            throw new DatabaseException(exception.getMessage());
-        }
-    }
 }

@@ -1,5 +1,6 @@
 package socialNetwork.service;
 
+import socialNetwork.domain.models.FriendRequest;
 import socialNetwork.domain.models.Friendship;
 import socialNetwork.domain.models.InvitationStage;
 import socialNetwork.domain.models.User;
@@ -20,15 +21,18 @@ import java.util.Optional;
  */
 public class NetworkService {
     private final RepositoryInterface<UnorderedPair<Long, Long>, Friendship> friendshipRepository;
+    private final RepositoryInterface<UnorderedPair<Long, Long>, FriendRequest> friendRequestRepository;
     private final RepositoryInterface<Long, User> userRepository;
     private final EntityValidatorInterface<UnorderedPair<Long, Long>, Friendship> friendshipValidator;
 
 
     public NetworkService(RepositoryInterface<UnorderedPair<Long, Long>, Friendship> friendshipRepository,
+                          RepositoryInterface<UnorderedPair<Long, Long>, FriendRequest> friendRequestRepository,
                           RepositoryInterface<Long, User> userRepository,
                           EntityValidatorInterface<UnorderedPair<Long, Long>, Friendship> friendshipValidator) {
-        this.userRepository = userRepository;
         this.friendshipRepository = friendshipRepository;
+        this.friendRequestRepository = friendRequestRepository;
+        this.userRepository = userRepository;
         this.friendshipValidator = friendshipValidator;
     }
 
@@ -52,61 +56,15 @@ public class NetworkService {
     }
 
     /**
-     * sets invitation stage of a friendship to approved
-     * exception thrown if there is no invitation from one user to another
-     * exception thrown if invitation has already been refused
-     */
-    public Optional<Friendship> updateApprovedFriendshipService(Long firstUserId,Long secondUserId){
-        Optional<Friendship> optionalFriendshipBetweenUsers = searchForFriendshipInRepository(
-                firstUserId, secondUserId);
-        if(optionalFriendshipBetweenUsers.isEmpty())
-            throw new EntityMissingValidationException("Friendship between users doesn't exist");
-        Friendship friendship = optionalFriendshipBetweenUsers.get();
-        throwExceptionIfInvitationIsRejected(friendship);
-        throwExceptionIfInvitationIsApproved(friendship);
-        return setInvitationStatusToApproved(friendship);
-    }
-
-    public Optional<Friendship> updateRejectedToPendingFriendshipService(Long idUserThatSends,Long idUserThatReceive){
-        friendshipRepository.remove(new UnorderedPair<>(idUserThatReceive,idUserThatSends));
-        return sendInvitationForFriendshipsService(idUserThatSends,idUserThatReceive);
-    }
-
-    /**
-     * sets invitation stage of a friendship to rejected
-     * exception thrown if there is no invitation from one user to another
-     */
-    public Optional<Friendship> updateRejectedFriendshipService(Long firstUserId,Long secondUserId){
-        Optional<Friendship> optionalFriendshipBetweenUsers = searchForFriendshipInRepository(
-                firstUserId, secondUserId);
-        if(optionalFriendshipBetweenUsers.isEmpty())
-            throw new EntityMissingValidationException("Friendship between users doesn't exist");
-        Friendship friendshipBetweenUsers = optionalFriendshipBetweenUsers.get();
-        return setInvitationStatusToRejected(friendshipBetweenUsers);
-    }
-
-    /**
-     * one user sends an invitation to another
-     * exception thrown if invitation already exists
-     */
-    public Optional<Friendship> sendInvitationForFriendshipsService(Long firstUserId, Long secondUserId){
-        Optional<Friendship> optionalFriendshipBetweenUsers =
-                searchForFriendshipInRepository(firstUserId, secondUserId);
-        if(optionalFriendshipBetweenUsers.isEmpty())
-            return addPendingInvitation(firstUserId, secondUserId);
-        Friendship friendshipBetweenUsers = optionalFriendshipBetweenUsers.get();;
-        throwExceptionValidateInvitationStatusWhenSendingInvitation(friendshipBetweenUsers);
-        return optionalFriendshipBetweenUsers;
-    }
-
-    /**
-     * removes the friendship between the users with the given id-s
+     * removes the friendship between the users with the given id-s(UNFRIEND functionality from real apps)
+     * it removes the friendship and the request too
      * @param firstUserId - Long - id of first user
      * @param secondUserId - Long - id of second user
      * @return Optional containing the removed relationship, empty Optional if the users are not friends
      */
     public Optional<Friendship> removeFriendshipService(Long firstUserId, Long secondUserId){
         UnorderedPair<Long, Long> friendshipId = new UnorderedPair<>(firstUserId, secondUserId);
+        friendRequestRepository.remove(friendshipId);
         return friendshipRepository.remove(friendshipId);
     }
 
@@ -129,7 +87,6 @@ public class NetworkService {
         for(User user: userRepository.getAll())
             graphOfUserNetwork.addVertex(user.getId());
         for(Friendship friendship: friendshipRepository.getAll())
-            if(friendship.getInvitationStage().equals(InvitationStage.APPROVED))
                 graphOfUserNetwork.addEdge(friendship.getId().left, friendship.getId().right);
         return graphOfUserNetwork.findNumberOfConnectedComponents();
     }
@@ -140,8 +97,7 @@ public class NetworkService {
     public List<User> getMostSocialCommunity(){
         UndirectedGraph<User> graphOfUsers = new UndirectedGraph<>(userRepository.getAll());
 
-        for(Friendship friendship: friendshipRepository.getAll())
-            if(friendship.getInvitationStage().equals(InvitationStage.APPROVED)){
+        for(Friendship friendship: friendshipRepository.getAll()){
                 User user1 = userRepository.find(friendship.getId().left).get();
                 User user2 = userRepository.find(friendship.getId().right).get();
                 graphOfUsers.addEdge(user1, user2);
@@ -157,8 +113,7 @@ public class NetworkService {
         List<Friendship> allFriendships = friendshipRepository.getAll();
         UndirectedGraph<User> userUndirectedGraph = new UndirectedGraph<>(userRepository.getAll());
 
-        for(Friendship friendship: allFriendships)
-            if(friendship.getInvitationStage().equals(InvitationStage.APPROVED)){
+        for(Friendship friendship: allFriendships) {
                 User user1 = userRepository.find(friendship.getId().left).get();
                 User user2 = userRepository.find(friendship.getId().right).get();
                 userUndirectedGraph.addEdge(user1, user2);
@@ -168,63 +123,5 @@ public class NetworkService {
             currentUser.setListOfFriends(userUndirectedGraph.getNeighboursOf(currentUser).stream().toList());
         }
         return allUsersAndFriends;
-    }
-
-    /**
-     * throws exception when sending an invitation if that invitation already exists in any
-     * of the stages: approved, pending or rejected
-     */
-    private void throwExceptionValidateInvitationStatusWhenSendingInvitation(Friendship friendship) {
-        if( friendship.getInvitationStage().equals(InvitationStage.APPROVED) )
-            throw new InvitationStatusException("The invitation is already accepted");
-        if( friendship.getInvitationStage().equals(InvitationStage.PENDING) )
-            throw new InvitationStatusException("The invitation is already pending");
-        throw new InvitationStatusException("The invitation is rejected");
-    }
-
-    private Optional<Friendship> searchForFriendshipInRepository(Long firstUserId,Long secondUserId){
-        UnorderedPair<Long, Long> idNewFriendship = new UnorderedPair<>(firstUserId, secondUserId);
-        return friendshipRepository.find(idNewFriendship);
-    }
-
-    /**
-     * adds a default friendship in the repo - the invitation stage is set by default at
-     * approved
-     */
-    private Friendship addDefaultFriendshipToRepo(Long firstUserId, Long secondUserId) {
-        var idNewFriendship = new UnorderedPair<>(firstUserId, secondUserId);
-        addFriendshipService(firstUserId, secondUserId,LocalDateTime.now());
-        Optional<Friendship> friendshipOptional = friendshipRepository.find(idNewFriendship);
-        return friendshipOptional.get();
-    }
-
-    private Optional<Friendship> setInvitationStatusToPending(Friendship newFriendship) {
-        newFriendship.setInvitationStage(InvitationStage.PENDING);
-        return friendshipRepository.update(newFriendship);
-    }
-
-    private Optional<Friendship> setInvitationStatusToApproved(Friendship newFriendship) {
-        newFriendship.setInvitationStage(InvitationStage.APPROVED);
-        return friendshipRepository.update(newFriendship);
-    }
-
-    private Optional<Friendship> setInvitationStatusToRejected(Friendship newFriendship) {
-        newFriendship.setInvitationStage(InvitationStage.REJECTED);
-        return friendshipRepository.update(newFriendship);
-    }
-
-    private Optional<Friendship> addPendingInvitation(Long firstUserId, Long secondUserId){
-        Friendship defaultFriendship = addDefaultFriendshipToRepo(firstUserId, secondUserId);
-        return setInvitationStatusToPending(defaultFriendship);
-    }
-
-    private void throwExceptionIfInvitationIsRejected(Friendship friendship) throws InvitationStatusException{
-        if(friendship.getInvitationStage().equals(InvitationStage.REJECTED))
-            throw new InvitationStatusException("Invitation has already been rejected");
-    }
-
-    private void throwExceptionIfInvitationIsApproved(Friendship friendship) throws InvitationStatusException{
-        if(friendship.getInvitationStage().equals(InvitationStage.APPROVED))
-            throw new InvitationStatusException("Invitation has already been approved");
     }
 }
