@@ -12,6 +12,7 @@ public class FriendRequestChangeEvent implements Event<FriendRequest> {
         this.type = type;
         this.data = data;
     }
+
     public FriendRequestChangeEvent(ChangeEventType type, FriendRequest data, FriendRequest oldData) {
         this.type = type;
         this.data = data;

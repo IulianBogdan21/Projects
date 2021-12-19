@@ -49,12 +49,12 @@ public class InvitationServiceTest {
             testUserRepository = new UserDatabaseRepository(url, user, password);
             testFriendshipsRepository = new FriendshipDatabaseRepository(url, user, password);
             friendshipValidator = new FriendshipValidator(testUserRepository);
-            testNetworkService = new NetworkService(testFriendshipsRepository,
-                    testUserRepository, friendshipValidator);
             testFriendRequestRepository = new FriendRequestDatabaseRepository(url,user,password);
+            testNetworkService = new NetworkService(testFriendshipsRepository,testFriendRequestRepository,
+                    testUserRepository, friendshipValidator);
             friendRequestValidator = new FriendRequestValidator(testUserRepository);
-            friendRequestService = new FriendRequestService(testFriendRequestRepository,friendRequestValidator,
-                    testNetworkService);
+            friendRequestService = new FriendRequestService(testFriendRequestRepository,testFriendshipsRepository,
+                    friendRequestValidator);
         }
         return friendRequestService;
     }

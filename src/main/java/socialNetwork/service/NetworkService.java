@@ -1,5 +1,6 @@
 package socialNetwork.service;
 
+import socialNetwork.domain.models.FriendRequest;
 import socialNetwork.domain.models.Friendship;
 import socialNetwork.domain.models.InvitationStage;
 import socialNetwork.domain.models.User;
@@ -20,15 +21,18 @@ import java.util.Optional;
  */
 public class NetworkService {
     private final RepositoryInterface<UnorderedPair<Long, Long>, Friendship> friendshipRepository;
+    private final RepositoryInterface<UnorderedPair<Long, Long>, FriendRequest> friendRequestRepository;
     private final RepositoryInterface<Long, User> userRepository;
     private final EntityValidatorInterface<UnorderedPair<Long, Long>, Friendship> friendshipValidator;
 
 
     public NetworkService(RepositoryInterface<UnorderedPair<Long, Long>, Friendship> friendshipRepository,
+                          RepositoryInterface<UnorderedPair<Long, Long>, FriendRequest> friendRequestRepository,
                           RepositoryInterface<Long, User> userRepository,
                           EntityValidatorInterface<UnorderedPair<Long, Long>, Friendship> friendshipValidator) {
-        this.userRepository = userRepository;
         this.friendshipRepository = friendshipRepository;
+        this.friendRequestRepository = friendRequestRepository;
+        this.userRepository = userRepository;
         this.friendshipValidator = friendshipValidator;
     }
 
@@ -52,13 +56,15 @@ public class NetworkService {
     }
 
     /**
-     * removes the friendship between the users with the given id-s
+     * removes the friendship between the users with the given id-s(UNFRIEND functionality from real apps)
+     * it removes the friendship and the request too
      * @param firstUserId - Long - id of first user
      * @param secondUserId - Long - id of second user
      * @return Optional containing the removed relationship, empty Optional if the users are not friends
      */
     public Optional<Friendship> removeFriendshipService(Long firstUserId, Long secondUserId){
         UnorderedPair<Long, Long> friendshipId = new UnorderedPair<>(firstUserId, secondUserId);
+        friendRequestRepository.remove(friendshipId);
         return friendshipRepository.remove(friendshipId);
     }
 

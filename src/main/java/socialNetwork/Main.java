@@ -41,13 +41,13 @@ public class Main {
 
         UserService userService = new UserService(userRepository, friendshipRepository
                 ,friendRequestRepository,userValidator);
-        NetworkService networkService = new NetworkService(friendshipRepository, userRepository,
-                friendshipValidator);
+        NetworkService networkService = new NetworkService(friendshipRepository, friendRequestRepository,
+                userRepository,friendshipValidator);
         MessageService messageService = new MessageService(userRepository, messagesRepository);
         AuthentificationService authentificationService = new AuthentificationService(
                 autentificationRepository,autentificationValidator);
         FriendRequestService friendRequestService = new FriendRequestService(friendRequestRepository,
-                friendRequesttValidator,networkService);
+                friendshipRepository,friendRequesttValidator);
         NetworkController networkController =
                 new NetworkController(userService, networkService, messageService,
                         authentificationService,friendRequestService);

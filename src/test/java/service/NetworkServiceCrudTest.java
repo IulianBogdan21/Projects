@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import repository.database.FriendshipDatabaseTableSetter;
 import repository.database.UserDatabaseTableSetter;
+import socialNetwork.domain.models.FriendRequest;
 import socialNetwork.domain.models.Friendship;
 import socialNetwork.domain.models.User;
 import socialNetwork.domain.validators.FriendshipValidator;
@@ -14,6 +15,7 @@ import socialNetwork.exceptions.InvalidEntityException;
 import socialNetwork.repository.RepositoryInterface;
 import socialNetwork.repository.csv.FriendshipCsvFileRepository;
 import socialNetwork.repository.csv.UserCsvFileRepository;
+import socialNetwork.repository.database.FriendRequestDatabaseRepository;
 import socialNetwork.repository.database.FriendshipDatabaseRepository;
 import socialNetwork.repository.database.UserDatabaseRepository;
 import socialNetwork.service.NetworkService;
@@ -31,9 +33,11 @@ public class NetworkServiceCrudTest {
     private String password = ApplicationContext.getProperty("network.database.password");
     RepositoryInterface<Long, User> userTestRepository = new UserDatabaseRepository(url, user, password);;
     RepositoryInterface<UnorderedPair<Long, Long>, Friendship> friendshipTestRepository
-            = new FriendshipDatabaseRepository(url, user, password);;
+            = new FriendshipDatabaseRepository(url, user, password);
+    RepositoryInterface<UnorderedPair<Long, Long>, FriendRequest> friendRequestTestRepository
+            = new FriendRequestDatabaseRepository(url, user, password);;
 
-    NetworkService testService = new NetworkService(friendshipTestRepository,
+    NetworkService testService = new NetworkService(friendshipTestRepository,friendRequestTestRepository,
             userTestRepository,
             new FriendshipValidator(userTestRepository));
 

@@ -163,14 +163,16 @@ public class FriendRequestDatabaseRepository implements
 
     private PreparedStatement createUpdateStatementForFriendship(Connection connection, FriendRequest newValue) {
         try{
-            String updateSqlStr = "UPDATE friendrequests SET status=? WHERE fromUserID=? AND toUserID=? OR " +
+            String updateSqlStr = "UPDATE friendrequests SET status=?,dateRequest=? " +
+                    "WHERE fromUserID=? AND toUserID=? OR " +
                     "toUserID=? AND fromUserID=?";
             PreparedStatement updateSql = connection.prepareStatement(updateSqlStr);
             updateSql.setString(1, newValue.getInvitationStage().toString() );
-            updateSql.setLong(2, newValue.getFromUserID());
-            updateSql.setLong(3, newValue.getToUserID());
-            updateSql.setLong(4, newValue.getFromUserID());
-            updateSql.setLong(5, newValue.getToUserID());
+            updateSql.setTimestamp(2,Timestamp.valueOf(newValue.getDateRequest()));
+            updateSql.setLong(3, newValue.getFromUserID());
+            updateSql.setLong(4, newValue.getToUserID());
+            updateSql.setLong(5, newValue.getFromUserID());
+            updateSql.setLong(6, newValue.getToUserID());
             return updateSql;
         } catch (SQLException exception){
             throw new DatabaseException(exception.getMessage());

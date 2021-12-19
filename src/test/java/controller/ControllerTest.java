@@ -55,11 +55,13 @@ public class ControllerTest {
             testFriendRequestValidator = new FriendRequestValidator(testUserRepository);
             testAuthentificationValidator = new AuthentificationValidator();
             testUserService = new UserService(testUserRepository,testFriendshipRepository,testFriendRequestRepository,testUserValidator);
-            testNetworkService = new NetworkService(testFriendshipRepository,testUserRepository,testFriendshipValidator);
+            testNetworkService = new NetworkService(testFriendshipRepository,testFriendRequestRepository,
+                    testUserRepository,testFriendshipValidator);
             testMessageService = new MessageService(testUserRepository,testMessageRepository);
             testAuthentificationService = new AuthentificationService(testAutentificationRepository,testAuthentificationValidator);
-            testFriendRequestService = new FriendRequestService(testFriendRequestRepository,testFriendRequestValidator
-                                                                ,testNetworkService);
+            testFriendRequestService = new FriendRequestService(testFriendRequestRepository,testFriendshipRepository,
+                    testFriendRequestValidator);
+
             testNetworkController = new NetworkController(testUserService,testNetworkService
                     ,testMessageService,testAuthentificationService,testFriendRequestService);
         }

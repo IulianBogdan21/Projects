@@ -15,15 +15,15 @@ import java.util.Optional;
 public class FriendRequestService {
 
     RepositoryInterface<UnorderedPair<Long,Long>, FriendRequest> friendRequestRepository;
+    RepositoryInterface<UnorderedPair<Long,Long>, Friendship> friendshipRepository;
     EntityValidatorInterface<UnorderedPair<Long, Long>, FriendRequest> friendRequestValidator;
-    NetworkService networkService;
 
     public FriendRequestService(RepositoryInterface<UnorderedPair<Long, Long>, FriendRequest> friendRequestRepository,
-                                EntityValidatorInterface<UnorderedPair<Long, Long>, FriendRequest> friendRequestValidator,
-                                NetworkService networkService) {
+                                RepositoryInterface<UnorderedPair<Long, Long>, Friendship> friendshipRepository,
+                                EntityValidatorInterface<UnorderedPair<Long, Long>, FriendRequest> friendRequestValidator) {
         this.friendRequestRepository = friendRequestRepository;
+        this.friendshipRepository = friendshipRepository;
         this.friendRequestValidator = friendRequestValidator;
-        this.networkService = networkService;
     }
 
     public Optional<FriendRequest> find(Long firstUserId, Long secondUserId){
@@ -82,20 +82,30 @@ public class FriendRequestService {
             throw new EntityMissingValidationException("Friendship between users doesn't exist");
         FriendRequest friendRequestBetweenUsers = optionalFriendRequestBetweenUsers.get();
         friendRequestBetweenUsers.setInvitationStage(InvitationStage.PENDING);
+        friendRequestBetweenUsers.setDateRequest(LocalDateTime.now());
         return friendRequestRepository.update(friendRequestBetweenUsers);
     }
 
     private Optional<Friendship> setInvitationStatusToRejected(FriendRequest friendRequest){
         friendRequest.setInvitationStage(InvitationStage.REJECTED);
+        friendRequest.setDateRequest(LocalDateTime.now());
         friendRequestRepository.update(friendRequest);
-        return networkService.removeFriendshipService(friendRequest.getFromUserID(),friendRequest.getToUserID());
+
+        UnorderedPair<Long,Long> idFriendshipRemove = new UnorderedPair<>(friendRequest.getFromUserID(),
+                friendRequest.getToUserID());
+        if(friendshipRepository.find(idFriendshipRemove).isPresent())
+            return friendshipRepository.remove(idFriendshipRemove);
+        return Optional.empty();
     }
 
     private Optional<Friendship> setInvitationStatusToApproved(FriendRequest friendRequest){
         friendRequest.setInvitationStage(InvitationStage.APPROVED);
+        friendRequest.setDateRequest(LocalDateTime.now());
         friendRequestRepository.update(friendRequest);
-        return networkService.addFriendshipService(friendRequest.getFromUserID(),
-                friendRequest.getToUserID(),friendRequest.getDateRequest());
+        Friendship friendship = new Friendship(friendRequest.getFromUserID(),friendRequest.getToUserID(),
+                friendRequest.getDateRequest());
+        friendshipRepository.save(friendship);
+        return Optional.of(friendship);
     }
 
     private Optional<FriendRequest> searchForFriendRequestInRepository(Long firstUserId,Long secondUserId){
