@@ -15,10 +15,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 import socialNetwork.controllers.NetworkController;
-import socialNetwork.domain.models.FriendshipRequestDTO;
-import socialNetwork.domain.models.InvitationStage;
-import socialNetwork.domain.models.RequestInvitationGUIDTO;
-import socialNetwork.domain.models.User;
+import socialNetwork.domain.models.*;
 import socialNetwork.exceptions.ExceptionBaseClass;
 import socialNetwork.utilitaries.MessageAlert;
 import socialNetwork.utilitaries.events.Event;
@@ -38,7 +35,7 @@ public class FriendshipStatusController implements Observer<Event> {
     ObservableList<RequestInvitationGUIDTO> modelFriendshipRequestDTOReact = FXCollections.observableArrayList();
 
     NetworkController networkController;
-    User mainUser;
+    Page rootPage;
     Stage displayStage;
 
     @FXML
@@ -76,15 +73,16 @@ public class FriendshipStatusController implements Observer<Event> {
     @FXML
     Button resubmissionRequestButton;
 
-    public void setNetworkController(Stage primaryStage, NetworkController service,User user){
+    public void setNetworkController(Stage primaryStage, NetworkController service,Page rootPage){
         this.networkController = service;
-        networkController.addObserver(this);
+        networkController.getFriendRequestService().addObserver(this);
         this.displayStage = primaryStage;
-        this.mainUser = user;
+        this.rootPage = rootPage;
         initModelFriendRequest();
     }
 
     private void initModelFriendRequest(){
+        User mainUser = rootPage.getRoot();
         List<FriendshipRequestDTO> friendshipRequestDTOList = networkController
                 .findAllRequestFriendsForUser(mainUser.getId());
 
@@ -144,12 +142,13 @@ public class FriendshipStatusController implements Observer<Event> {
         displayStage =  (Stage)(((Node)event.getSource()).getScene().getWindow());
         displayStage.setScene(new Scene(root));
         UserViewController userViewController = loader.getController();
-        userViewController.setNetworkController(displayStage,networkController,mainUser);
+        userViewController.setNetworkController(displayStage,networkController,rootPage);
         displayStage.show();
     }
 
     @FXML
     public void handleApprovedFriend(){
+        User mainUser = rootPage.getRoot();
         RequestInvitationGUIDTO requestInvitationGUIDTO = requestFriendshipTableViewReact
                 .getSelectionModel().getSelectedItem();
         if(requestInvitationGUIDTO != null){
@@ -174,6 +173,7 @@ public class FriendshipStatusController implements Observer<Event> {
 
     @FXML
     public void handleRejectFriend(){
+        User mainUser = rootPage.getRoot();
         RequestInvitationGUIDTO requestInvitationGUIDTO = requestFriendshipTableViewReact
                 .getSelectionModel().getSelectedItem();
         if(requestInvitationGUIDTO != null){
@@ -198,6 +198,7 @@ public class FriendshipStatusController implements Observer<Event> {
 
     @FXML
     public void handleResubmissionRequest(){
+        User mainUser = rootPage.getRoot();
         RequestInvitationGUIDTO requestInvitationGUIDTO = requestFriendshipTableViewReact
                 .getSelectionModel().getSelectedItem();
         if(requestInvitationGUIDTO == null){

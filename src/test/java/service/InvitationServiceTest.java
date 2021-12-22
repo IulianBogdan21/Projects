@@ -24,7 +24,6 @@ import socialNetwork.service.NetworkService;
 import socialNetwork.utilitaries.UnorderedPair;
 
 import java.sql.*;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -253,6 +252,32 @@ public class InvitationServiceTest {
         getService().updateRejectedFriendRequestService(getMinimumId()+1,getMinimumId()+2);
         Assertions.assertEquals(Optional.empty(),
                 testNetworkService.findFriendshipService(getMinimumId()+1,getMinimumId()+2));
+    }
+
+    @Test
+    void testWithdrawInvitation(){
+        //PENDING
+        getService().sendInvitationForFriendRequestService(getMinimumId() , getMinimumId() + 1);
+        //APPROVED
+        getService().sendInvitationForFriendRequestService(getMinimumId() , getMinimumId() + 2);
+        getService().updateApprovedFriendRequestService(getMinimumId() , getMinimumId() + 2);
+        //REJECTED
+        getService().sendInvitationForFriendRequestService(getMinimumId() + 1 , getMinimumId() + 2);
+        getService().updateRejectedFriendRequestService(getMinimumId() + 1 , getMinimumId() + 2);
+
+        Assertions.assertThrows(InvitationStatusException.class,
+                ()->getService().withdrawFriendRequestService(getMinimumId(),getMinimumId() + 2),
+                "Try to withdraw an approved invitation");
+        Assertions.assertThrows(InvitationStatusException.class,
+                ()->getService().withdrawFriendRequestService(getMinimumId() + 1,getMinimumId() + 2),
+                "Try to withdraw a rejected invitation");
+        Optional<FriendRequest> cancelFriendRequest = getService()
+                .withdrawFriendRequestService(getMinimumId(),getMinimumId() + 1);
+        Assertions.assertEquals(cancelFriendRequest.get().getInvitationStage(),
+                InvitationStage.PENDING);
+        Assertions.assertEquals(Optional.empty(),getService()
+                .withdrawFriendRequestService(getMinimumId(),getMinimumId() + 1));
+
     }
 
 }

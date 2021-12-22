@@ -3,24 +3,25 @@ package socialNetwork.utilitaries.events;
 import socialNetwork.domain.models.FriendRequest;
 import socialNetwork.domain.models.Friendship;
 
-public class FriendRequestChangeEvent implements Event<FriendRequest> {
+public class FriendRequestChangeEvent implements Event<FriendRequest,FriendRequestChangeEventType> {
 
-    private ChangeEventType type;
+    private FriendRequestChangeEventType type;
     private FriendRequest data, oldData;
 
-    public FriendRequestChangeEvent(ChangeEventType type, FriendRequest data) {
+    public FriendRequestChangeEvent(FriendRequestChangeEventType type, FriendRequest data) {
         this.type = type;
         this.data = data;
     }
 
-    public FriendRequestChangeEvent(ChangeEventType type, FriendRequest data, FriendRequest oldData) {
+    public FriendRequestChangeEvent(FriendRequestChangeEventType type,
+                                    FriendRequest data, FriendRequest oldData) {
         this.type = type;
         this.data = data;
         this.oldData=oldData;
     }
 
     @Override
-    public ChangeEventType getType() {
+    public FriendRequestChangeEventType getType() {
         return type;
     }
 

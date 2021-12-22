@@ -4,6 +4,11 @@ import socialNetwork.domain.models.*;
 import socialNetwork.exceptions.CorruptedDataException;
 import socialNetwork.exceptions.EntityMissingValidationException;
 import socialNetwork.repository.RepositoryInterface;
+import socialNetwork.utilitaries.events.Event;
+import socialNetwork.utilitaries.events.MessageChangeEvent;
+import socialNetwork.utilitaries.events.MessageChangeEventType;
+import socialNetwork.utilitaries.observer.Observable;
+import socialNetwork.utilitaries.observer.Observer;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -13,9 +18,10 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public class MessageService {
+public class MessageService implements Observable<Event> {
     RepositoryInterface<Long, User> repoUser;
     RepositoryInterface<Long, MessageDTO> repoMessagesDTO;
+    private List< Observer<Event> > observersMessage = new ArrayList<>();
     private static final int DATES_ARE_IDENTICAL = 0;
     private static final int MESSAGES_ARE_IN_CORRECT_ORDER = -1;
     private static final int REVERSE_ORDER_OF_MESSAGES = 1;
@@ -39,7 +45,8 @@ public class MessageService {
 
         MessageDTO messageDTO = buildMessageToSendDto(userFrom, usersTo, text);
 
-       return saveMessageThatIsNotReplyInRepo(messageDTO);
+        notifyObservers(new MessageChangeEvent(MessageChangeEventType.SEND,messageDTO));
+        return saveMessageThatIsNotReplyInRepo(messageDTO);
     }
 
     /**
@@ -59,6 +66,7 @@ public class MessageService {
 
         List<User> to = setListOfReceiversForResponseMessage(userFrom, messageWeWantToRespondTo);
         MessageDTO messageDTOToSave = buildResponseMessageDTO(userFrom, to, text, messageWeWantToRespondTo);
+
         return saveReplyMessageDTOInRepo(userFrom, to, text, messageWeWantToRespondTo, messageDTOToSave);
     }
 
@@ -149,6 +157,53 @@ public class MessageService {
                 .stream()
                 .filter(allUserMessage)
                 .map(MessageDTO::getMainMessage)
+                .toList();
+    }
+
+
+    public List<Chat> getAllChatsSpecifiedUserMessageService(Long idUser){
+        Predicate<MessageDTO> messageHasSpecifiedUser = messageDTO -> {
+            return messageDTO.getMainMessage().getFrom().getId().equals(idUser) ||
+                    userInList(idUser,messageDTO.getMainMessage().getTo());
+        };
+        //I group all messages by the users involved and the result chats have User with idUser ID
+        Map< List<User>,List<MessageDTO> > messagesChats = repoMessagesDTO.getAll()
+                        .stream()
+                        .filter(messageHasSpecifiedUser)
+                        .collect(Collectors.groupingBy(messageDTO -> {
+                            Message mainMessage = messageDTO.getMainMessage();
+                            List<User> members = mainMessage.getTo();
+                            members.add(mainMessage.getFrom());
+
+                            List<User> sortedMembersFromChat = members
+                                    .stream()
+                                    .sorted((User userX,User userY) -> {
+                                        return userX.getId().compareTo(userY.getId());
+                                    })
+                                    .toList();
+                            return  sortedMembersFromChat;
+                        }));
+
+        return messagesChats.entrySet()
+                .stream()
+                .map(allMessageChat -> {
+                    List<User> members = allMessageChat.getKey();
+                    List<Message> messageList = allMessageChat.getValue()
+                            .stream()
+                            .filter(messageDTO -> messageDTO.getMessageToRespondTo() == null)
+                            .map(messageDTO -> messageDTO.getMainMessage())
+                            .toList();
+                    List<ReplyMessage> replyMessageList = allMessageChat.getValue()
+                            .stream()
+                            .filter(messageDTO -> messageDTO.getMessageToRespondTo() != null)
+                            .map(messageDTO -> {
+                                Message mainMessage = messageDTO.getMainMessage();
+                                return new ReplyMessage(mainMessage.getFrom(),
+                                        mainMessage.getTo(), mainMessage.getText(), messageDTO.getMessageToRespondTo());
+                            })
+                            .toList();
+                    return new Chat(members,messageList,replyMessageList);
+                })
                 .toList();
     }
 
@@ -333,8 +388,10 @@ public class MessageService {
                                                              Message messageWeWantToRespondTo,
                                                              MessageDTO messageDTOToSave) {
         Optional<MessageDTO> messageDTOAfterSaveOptional = repoMessagesDTO.save(messageDTOToSave);
-        if (messageDTOAfterSaveOptional.isEmpty())
+        if (messageDTOAfterSaveOptional.isEmpty()) {
+            notifyObservers(new MessageChangeEvent(MessageChangeEventType.RESPOND,messageDTOToSave));
             return Optional.empty();
+        }
         MessageDTO messageDTOAfterSave = messageDTOAfterSaveOptional.get();
 
         ReplyMessage replyMessage = getReplyMessageFromDTOAfterSave(userFrom, to, text,
@@ -412,4 +469,18 @@ public class MessageService {
         return listHistoryConversation;
         }
 
+    @Override
+    public void addObserver(Observer<Event> observer) {
+        observersMessage.add(observer);
+    }
+
+    @Override
+    public void removeObserver(Observer<Event> observer) {
+        observersMessage.remove(observer);
+    }
+
+    @Override
+    public void notifyObservers(Event event) {
+        observersMessage.forEach(obs -> obs.update(event));
+    }
 }

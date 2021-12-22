@@ -73,6 +73,19 @@ public class MessageServiceTest {
 
     }
 
+    public Long getMinimumMessageId(){
+        try(Connection connection = DriverManager.getConnection(url, user, password)){
+            String findMinimumString = "select min(id) from messages";
+            PreparedStatement findSql = connection.prepareStatement(findMinimumString);
+            ResultSet resultSet = findSql.executeQuery();
+            resultSet.next();
+            return resultSet.getLong(1);
+        } catch (SQLException exception){
+            throw new DatabaseException(exception.getMessage());
+        }
+
+    }
+
 
     public void tearDown(){
         try(Connection connection = DriverManager.getConnection(url, user, password)) {
@@ -241,5 +254,66 @@ public class MessageServiceTest {
         //if one of the users doesn't exist
         Assertions.assertThrows(EntityMissingValidationException.class,
                 () -> getService().historyConversationService(getMinimumId() - 1,getMinimumId() + 1));
+    }
+
+    @Test
+    void testGetAllChatForSpecifiedUser(){
+        // 0 -> 1
+        getService().sendMessagesService(getMinimumId(),
+                Arrays.asList( getMinimumId() + 1), "Buna");
+        getService().sendMessagesService(getMinimumId(),
+                Arrays.asList( getMinimumId() + 1), "Cel fara de nume");
+        getService().sendMessagesService(getMinimumId() + 1,
+                Arrays.asList(  getMinimumId() ), "Se va ridica din nou");
+
+        //0->1,2
+        getService().sendMessagesService(getMinimumId(),
+                Arrays.asList(getMinimumId() + 1 , getMinimumId() + 2), "Fara de neam");
+        getService().sendMessagesService(getMinimumId() + 1,
+                Arrays.asList(getMinimumId() , getMinimumId() + 2), "Fara de nume");
+        Long idFirstMessageGroup = getMinimumMessageId() + 3;
+        getService().respondMessageService(getMinimumId() + 2,
+                idFirstMessageGroup,"Toata lumea asa imi spune");
+        getService().respondMessageService(getMinimumId() + 1,
+                idFirstMessageGroup,"Imi sta bine, imi sta bine");
+
+        //6->5
+        getService().sendMessagesService(getMaximumId(),
+                Arrays.asList(getMinimumId() + 2), "Fara de neam");
+        getService().sendMessagesService(getMaximumId(),
+                Arrays.asList( getMinimumId() + 2), "Fara de nume");
+
+        List<Chat> chatList = getService().getAllChatsSpecifiedUserMessageService(getMinimumId());
+        Assertions.assertEquals(2,chatList.size());
+
+        Chat privateChat = null;
+        Chat groupChat = null;
+        if( chatList.get(0).getMembers().size() == 2){
+            privateChat = chatList.get(0);
+            groupChat = chatList.get(1);
+        }
+        else{
+            privateChat = chatList.get(1);
+            groupChat = chatList.get(0);
+        }
+        //-------------privateChat
+        Assertions.assertEquals(privateChat.getMembers().size(),2);
+        Assertions.assertEquals(privateChat.getMessageList().size(),3);
+        Assertions.assertEquals("Buna",privateChat.getMessageList().get(0).getText());
+        Assertions.assertEquals("Cel fara de nume",privateChat.getMessageList().get(1).getText());
+        Assertions.assertEquals("Se va ridica din nou",privateChat.getMessageList().get(2).getText());
+
+        //-------------groupChat
+        Assertions.assertEquals(groupChat.getMembers().size(),3);
+        Assertions.assertEquals(groupChat.getMessageList().size(),2);
+        Assertions.assertEquals("Fara de neam",groupChat.getMessageList().get(0).getText());
+        Assertions.assertEquals("Fara de nume",groupChat.getMessageList().get(1).getText());
+        //-------------groupChat----ReplyMessages
+        Assertions.assertEquals(groupChat.getReplyMessageList().size(),2);
+        Assertions.assertEquals("Toata lumea asa imi spune",
+                groupChat.getReplyMessageList().get(0).getText());
+        Assertions.assertEquals("Imi sta bine, imi sta bine",
+                groupChat.getReplyMessageList().get(1).getText());
+
     }
 }

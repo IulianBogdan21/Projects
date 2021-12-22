@@ -14,6 +14,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 import socialNetwork.controllers.NetworkController;
+import socialNetwork.domain.models.Page;
 import socialNetwork.domain.models.User;
 import socialNetwork.exceptions.ExceptionBaseClass;
 import socialNetwork.utilitaries.MessageAlert;
@@ -59,25 +60,20 @@ public class UserViewController implements Observer<Event> {
     TextField searchFriendshipField;
 
     NetworkController networkController;
-    User mainUser;
+    Page rootPage;
     Stage displayStage;
 
-    public void setNetworkController(Stage primaryStage, NetworkController service,User user){
+    public void setNetworkController(Stage primaryStage, NetworkController service, Page rootPage){
         this.networkController = service;
-        networkController.addObserver(this);
+        networkController.getNetworkService().addObserver(this);
         this.displayStage = primaryStage;
-        this.mainUser = user;
+        this.rootPage = rootPage;
         initModelFriends();
     }
 
     private void initModelFriends(){
-        List< User > friendListForUser = networkController.findAllApprovedFriendshipsForUser(mainUser.getId())
-                .entrySet()
-                .stream()
-                .map(x -> x.getKey().get())
-                .toList();
+        List< User > friendListForUser = rootPage.getFriendList();
         modelFriends.setAll(friendListForUser);
-
     }
 
     @FXML
@@ -102,6 +98,7 @@ public class UserViewController implements Observer<Event> {
 
     @FXML
     public void handleFriendshipDelete(){
+        User mainUser = rootPage.getRoot();
         if(friendshipTableView.getSelectionModel().getSelectedItem() != null){
             User user = friendshipTableView.getSelectionModel().getSelectedItem();
             Long idFirstUser = mainUser.getId();
@@ -117,6 +114,7 @@ public class UserViewController implements Observer<Event> {
 
     @FXML
     public void handleFriendshipRequest(){
+        User mainUser = rootPage.getRoot();
         if(friendshipSearchTableView.getSelectionModel().getSelectedItem() != null){
             User user = friendshipSearchTableView.getSelectionModel().getSelectedItem();
             Long idFirstUser = mainUser.getId();
@@ -136,16 +134,18 @@ public class UserViewController implements Observer<Event> {
 
     @FXML
     public void handleFriendRequests(ActionEvent event) throws IOException {
+        User mainUser = rootPage.getRoot();
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/socialNetwork.gui/friendshipStatusView.fxml"));
         Parent root = loader.load();
         displayStage =  (Stage)(((Node)event.getSource()).getScene().getWindow());
         displayStage.setScene(new Scene(root));
         FriendshipStatusController friendshipStatusController = loader.getController();
-        friendshipStatusController.setNetworkController(displayStage,networkController,mainUser);
+        friendshipStatusController.setNetworkController(displayStage,networkController,rootPage);
         displayStage.show();
     }
 
     private void handleFilter(){
+        User mainUser = rootPage.getRoot();
         Predicate<User> nameOfUserPredicate = u -> u.getFirstName()
                 .startsWith(searchFriendshipField.getText());
         List<User> userListWithoutMainUser = networkController.getAllUsers()

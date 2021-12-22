@@ -199,7 +199,7 @@ public class ControllerTest {
         Assertions.assertTrue(getNetworkController().
                 signUp("Naruto","Uzumaky","naruzu","casa"));
         Assertions.assertEquals(new User("Naruto","Uzumaky","naruzu"),
-                getNetworkController().logIn("naruzu","casa").get());
+                getNetworkController().logIn("naruzu","casa").getRoot());
         Assertions.assertThrows(LogInException.class,()->
                 getNetworkController().logIn("naruzu","casA"));
         Assertions.assertThrows(LogInException.class,()->
