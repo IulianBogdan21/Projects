@@ -10,21 +10,27 @@ import socialNetwork.exceptions.InvitationStatusException;
 import socialNetwork.repository.RepositoryInterface;
 import socialNetwork.utilitaries.UndirectedGraph;
 import socialNetwork.utilitaries.UnorderedPair;
+import socialNetwork.utilitaries.events.ChangeEventType;
+import socialNetwork.utilitaries.events.Event;
+import socialNetwork.utilitaries.events.FriendshipChangeEvent;
+import socialNetwork.utilitaries.observer.Observable;
+import socialNetwork.utilitaries.observer.Observer;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 /**
  * business layer for Friendship model
  */
-public class NetworkService {
+public class NetworkService implements Observable<Event> {
     private final RepositoryInterface<UnorderedPair<Long, Long>, Friendship> friendshipRepository;
     private final RepositoryInterface<UnorderedPair<Long, Long>, FriendRequest> friendRequestRepository;
     private final RepositoryInterface<Long, User> userRepository;
     private final EntityValidatorInterface<UnorderedPair<Long, Long>, Friendship> friendshipValidator;
-
+    private List< Observer<Event> > observersFriendship = new ArrayList<>();
 
     public NetworkService(RepositoryInterface<UnorderedPair<Long, Long>, Friendship> friendshipRepository,
                           RepositoryInterface<UnorderedPair<Long, Long>, FriendRequest> friendRequestRepository,
@@ -34,6 +40,19 @@ public class NetworkService {
         this.friendRequestRepository = friendRequestRepository;
         this.userRepository = userRepository;
         this.friendshipValidator = friendshipValidator;
+    }
+
+    public List<User> getAllFriendshipForSpecifiedUserService(Long idUser){
+        return friendshipRepository.getAll()
+                .stream()
+                .filter(friendship -> friendship.hasUser(idUser))
+                .map(friendship -> {
+                    Long idFriend = friendship.getId().left;
+                    if(idFriend.equals(idUser))
+                        idFriend = friendship.getId().right;
+                    return userRepository.find(idFriend).get();
+                })
+                .toList();
     }
 
     /**
@@ -65,7 +84,10 @@ public class NetworkService {
     public Optional<Friendship> removeFriendshipService(Long firstUserId, Long secondUserId){
         UnorderedPair<Long, Long> friendshipId = new UnorderedPair<>(firstUserId, secondUserId);
         friendRequestRepository.remove(friendshipId);
-        return friendshipRepository.remove(friendshipId);
+        Optional<Friendship> removedFriendship = friendshipRepository.remove(friendshipId);
+        if(removedFriendship.isPresent())
+            notifyObservers(new FriendshipChangeEvent(ChangeEventType.DELETE,removedFriendship.get()));
+        return  removedFriendship;
     }
 
     /**
@@ -123,5 +145,20 @@ public class NetworkService {
             currentUser.setListOfFriends(userUndirectedGraph.getNeighboursOf(currentUser).stream().toList());
         }
         return allUsersAndFriends;
+    }
+
+    @Override
+    public void addObserver(Observer<Event> observer) {
+        observersFriendship.add(observer);
+    }
+
+    @Override
+    public void removeObserver(Observer<Event> observer) {
+        observersFriendship.remove(observer);
+    }
+
+    @Override
+    public void notifyObservers(Event event) {
+        observersFriendship.forEach(obs -> obs.update(event));
     }
 }

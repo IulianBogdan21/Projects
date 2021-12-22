@@ -5,12 +5,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
-import repository.database.AuthentificationDatabaseRepositoryTest;
 import socialNetwork.controllers.NetworkController;
-import socialNetwork.domain.models.Autentification;
-import socialNetwork.domain.models.FriendRequest;
-import socialNetwork.domain.models.Friendship;
-import socialNetwork.domain.models.User;
+import socialNetwork.domain.models.*;
 import socialNetwork.domain.validators.*;
 import socialNetwork.exceptions.LogInException;
 import socialNetwork.repository.database.*;
@@ -35,7 +31,7 @@ public class ControllerTest {
     EntityValidatorInterface<String, Autentification> testAuthentificationValidator;
     AutentificationDatabaseRepository testAutentificationRepository = new AutentificationDatabaseRepository(url,user,password);
     MessageDTODatabaseRepository testMessageRepository;
-    UserDatabaseRepository testUserRepository;
+    UserDatabaseRepository testUserRepository = new UserDatabaseRepository(url,user,password);;
     FriendshipDatabaseRepository testFriendshipRepository;
     FriendRequestDatabaseRepository testFriendRequestRepository;
     UserService testUserService;
@@ -47,7 +43,6 @@ public class ControllerTest {
 
     public NetworkController getNetworkController() {
         if(testNetworkController == null) {
-            testUserRepository = new UserDatabaseRepository(url,user,password);
             testFriendshipRepository = new FriendshipDatabaseRepository(url,user,password);
             testFriendRequestRepository = new FriendRequestDatabaseRepository(url,user,password);
             testMessageRepository = new MessageDTODatabaseRepository(url,user,password);
@@ -92,6 +87,18 @@ public class ControllerTest {
         }
     }
 
+    public Long getMinimumMessageId(){
+        try(Connection connection = DriverManager.getConnection(url, user, password)){
+            String findMinimumString = "select min(id) from messages";
+            PreparedStatement findSql = connection.prepareStatement(findMinimumString);
+            ResultSet resultSet = findSql.executeQuery();
+            resultSet.next();
+            return resultSet.getLong(1);
+        } catch (SQLException exception){
+            throw new DatabaseException(exception.getMessage());
+        }
+    }
+
     private List<User> getUserTestData(){
         return Arrays.asList(
                 new User("Gigi","Gigi","a1"),
@@ -119,18 +126,24 @@ public class ControllerTest {
             var deleteUsersStatement =
                     connection.prepareStatement("DELETE FROM users");
             deleteUsersStatement.executeUpdate();
-            var deleteChatMessagesStatement =
-                    connection.prepareStatement("DELETE FROM messages_id_correlation");
-            deleteChatMessagesStatement.executeUpdate();
             var deleteMessagesStatement =
                     connection.prepareStatement("DELETE FROM messages");
             deleteMessagesStatement.executeUpdate();
-            var deleteReplyMessagesStatement =
-                    connection.prepareStatement("DELETE FROM replymessages");
-            deleteReplyMessagesStatement.executeUpdate();
             var deleteFriendshipsStatement =
                     connection.prepareStatement("DELETE FROM friendships");
             deleteFriendshipsStatement.executeUpdate();
+            var deleteChatMessagesStatement =
+                    connection.prepareStatement("DELETE FROM messages_id_correlation");
+            deleteChatMessagesStatement.executeUpdate();
+            var deleteReplyMessagesStatement =
+                    connection.prepareStatement("DELETE FROM replymessages");
+            deleteReplyMessagesStatement.executeUpdate();
+            var deleteFriendRequestStatement =
+                    connection.prepareStatement("DELETE FROM friendrequests");
+            deleteFriendRequestStatement.executeUpdate();
+            var deleteAuthentificationStatement =
+                    connection.prepareStatement("DELETE FROM autentifications");
+            deleteAuthentificationStatement.executeUpdate();
         } catch (SQLException exception) {
             exception.printStackTrace();
         }
@@ -139,23 +152,7 @@ public class ControllerTest {
     @BeforeEach
     public void setUp(){
         tearDown();
-
-        try(Connection connection = DriverManager.getConnection(url, user, password)) {
-
-            String insertStatementString = "INSERT INTO users( first_name, last_name, username) VALUES (?,?,?)";
-            PreparedStatement insertStatement = connection.prepareStatement(insertStatementString);
-
-            for(User user : getUserTestData()){
-                insertStatement.setString(1, user.getFirstName());
-                insertStatement.setString(2, user.getLastName());
-                insertStatement.setString(3,user.getUsername());
-                insertStatement.executeUpdate();
-            }
-
-        } catch (SQLException exception) {
-            exception.printStackTrace();
-        }
-
+        getUserTestData().forEach(x->testUserRepository.save(x));
         getAutentificationTestData().forEach( x -> testAutentificationRepository.save(x));
     }
 
@@ -199,10 +196,92 @@ public class ControllerTest {
         Assertions.assertTrue(getNetworkController().
                 signUp("Naruto","Uzumaky","naruzu","casa"));
         Assertions.assertEquals(new User("Naruto","Uzumaky","naruzu"),
-                getNetworkController().logIn("naruzu","casa").get());
+                getNetworkController().logIn("naruzu","casa").getRoot());
         Assertions.assertThrows(LogInException.class,()->
                 getNetworkController().logIn("naruzu","casA"));
         Assertions.assertThrows(LogInException.class,()->
                 getNetworkController().logIn("Naruzu","casa"));
+    }
+
+    private boolean friendshipInTheList(List<User> friendshipList,Long id){
+        boolean find = false;
+        for(User user : friendshipList)
+            if(user.getId().equals(id)){
+                find = true;
+                break;
+            }
+        return find;
+    }
+
+    @Test
+    void testPageObjectWithoutChat(){
+        Page page = getNetworkController().logIn("a1","pa1");
+
+        //send 3 pending invitations
+        getNetworkController().sendInvitationForFriendships(getMinimumId(),getMinimumId()+1);
+        getNetworkController().sendInvitationForFriendships(getMinimumId(),getMinimumId()+2);
+        getNetworkController().sendInvitationForFriendships(getMinimumId(),getMinimumId()+3);
+        List<FriendRequest> friendRequestList = page.getFriendRequestList();
+        Assertions.assertEquals(friendRequestList.size(),3);
+
+        //accept last 2 invitations
+        getNetworkController().updateApprovedFriendship(getMinimumId() + 2,getMinimumId());
+        getNetworkController().updateApprovedFriendship(getMinimumId() + 3,getMinimumId());
+        List<User> friendshipList = page.getFriendList();
+        Assertions.assertEquals(friendshipList.size(),2);
+        Assertions.assertTrue(friendshipInTheList(friendshipList,getMinimumId()+2));
+        Assertions.assertTrue(friendshipInTheList(friendshipList,getMinimumId()+3));
+
+        //reject last approve invitation by the receiver
+        getNetworkController().updateRejectedFriendship(getMinimumId()+3,getMinimumId());
+        friendshipList = page.getFriendList();
+        Assertions.assertEquals(friendshipList.size(),1);
+        Assertions.assertTrue(friendshipInTheList(friendshipList,getMinimumId()+2));
+
+        //withdraw the pending invitation
+        getNetworkController().withdrawFriendRequest(getMinimumId(),getMinimumId()+1);
+        friendRequestList = page.getFriendRequestList();
+        Assertions.assertEquals(friendRequestList.size(),2);
+
+        //remove a friend .There it will be just the rejecte invitation
+        getNetworkController().removeFriendship(getMinimumId(),getMinimumId()+2);
+        friendRequestList = page.getFriendRequestList();
+        Assertions.assertEquals(friendRequestList.size(),1);
+        Assertions.assertEquals(friendRequestList.get(0).getInvitationStage(),InvitationStage.REJECTED);
+        friendshipList = page.getFriendList();
+        Assertions.assertEquals(friendshipList.size(),0);
+
+        //resubmit the rejected invitation
+        getNetworkController().updateRejectedToPendingFriendship(getMinimumId()+3,getMinimumId());
+        getNetworkController().updateApprovedFriendship(getMinimumId(),getMinimumId() + 3);
+        friendRequestList = page.getFriendRequestList();
+        Assertions.assertEquals(friendRequestList.size(),1);
+        Assertions.assertEquals(friendRequestList.get(0).getInvitationStage(),InvitationStage.APPROVED);
+        friendshipList = page.getFriendList();
+        Assertions.assertEquals(friendshipList.size(),1);
+
+        page.unsubscribePage();
+    }
+
+    @Test
+    void testPageObjectChat(){
+        Page page = getNetworkController().logIn("a6","pa6");
+        List<Chat> chatList = page.getChatList();
+        Assertions.assertEquals(chatList.size(),0);
+
+        //send 2 message
+        getNetworkController().sendMessages(getMaximumId(),Arrays.asList(
+                getMinimumId()+1,getMinimumId()+2),"Cel fara de nume");
+        getNetworkController().sendMessages(getMaximumId(),Arrays.asList(
+                getMinimumId()+2,getMinimumId()+1),"Se va ridica din nou");
+        chatList = page.getChatList();
+        Assertions.assertEquals(chatList.get(0).getMessageList().size(),2);
+
+        getNetworkController().respondMessage(getMinimumId()+1,getMinimumMessageId(),"Cel fara de neam");
+        chatList = page.getChatList();
+        Assertions.assertEquals(chatList.size(),1);
+        Assertions.assertEquals(chatList.get(0).getReplyMessageList().size(),1);
+
+        page.unsubscribePage();
     }
 }

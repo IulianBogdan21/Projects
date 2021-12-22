@@ -24,7 +24,6 @@ import socialNetwork.service.NetworkService;
 import socialNetwork.utilitaries.UnorderedPair;
 
 import java.sql.*;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -133,7 +132,7 @@ public class InvitationServiceTest {
     @Test
     void sendInvitationTest(){
         getService().sendInvitationForFriendRequestService(getMinimumId(),getMinimumId() + 1);
-        getService().updateApprovedFriendRequestService(getMinimumId(),getMinimumId() + 1); // prieten 1->2
+        getService().updateApprovedFriendRequestService(getMinimumId() + 1,getMinimumId()); // prieten 1->2
 
         //------------------------------------getMinimumId() + 1     getMinimumId() + 2 -----------------
         getService().sendInvitationForFriendRequestService(getMinimumId() + 1, getMinimumId() + 2);
@@ -156,11 +155,17 @@ public class InvitationServiceTest {
         Assertions.assertThrows(InvalidEntityException.class,
                 () -> getService().sendInvitationForFriendRequestService(getMaximumId() + 5, getMaximumId() + 5),
                 "Both users not found when sending invitation");
-        getService().updateApprovedFriendRequestService(getMinimumId() + 1, getMinimumId() + 2);
+        Assertions.assertThrows(InvitationStatusException.class,
+                ()-> getService().sendInvitationForFriendRequestService(getMinimumId() + 1, getMinimumId() + 2),
+                "The user that send invitation accept his own invitation");
+        getService().updateApprovedFriendRequestService(getMinimumId() + 2, getMinimumId() + 1);
         Assertions.assertThrows(InvitationStatusException.class,
                 ()-> getService().sendInvitationForFriendRequestService(getMinimumId() + 1, getMinimumId() + 2),
                 "Sending invitation that exists and approved");
-        getService().updateRejectedFriendRequestService(getMinimumId() + 1, getMinimumId() + 2);
+        Assertions.assertThrows(InvitationStatusException.class,
+                ()-> getService().updateRejectedFriendRequestService(getMinimumId() + 1, getMinimumId() + 2),
+                "The user that send invitation reject it");
+        getService().updateRejectedFriendRequestService(getMinimumId() + 2, getMinimumId() + 1);
         Assertions.assertThrows(InvitationStatusException.class,
                 ()-> getService().sendInvitationForFriendRequestService(getMinimumId() + 1, getMinimumId() + 2),
                 "Sending invitation that exists and rejected");
@@ -179,25 +184,25 @@ public class InvitationServiceTest {
         var friendshipPending = getService().find(getMaximumId()-1,getMaximumId()).get();
         Assertions.assertEquals(friendshipPending.getInvitationStage(),
                 InvitationStage.PENDING);
-        getService().updateRejectedFriendRequestService(getMaximumId() - 1, getMaximumId());
+        getService().updateRejectedFriendRequestService(getMaximumId() , getMaximumId() - 1);
         var friendshipRejectedOptional = testNetworkService.findFriendshipService(getMaximumId() - 1, getMaximumId());
         Assertions.assertTrue(friendshipRejectedOptional.isEmpty());
         var friendshipRejected = getService().find(getMaximumId()-1,getMaximumId()).get();
         Assertions.assertEquals(friendshipRejected.getInvitationStage(),
                 InvitationStage.REJECTED);
-        getService().updateRejectedFriendRequestService(getMaximumId() - 1, getMaximumId());
+        getService().updateRejectedFriendRequestService(getMaximumId() , getMaximumId() - 1);
         var friendshipRejectedAgain = getService().find(getMaximumId() - 1, getMaximumId()).get();
         Assertions.assertEquals(friendshipRejectedAgain.getInvitationStage(),
                 InvitationStage.REJECTED);
 
         getService().sendInvitationForFriendRequestService(getMinimumId(), getMinimumId() + 2);
-        getService().updateApprovedFriendRequestService(getMinimumId(), getMinimumId() + 2);
-        var getNewOptionalFriendship = testNetworkService.findFriendshipService(getMinimumId(), getMinimumId() + 2);
+        getService().updateApprovedFriendRequestService(getMinimumId() + 2, getMinimumId());
+        var getNewOptionalFriendship = testNetworkService.findFriendshipService(getMinimumId() + 2, getMinimumId() );
         Assertions.assertFalse(getNewOptionalFriendship.isEmpty());
         var getNewFriendship = getService().find(getMinimumId(), getMinimumId() + 2).get();
         Assertions.assertEquals(getNewFriendship.getInvitationStage(),
                 InvitationStage.APPROVED);
-        getService().updateRejectedFriendRequestService(getMinimumId(), getMinimumId() + 2);
+        getService().updateRejectedFriendRequestService(getMinimumId() + 2, getMinimumId() );
         var checkIfFriendshipRejected = getService().find(getMinimumId(), getMinimumId() + 2).get();
         Assertions.assertEquals(checkIfFriendshipRejected.getInvitationStage(),
                 InvitationStage.REJECTED);
@@ -212,18 +217,18 @@ public class InvitationServiceTest {
         var sentInvitation = optionalSentInvitation.get();
         Assertions.assertEquals(sentInvitation.getInvitationStage(),
                 InvitationStage.PENDING);
-        getService().updateApprovedFriendRequestService(getMinimumId() + 1, getMaximumId() - 1);
-        var checkIfInvitationApproved = getService().find(getMinimumId() + 1, getMaximumId() - 1).get();
+        getService().updateApprovedFriendRequestService(getMaximumId() - 1, getMinimumId() + 1);
+        var checkIfInvitationApproved = getService().find(getMaximumId() - 1, getMinimumId() + 1).get();
         Assertions.assertEquals(checkIfInvitationApproved.getInvitationStage(),
                 InvitationStage.APPROVED);
-        getService().updateRejectedFriendRequestService(getMinimumId() + 1, getMaximumId() - 1);
+        getService().updateRejectedFriendRequestService(getMaximumId() - 1, getMinimumId() + 1);
         Assertions.assertThrows(InvitationStatusException.class,
-                ()-> getService().updateApprovedFriendRequestService(getMinimumId() + 1, getMaximumId() - 1),
+                ()-> getService().updateApprovedFriendRequestService(getMaximumId() - 1, getMinimumId() + 1),
                 "Approving an invitation already rejected");
 
 
         getService().sendInvitationForFriendRequestService(getMinimumId() , getMaximumId() );
-        getService().updateApprovedFriendRequestService(getMinimumId() , getMaximumId() );
+        getService().updateApprovedFriendRequestService(getMaximumId() , getMinimumId() );
 
         Assertions.assertThrows(InvitationStatusException.class,
                 ()-> getService().updateApprovedFriendRequestService(getMinimumId() , getMaximumId() ),
@@ -241,8 +246,8 @@ public class InvitationServiceTest {
         getService().sendInvitationForFriendRequestService(getMinimumId()+3,getMinimumId()+4); //5->6
         getService().sendInvitationForFriendRequestService(getMinimumId()+1,getMinimumId()+2); //3->4
 
-        getService().updateApprovedFriendRequestService(getMinimumId(),getMinimumId()+1);
-        getService().updateApprovedFriendRequestService(getMinimumId()+1,getMinimumId()+2);
+        getService().updateApprovedFriendRequestService(getMinimumId() + 1,getMinimumId());
+        getService().updateApprovedFriendRequestService(getMinimumId()+2,getMinimumId()+1);
         Assertions.assertNotEquals(Optional.empty(),
                 testNetworkService.findFriendshipService(getMinimumId(),getMinimumId()+1));
         Assertions.assertNotEquals(Optional.empty(),
@@ -250,9 +255,38 @@ public class InvitationServiceTest {
         Assertions.assertEquals(Optional.empty(),
                 testNetworkService.findFriendshipService(getMinimumId()+3,getMinimumId()+4));
 
-        getService().updateRejectedFriendRequestService(getMinimumId()+1,getMinimumId()+2);
+        getService().updateRejectedFriendRequestService(getMinimumId()+2,getMinimumId()+1);
         Assertions.assertEquals(Optional.empty(),
-                testNetworkService.findFriendshipService(getMinimumId()+1,getMinimumId()+2));
+                testNetworkService.findFriendshipService(getMinimumId()+2,getMinimumId()+1));
+    }
+
+    @Test
+    void testWithdrawInvitation(){
+        //PENDING
+        getService().sendInvitationForFriendRequestService(getMinimumId() , getMinimumId() + 1);
+        //APPROVED
+        getService().sendInvitationForFriendRequestService(getMinimumId() , getMinimumId() + 2);
+        getService().updateApprovedFriendRequestService(getMinimumId() + 2 , getMinimumId());
+        //REJECTED
+        getService().sendInvitationForFriendRequestService(getMinimumId() + 1 , getMinimumId() + 2);
+        getService().updateRejectedFriendRequestService(getMinimumId() + 2 , getMinimumId() + 1);
+
+        Assertions.assertThrows(InvitationStatusException.class,
+                ()->getService().withdrawFriendRequestService(getMinimumId() ,getMinimumId() + 2),
+                "Try to withdraw an approved invitation");
+        Assertions.assertThrows(InvitationStatusException.class,
+                ()->getService().withdrawFriendRequestService(getMinimumId() + 1,getMinimumId() + 2),
+                "Try to withdraw a rejected invitation");
+        Assertions.assertThrows(InvitationStatusException.class,
+                ()->getService().withdrawFriendRequestService(getMinimumId() + 2,getMinimumId() + 1),
+                "Try to withdraw a pending invitation by re ceiver");
+        Optional<FriendRequest> cancelFriendRequest = getService()
+                .withdrawFriendRequestService(getMinimumId(),getMinimumId() + 1);
+        Assertions.assertEquals(cancelFriendRequest.get().getInvitationStage(),
+                InvitationStage.PENDING);
+        Assertions.assertEquals(Optional.empty(),getService()
+                .withdrawFriendRequestService(getMinimumId(),getMinimumId() + 1));
+
     }
 
 }

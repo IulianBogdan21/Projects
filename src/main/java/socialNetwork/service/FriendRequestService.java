@@ -8,15 +8,24 @@ import socialNetwork.exceptions.EntityMissingValidationException;
 import socialNetwork.exceptions.InvitationStatusException;
 import socialNetwork.repository.RepositoryInterface;
 import socialNetwork.utilitaries.UnorderedPair;
+import socialNetwork.utilitaries.events.Event;
+import socialNetwork.utilitaries.events.FriendRequestChangeEvent;
+import socialNetwork.utilitaries.events.FriendRequestChangeEventType;
+import socialNetwork.utilitaries.observer.Observable;
+import socialNetwork.utilitaries.observer.Observer;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 
-public class FriendRequestService {
+public class FriendRequestService implements Observable<Event> {
 
     RepositoryInterface<UnorderedPair<Long,Long>, FriendRequest> friendRequestRepository;
     RepositoryInterface<UnorderedPair<Long,Long>, Friendship> friendshipRepository;
     EntityValidatorInterface<UnorderedPair<Long, Long>, FriendRequest> friendRequestValidator;
+    private List< Observer<Event> > observersFriendRequest = new ArrayList<>();
 
     public FriendRequestService(RepositoryInterface<UnorderedPair<Long, Long>, FriendRequest> friendRequestRepository,
                                 RepositoryInterface<UnorderedPair<Long, Long>, Friendship> friendshipRepository,
@@ -31,15 +40,43 @@ public class FriendRequestService {
         return friendRequestRepository.find(idEntity);
     }
 
+    public List<FriendRequest> getAllFriendRequestForSpecifiedUserService(Long idUser){
+        Predicate<FriendRequest> userInFriendRequest = friendRequest -> {
+            return friendRequest.getFromUserID().equals(idUser) ||
+                    friendRequest.getToUserID().equals(idUser);
+        };
+        return friendRequestRepository.getAll()
+                .stream()
+                .filter(userInFriendRequest)
+                .toList();
+    }
+
+    public Optional<FriendRequest> withdrawFriendRequestService(Long userIdThatSendInvitationButWithdrawIt,
+                                                                Long userIdThatReceiveInvitation){
+        UnorderedPair<Long,Long> idEntity = new UnorderedPair<>(userIdThatSendInvitationButWithdrawIt,userIdThatReceiveInvitation);
+        Optional<FriendRequest> withdrawalFriendRequest = friendRequestRepository.find(idEntity);
+        if(withdrawalFriendRequest.isEmpty())
+            return Optional.empty();
+        FriendRequest friendRequestThatHasToBeWithdraw = withdrawalFriendRequest.get();
+        if(!friendRequestThatHasToBeWithdraw.getFromUserID().equals(userIdThatSendInvitationButWithdrawIt))
+            throw new InvitationStatusException("The invitation can be withdrawn only by the one who sent it");
+        if(!friendRequestThatHasToBeWithdraw.getInvitationStage().equals(InvitationStage.PENDING))
+            throw new InvitationStatusException("The invitation cannot be withdrawn!It has to be a pending one");
+        Optional<FriendRequest> removedFriendRequest = friendRequestRepository.remove(idEntity);
+        notifyObservers(new FriendRequestChangeEvent(FriendRequestChangeEventType.WITHDRAW, removedFriendRequest.get()));
+        return removedFriendRequest;
+    }
+
     /**
      * one user(firstUserID) sends an invitation to another(secondUserID)
      * exception thrown if invitation already exists
      */
-    public Optional<FriendRequest> sendInvitationForFriendRequestService(Long firstUserId, Long secondUserId){
+    public Optional<FriendRequest> sendInvitationForFriendRequestService(Long userIdThatSendInvitation,
+                                                                         Long userIdThatReceiveInvitation){
         Optional<FriendRequest> optionalFriendRequestBetweenUsers =
-                searchForFriendRequestInRepository(firstUserId, secondUserId);
+                searchForFriendRequestInRepository(userIdThatSendInvitation, userIdThatReceiveInvitation);
         if(optionalFriendRequestBetweenUsers.isEmpty())
-            return addPendingInvitation(firstUserId, secondUserId);
+            return addPendingInvitation(userIdThatSendInvitation, userIdThatReceiveInvitation);
         FriendRequest friendRequestBetweenUsers = optionalFriendRequestBetweenUsers.get();;
         throwExceptionValidateInvitationStatusWhenSendingInvitation(friendRequestBetweenUsers);
         return optionalFriendRequestBetweenUsers;
@@ -50,12 +87,15 @@ public class FriendRequestService {
      * exception thrown if there is no invitation from one user to another
      * exception thrown if invitation has already been refused
      */
-    public Optional<Friendship> updateApprovedFriendRequestService(Long firstUserId, Long secondUserId){
+    public Optional<Friendship> updateApprovedFriendRequestService(Long userThatReceivesInvitationAndAcceptedId,
+                                                                   Long userThatSendInvitationAndWaitVerdictId){
         Optional<FriendRequest> optionalFriendRequestBetweenUsers = searchForFriendRequestInRepository(
-                firstUserId, secondUserId);
+                userThatSendInvitationAndWaitVerdictId , userThatReceivesInvitationAndAcceptedId);
         if(optionalFriendRequestBetweenUsers.isEmpty())
             throw new EntityMissingValidationException("There is no pending invitation between users");
         FriendRequest friendRequest = optionalFriendRequestBetweenUsers.get();
+        if(!friendRequest.getToUserID().equals(userThatReceivesInvitationAndAcceptedId))
+            throw new InvitationStatusException("You cannot accept an invitation that you send it");
         throwExceptionIfInvitationIsRejected(friendRequest);
         throwExceptionIfInvitationIsApproved(friendRequest);
         return setInvitationStatusToApproved(friendRequest);
@@ -65,25 +105,33 @@ public class FriendRequestService {
      * sets invitation stage of a friendship to rejected
      * exception thrown if there is no invitation from one user to another
      */
-    public Optional<Friendship> updateRejectedFriendRequestService(Long firstUserId,Long secondUserId){
+    public Optional<Friendship> updateRejectedFriendRequestService(Long userThatReceivesInvitationAndRejectedId,
+                                                                   Long userThatSendInvitationAndWaitVerdictId){
         Optional<FriendRequest> optionalFriendRequestBetweenUsers = searchForFriendRequestInRepository(
-                firstUserId, secondUserId);
+                userThatSendInvitationAndWaitVerdictId , userThatReceivesInvitationAndRejectedId);
         if(optionalFriendRequestBetweenUsers.isEmpty())
-            throw new EntityMissingValidationException("Friendship between users doesn't exist");
+            throw new EntityMissingValidationException("Friend request between users doesn't exist");
         FriendRequest friendRequestBetweenUsers = optionalFriendRequestBetweenUsers.get();
+        if(!friendRequestBetweenUsers.getToUserID().equals(userThatReceivesInvitationAndRejectedId))
+            throw new InvitationStatusException("You cannot reject an invitation that you send it");
         return setInvitationStatusToRejected(friendRequestBetweenUsers);
     }
 
-    public Optional<FriendRequest> updateRejectedToPendingFriendRequestService(Long idUserThatSends,Long idUserThatReceive){
+    public Optional<FriendRequest> updateRejectedToPendingFriendRequestService(Long idUserThatRejectButChangeHisMind,
+                                                                               Long idUserThatSendInitiallyInvitation){
 
         Optional<FriendRequest> optionalFriendRequestBetweenUsers = searchForFriendRequestInRepository(
-                idUserThatSends, idUserThatReceive);
+                idUserThatSendInitiallyInvitation, idUserThatRejectButChangeHisMind);
         if(optionalFriendRequestBetweenUsers.isEmpty())
             throw new EntityMissingValidationException("Friendship between users doesn't exist");
         FriendRequest friendRequestBetweenUsers = optionalFriendRequestBetweenUsers.get();
-        friendRequestBetweenUsers.setInvitationStage(InvitationStage.PENDING);
-        friendRequestBetweenUsers.setDateRequest(LocalDateTime.now());
-        return friendRequestRepository.update(friendRequestBetweenUsers);
+        if(!friendRequestBetweenUsers.getToUserID().equals(idUserThatRejectButChangeHisMind))
+            throw new InvitationStatusException("Cannot resubmit your sending invitation");
+        if(!friendRequestBetweenUsers.getInvitationStage().equals(InvitationStage.REJECTED))
+            throw new InvitationStatusException("Cannot resubmit an invitation that is not rejected");
+        friendRequestRepository.remove(friendRequestBetweenUsers.getId());
+        return sendInvitationForFriendRequestService(idUserThatRejectButChangeHisMind,
+                idUserThatSendInitiallyInvitation);
     }
 
     private Optional<Friendship> setInvitationStatusToRejected(FriendRequest friendRequest){
@@ -91,11 +139,14 @@ public class FriendRequestService {
         friendRequest.setDateRequest(LocalDateTime.now());
         friendRequestRepository.update(friendRequest);
 
+        Optional<Friendship> deletedFriendship = Optional.empty();
         UnorderedPair<Long,Long> idFriendshipRemove = new UnorderedPair<>(friendRequest.getFromUserID(),
                 friendRequest.getToUserID());
         if(friendshipRepository.find(idFriendshipRemove).isPresent())
-            return friendshipRepository.remove(idFriendshipRemove);
-        return Optional.empty();
+            deletedFriendship = friendshipRepository.remove(idFriendshipRemove);
+        notifyObservers(new FriendRequestChangeEvent(FriendRequestChangeEventType.REJECTED,
+                friendRequest));
+        return deletedFriendship;
     }
 
     private Optional<Friendship> setInvitationStatusToApproved(FriendRequest friendRequest){
@@ -105,6 +156,8 @@ public class FriendRequestService {
         Friendship friendship = new Friendship(friendRequest.getFromUserID(),friendRequest.getToUserID(),
                 friendRequest.getDateRequest());
         friendshipRepository.save(friendship);
+        notifyObservers(new FriendRequestChangeEvent(FriendRequestChangeEventType.APPROVED,
+                friendRequest));
         return Optional.of(friendship);
     }
 
@@ -113,11 +166,14 @@ public class FriendRequestService {
         return friendRequestRepository.find(idNewFriendship);
     }
 
-    private Optional<FriendRequest> addPendingInvitation(Long firstUserId, Long secondUserId){
+    private Optional<FriendRequest> addPendingInvitation(Long userIdThatSendInvitation,
+                                                         Long userIdThatReceiveInvitation){
         FriendRequest pendingFriendRequest = new FriendRequest(
-                firstUserId,secondUserId, InvitationStage.PENDING, LocalDateTime.now());
+                userIdThatSendInvitation,userIdThatReceiveInvitation, InvitationStage.PENDING, LocalDateTime.now());
         friendRequestValidator.validate(pendingFriendRequest);
         friendRequestRepository.save(pendingFriendRequest);
+        notifyObservers(new FriendRequestChangeEvent(FriendRequestChangeEventType.PENDING
+                ,pendingFriendRequest));
         return Optional.of(pendingFriendRequest);
     }
 
@@ -139,4 +195,18 @@ public class FriendRequestService {
             throw new InvitationStatusException("Invitation has already been approved");
     }
 
+    @Override
+    public void addObserver(Observer<Event> observer) {
+        observersFriendRequest.add(observer);
+    }
+
+    @Override
+    public void removeObserver(Observer<Event> observer) {
+        observersFriendRequest.remove(observer);
+    }
+
+    @Override
+    public void notifyObservers(Event event) {
+        observersFriendRequest.forEach(obs -> obs.update(event));
+    }
 }

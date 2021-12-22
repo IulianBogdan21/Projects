@@ -2,9 +2,9 @@ package socialNetwork.utilitaries.events;
 
 import socialNetwork.domain.models.Friendship;
 
-public interface Event <T> {
+public interface Event <T , E> {
 
-    public ChangeEventType getType();
+    public E getType();
 
     public T getData();
 

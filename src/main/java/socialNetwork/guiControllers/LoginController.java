@@ -4,9 +4,13 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
+import javafx.scene.control.SplitPane;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import socialNetwork.controllers.NetworkController;
+import socialNetwork.domain.models.Page;
 import socialNetwork.domain.models.User;
 import socialNetwork.exceptions.ExceptionBaseClass;
 import socialNetwork.utilitaries.MessageAlert;
@@ -28,6 +32,7 @@ public class LoginController {
     TextField usernameField;
     @FXML
     PasswordField passwordField;
+
     Stage stage;
 
     public void setNetworkController(Stage primaryStage, NetworkController service){
@@ -40,8 +45,7 @@ public class LoginController {
         String username = usernameField.getText();
         String password = passwordField.getText();
         try {
-            Optional<User> userOptional =  networkController.logIn(username, password);
-            User user = userOptional.get();
+            Page rootPage =  networkController.logIn(username, password);
             UnorderedPair<Stage,FXMLLoader> unorderedPair = StageBuilder.buildStage(
                     getClass(),
                     "/socialNetwork.gui/userView.fxml",
@@ -49,7 +53,7 @@ public class LoginController {
             Stage userViewStage = unorderedPair.left;
             FXMLLoader loader = unorderedPair.right;
             UserViewController userViewController = loader.getController();
-            userViewController.setNetworkController(userViewStage,networkController,user);
+            userViewController.setNetworkController(userViewStage,networkController,rootPage);
             userViewStage.show();
             stage.close();
         } catch (ExceptionBaseClass | IOException exception) {

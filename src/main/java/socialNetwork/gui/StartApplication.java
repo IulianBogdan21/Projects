@@ -63,7 +63,7 @@ public class StartApplication extends Application {
         fxmlLoader.setLocation(getClass().getResource("/socialNetwork.gui/loginView.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
         scene.getStylesheets().add(getClass().getResource("/css/logIn.css").toExternalForm());
-        Image icon = new Image("images/loginPicture.jpg");
+        Image icon = new Image("images/applicationLogo.png");
         stage.getIcons().add(icon);
         stage.setTitle("Kage");
         stage.setScene(scene);

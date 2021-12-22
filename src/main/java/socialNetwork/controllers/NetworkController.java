@@ -3,10 +3,7 @@ package socialNetwork.controllers;
 import socialNetwork.domain.models.*;
 import socialNetwork.exceptions.LogInException;
 import socialNetwork.service.*;
-import socialNetwork.utilitaries.events.ChangeEventType;
-import socialNetwork.utilitaries.events.Event;
-import socialNetwork.utilitaries.events.FriendRequestChangeEvent;
-import socialNetwork.utilitaries.events.FriendshipChangeEvent;
+import socialNetwork.utilitaries.events.*;
 import socialNetwork.utilitaries.observer.Observable;
 import socialNetwork.utilitaries.observer.Observer;
 
@@ -19,7 +16,7 @@ import java.util.Optional;
 /**
  * controller between socialNetwork.gui and business layer
  */
-public class NetworkController implements Observable <Event> {
+public class NetworkController  {
     private UserService userService;
     private NetworkService networkService;
     private FriendRequestService friendRequestService;
@@ -40,6 +37,26 @@ public class NetworkController implements Observable <Event> {
         this.messageService = messageService;
         this.authentificationService = authentificationService;
         this.friendRequestService = friendRequestService;
+    }
+
+    public UserService getUserService() {
+        return userService;
+    }
+
+    public NetworkService getNetworkService() {
+        return networkService;
+    }
+
+    public FriendRequestService getFriendRequestService() {
+        return friendRequestService;
+    }
+
+    public MessageService getMessageService() {
+        return messageService;
+    }
+
+    public AuthentificationService getAuthentificationService() {
+        return authentificationService;
     }
 
     /**
@@ -107,7 +124,6 @@ public class NetworkController implements Observable <Event> {
                 networkService.removeFriendshipService(firstUserId, secondUserId);
         if(removedFriendship.isEmpty())
             return Optional.empty();
-        notifyObservers(new FriendshipChangeEvent(ChangeEventType.DELETE, removedFriendship.get()));
         return removedFriendship;
     }
 
@@ -119,6 +135,10 @@ public class NetworkController implements Observable <Event> {
      */
     public Optional<Friendship> findFriendship(Long firstUserId, Long secondUserId){
         return networkService.findFriendshipService(firstUserId, secondUserId);
+    }
+
+    public List<User> getAllFriendshipForSpecifiedUser(Long idUser){
+        return networkService.getAllFriendshipForSpecifiedUserService(idUser);
     }
 
     /**
@@ -170,34 +190,47 @@ public class NetworkController implements Observable <Event> {
         return messageService.getAllMessagesToRespondForUserService(idUser);
     }
 
-    public Optional<Friendship> updateApprovedFriendship(Long firstUserId,Long secondUserId){
+    public Optional<FriendRequest> withdrawFriendRequest(Long userIdThatSendInvitationButWithdrawIt,
+                                                         Long userIdThatReceiveInvitation){
+        return friendRequestService.withdrawFriendRequestService(userIdThatSendInvitationButWithdrawIt,
+                userIdThatReceiveInvitation);
+    }
+
+    public Optional<FriendRequest> sendInvitationForFriendships(Long userIdThatSendInvitation,
+                                                                Long userIdThatReceiveInvitation){
+        return friendRequestService.sendInvitationForFriendRequestService(userIdThatSendInvitation,
+                userIdThatReceiveInvitation);
+    }
+
+    public Optional<Friendship> updateApprovedFriendship(Long userThatReceivesInvitationAndAcceptedId,
+                                                         Long userThatSendInvitationAndWaitVerdictId){
         Optional<Friendship> friendshipOptional = friendRequestService.
-                updateApprovedFriendRequestService(firstUserId,secondUserId);
-        notifyObservers(new FriendshipChangeEvent(ChangeEventType.UPDATE, friendshipOptional.get()));
+                updateApprovedFriendRequestService(userThatReceivesInvitationAndAcceptedId,
+                        userThatSendInvitationAndWaitVerdictId);
         return friendshipOptional;
     }
 
-    public Optional<Friendship> updateRejectedFriendship(Long firstUserId,Long secondUserId){
+    public Optional<Friendship> updateRejectedFriendship(Long userThatReceivesInvitationAndRejectedId,
+                                                         Long userThatSendInvitationAndWaitVerdictId){
         Optional<Friendship> friendshipOptional = friendRequestService.
-                updateRejectedFriendRequestService(firstUserId,secondUserId);
-        notifyObservers(new FriendshipChangeEvent(ChangeEventType.UPDATE, friendshipOptional.get()));
+                updateRejectedFriendRequestService(userThatReceivesInvitationAndRejectedId,
+                        userThatSendInvitationAndWaitVerdictId);
         return friendshipOptional;
     }
 
-    public Optional<FriendRequest> sendInvitationForFriendships(Long firstUserId,Long secondUserId){
-        return friendRequestService.sendInvitationForFriendRequestService(firstUserId,secondUserId);
-    }
 
-    public Optional<FriendRequest> updateRejectedToPendingFriendship(Long idUserThatSends,Long idUserThatReceive) {
+    public Optional<FriendRequest> updateRejectedToPendingFriendship(Long idUserThatRejectButChangeHisMind,
+                                                                     Long idUserThatSendInitiallyInvitation) {
         Optional<FriendRequest> friendshipOptional = friendRequestService
-                .updateRejectedToPendingFriendRequestService(idUserThatSends,idUserThatReceive);
-        notifyObservers(new FriendRequestChangeEvent(ChangeEventType.UPDATE, friendshipOptional.get()));
+                .updateRejectedToPendingFriendRequestService(idUserThatRejectButChangeHisMind,
+                        idUserThatSendInitiallyInvitation);
         return friendshipOptional;
     }
 
     public Map<Optional<User>, LocalDateTime> findAllApprovedFriendshipsForUser(Long idUser){
         return userService.findAllFriendsForUserService(idUser);
     }
+
 
     public Optional<Autentification> saveAuthentification(String username,String password){
         return authentificationService.saveAuthentificationService(username,password);
@@ -221,18 +254,26 @@ public class NetworkController implements Observable <Event> {
         return false;
     }
 
-    public Optional<User> logIn(String username,String password){
+    private Page createPageObject(String username){
+        User root = getAllUsers()
+                .stream()
+                .filter(user -> user.getUsername().equals(username))
+                .toList()
+                .get(0);
+        List<User> friendList = getAllFriendshipForSpecifiedUser(root.getId());
+        List<FriendRequest> friendRequestList = getAllFriendRequestForSpecifiedUser(root.getId());
+        List<Chat> chatList = getAllChatsSpecifiedUser(root.getId());
+        return new Page(root,friendList,friendRequestList,chatList,this);
+    }
+
+    public Page logIn(String username,String password){
         Optional<Autentification> findAutentification = authentificationService
                 .findAuthentificationService(username);
         if(findAutentification.isEmpty())
             throw new LogInException("Username is invalid!");
         if(!findAutentification.get().getPassword().equals(password))
             throw new LogInException("Password is invalid!");
-        return Optional.of( userService.getAllService()
-                .stream()
-                .filter(user -> user.getUsername().equals(username))
-                .toList()
-                .get(0) );
+        return createPageObject(username);
     }
 
     public List<User> getAllUsers(){
@@ -243,18 +284,13 @@ public class NetworkController implements Observable <Event> {
         return userService.findAllRequestFriendsForUserService(idUser);
     }
 
-    @Override
-    public void addObserver(Observer<Event> observer) {
-        observers.add(observer);
+    public List<Chat> getAllChatsSpecifiedUser(Long idUser){
+        return messageService.getAllChatsSpecifiedUserMessageService(idUser);
     }
 
-    @Override
-    public void removeObserver(Observer<Event> observer) {
-        observers.remove(observer);
+    public List<FriendRequest> getAllFriendRequestForSpecifiedUser(Long idUser){
+        return friendRequestService.getAllFriendRequestForSpecifiedUserService(idUser);
     }
 
-    @Override
-    public void notifyObservers(Event event) {
-        observers.forEach(e -> e.update(event));
-    }
+
 }
