@@ -61,6 +61,8 @@ public class FriendshipStatusController implements Observer<Event> {
     Button rejectRequestButton;
     @FXML
     Button resubmissionRequestButton;
+    @FXML
+    Button withdrawRequestButton;
 
     public void setNetworkController(Stage primaryStage, NetworkController service,Page rootPage){
         this.networkController = service;
@@ -234,6 +236,31 @@ public class FriendshipStatusController implements Observer<Event> {
     }
 
     @FXML
+    public void handleWithdrawRequest(){
+        User mainUser = rootPage.getRoot();
+        RequestInvitationGUIDTO requestInvitationGUIDTO = requestsSentListView
+                .getSelectionModel().getSelectedItem();
+
+        if(requestInvitationGUIDTO == null){
+            MessageAlert.showErrorMessage(displayStage,"There is no selection!");
+            return;
+        }
+
+        try{
+            Long userIdThatSendInvitationButWithdrawIt = mainUser.getId();
+            Long userIdThatReceiveInvitation = requestInvitationGUIDTO.getId();
+            networkController.withdrawFriendRequest(userIdThatSendInvitationButWithdrawIt,
+                    userIdThatReceiveInvitation);
+            MessageAlert.showMessage(displayStage, Alert.AlertType.INFORMATION,"Withdraw Request",
+                    "The friendship request was withdrawn");
+        }
+        catch (ExceptionBaseClass exceptionBaseClass){
+            MessageAlert.showErrorMessage(displayStage,exceptionBaseClass.getMessage());
+        }
+
+    }
+
+    @FXML
     public void showRequestsReceivedListView(){
         showRequestsSentButton.setStyle("");
         showRequestsReceivedButton.setStyle("-fx-font-weight: bold");
@@ -242,6 +269,7 @@ public class FriendshipStatusController implements Observer<Event> {
         approveRequestButton.setDisable(false);
         rejectRequestButton.setDisable(false);
         resubmissionRequestButton.setDisable(false);
+        withdrawRequestButton.setDisable(true);
     }
 
     @FXML
@@ -253,6 +281,7 @@ public class FriendshipStatusController implements Observer<Event> {
         approveRequestButton.setDisable(true);
         rejectRequestButton.setDisable(true);
         resubmissionRequestButton.setDisable(true);
+        withdrawRequestButton.setDisable(false);
     }
 
     private void handleFilterInFriendshipStatusController(){

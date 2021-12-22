@@ -291,6 +291,4 @@ public class NetworkController  {
     public List<FriendRequest> getAllFriendRequestForSpecifiedUser(Long idUser){
         return friendRequestService.getAllFriendRequestForSpecifiedUserService(idUser);
     }
-
-
 }
