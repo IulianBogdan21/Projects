@@ -29,11 +29,6 @@ public class Page implements Observer<Event> {
 
 
     public void refresh(String username){
-        root =  networkController.getAllUsers()
-                .stream()
-                .filter(user -> user.getUsername().equals(username))
-                .toList()
-                .get(0);
         friendList = networkController.getAllFriendshipForSpecifiedUser(root.getId());
         friendRequestList = networkController.getAllFriendRequestForSpecifiedUser(root.getId());
         setChatMap( networkController.getAllChatsSpecifiedUser(root.getId()) );
