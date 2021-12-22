@@ -4,72 +4,61 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.*;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Polygon;
 import javafx.stage.Stage;
 import socialNetwork.controllers.NetworkController;
 import socialNetwork.domain.models.*;
 import socialNetwork.exceptions.ExceptionBaseClass;
+import socialNetwork.utilitaries.ListViewInitialize;
 import socialNetwork.utilitaries.MessageAlert;
+import socialNetwork.utilitaries.SceneSwitcher;
+import socialNetwork.utilitaries.UsersSearchProcess;
 import socialNetwork.utilitaries.events.Event;
-import socialNetwork.utilitaries.events.FriendshipChangeEvent;
 import socialNetwork.utilitaries.observer.Observer;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
-import java.util.Observable;
-import java.util.stream.Collectors;
 
 public class FriendshipStatusController implements Observer<Event> {
 
     ObservableList<RequestInvitationGUIDTO> modelFriendshipRequestDTO = FXCollections.observableArrayList();
     ObservableList<RequestInvitationGUIDTO> modelFriendshipRequestDTOReact = FXCollections.observableArrayList();
+    ObservableList<User> modelSearchFriends = FXCollections.observableArrayList();
 
     NetworkController networkController;
     Page rootPage;
     Stage displayStage;
 
     @FXML
-    TableView<RequestInvitationGUIDTO> requestFriendshipTableView;
+    Button showRequestsSentButton;
     @FXML
-    TableColumn<RequestInvitationGUIDTO,Long> tableColumnRequestId;
+    Button showRequestsReceivedButton;
     @FXML
-    TableColumn<RequestInvitationGUIDTO,String> tableColumnRequestFirstName;
+    Button addFriendshipButton;
     @FXML
-    TableColumn<RequestInvitationGUIDTO,String> tableColumnRequestLastName;
+    Button friendRequestButton;
     @FXML
-    TableColumn<RequestInvitationGUIDTO,LocalDateTime> tableColumnRequestDate;
+    TextField searchFriendshipField;
     @FXML
-    TableColumn<RequestInvitationGUIDTO,InvitationStage> tableColumnRequestStatus;
-
+    Label friendsLabel;
     @FXML
-    TableView<RequestInvitationGUIDTO> requestFriendshipTableViewReact;
+    Label friendRequestsLabel;
     @FXML
-    TableColumn<RequestInvitationGUIDTO,Long> tableColumnRequestIdReact;
+    Label messagesLabel;
     @FXML
-    TableColumn<RequestInvitationGUIDTO,String> tableColumnRequestFirstNameReact;
+    Polygon triangleAuxiliaryLabel;
     @FXML
-    TableColumn<RequestInvitationGUIDTO,String> tableColumnRequestLastNameReact;
+    ListView<User> usersListView;
     @FXML
-    TableColumn<RequestInvitationGUIDTO,LocalDateTime> tableColumnRequestDateReact;
+    ListView<RequestInvitationGUIDTO> requestsSentListView;
     @FXML
-    TableColumn<RequestInvitationGUIDTO,InvitationStage> tableColumnRequestStatusReact;
-
+    ListView<RequestInvitationGUIDTO> requestsReceivedListView;
     @FXML
     Button approveRequestButton;
     @FXML
     Button rejectRequestButton;
-    @FXML
-    Button closeButton;
     @FXML
     Button resubmissionRequestButton;
 
@@ -117,18 +106,29 @@ public class FriendshipStatusController implements Observer<Event> {
 
     @FXML
     public void initialize(){
-        nonDuplicate(tableColumnRequestId, tableColumnRequestFirstName, tableColumnRequestLastName, tableColumnRequestDate, tableColumnRequestStatus, requestFriendshipTableView, modelFriendshipRequestDTO);
-
-        nonDuplicate(tableColumnRequestIdReact, tableColumnRequestFirstNameReact, tableColumnRequestLastNameReact, tableColumnRequestDateReact, tableColumnRequestStatusReact, requestFriendshipTableViewReact, modelFriendshipRequestDTOReact);
+        showRequestsSentButton.setStyle("-fx-font-weight: bold");
+        initializeListView(requestsSentListView, modelFriendshipRequestDTO);
+        initializeListView(requestsReceivedListView, modelFriendshipRequestDTOReact);
+        ListViewInitialize.createListViewWithUser(usersListView, modelSearchFriends);
+        searchFriendshipField.textProperty().addListener(o -> handleFilterInFriendshipStatusController());
     }
 
-    private void nonDuplicate(TableColumn<RequestInvitationGUIDTO, Long> tableColumnRequestIdReact, TableColumn<RequestInvitationGUIDTO, String> tableColumnRequestFirstNameReact, TableColumn<RequestInvitationGUIDTO, String> tableColumnRequestLastNameReact, TableColumn<RequestInvitationGUIDTO, LocalDateTime> tableColumnRequestDateReact, TableColumn<RequestInvitationGUIDTO, InvitationStage> tableColumnRequestStatusReact, TableView<RequestInvitationGUIDTO> requestFriendshipTableViewReact, ObservableList<RequestInvitationGUIDTO> modelFriendshipRequestDTOReact) {
-        tableColumnRequestIdReact.setCellValueFactory(new PropertyValueFactory<RequestInvitationGUIDTO,Long>("id"));
-        tableColumnRequestFirstNameReact.setCellValueFactory(new PropertyValueFactory<RequestInvitationGUIDTO,String>("firstName"));
-        tableColumnRequestLastNameReact.setCellValueFactory(new PropertyValueFactory<RequestInvitationGUIDTO,String >("lastName"));
-        tableColumnRequestDateReact.setCellValueFactory(new PropertyValueFactory<RequestInvitationGUIDTO,LocalDateTime>("localDateTime"));
-        tableColumnRequestStatusReact.setCellValueFactory(new PropertyValueFactory<RequestInvitationGUIDTO,InvitationStage>("invitationStage"));
-        requestFriendshipTableViewReact.setItems(modelFriendshipRequestDTOReact);
+    private void initializeListView(ListView<RequestInvitationGUIDTO> listView,
+                                    ObservableList<RequestInvitationGUIDTO> modelFriendshipRequest) {
+        listView.setItems(modelFriendshipRequest);
+        listView.setCellFactory(r -> new ListCell<RequestInvitationGUIDTO>(){
+            @Override
+            protected void updateItem(RequestInvitationGUIDTO item, boolean empty){
+                super.updateItem(item, empty);
+                if(empty){
+                    setText(null);
+                }
+                else{
+                    setText("Friendship with " + item.getFirstName() + " " + item.getLastName() + " is currently on " +
+                            item.getInvitationStage() + " since " + item.getLocalDateTime().toLocalDate());
+                }
+            }
+        });
     }
 
     @Override
@@ -137,20 +137,26 @@ public class FriendshipStatusController implements Observer<Event> {
     }
 
     @FXML
-    public void handleCloseButton(ActionEvent event) throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/socialNetwork.gui/userView.fxml"));
-        Parent root = loader.load();
-        displayStage =  (Stage)(((Node)event.getSource()).getScene().getWindow());
-        displayStage.setScene(new Scene(root));
-        UserViewController userViewController = loader.getController();
-        userViewController.setNetworkController(displayStage,networkController,rootPage);
-        displayStage.show();
+    public void switchToUserViewScene(ActionEvent event) throws IOException {
+        SceneSwitcher.switchToUserViewScene(event, getClass(), networkController, rootPage, displayStage);
+    }
+
+    @FXML
+    public void switchToFriendshipRequestScene(ActionEvent event) throws IOException{
+        SceneSwitcher.switchToFriendshipRequestScene(event, getClass(), networkController, rootPage, displayStage);
+    }
+
+    @FXML
+    public void switchToMessagesScene(ActionEvent event) throws IOException{
+        SceneSwitcher.switchToMessageScene(event, getClass(), networkController, rootPage, displayStage);
+
     }
 
     @FXML
     public void handleApprovedFriend(){
+
         User mainUser = rootPage.getRoot();
-        RequestInvitationGUIDTO requestInvitationGUIDTO = requestFriendshipTableViewReact
+        RequestInvitationGUIDTO requestInvitationGUIDTO = requestsReceivedListView
                 .getSelectionModel().getSelectedItem();
         if(requestInvitationGUIDTO != null){
             Long userThatReceivesInvitationAndAcceptedId = mainUser.getId();
@@ -164,7 +170,7 @@ public class FriendshipStatusController implements Observer<Event> {
                 MessageAlert.showErrorMessage(displayStage,exceptionBaseClass.getMessage());
             }
             finally {
-                requestFriendshipTableViewReact.getSelectionModel().clearSelection();
+                requestsReceivedListView.getSelectionModel().clearSelection();
             }
         }
         else{
@@ -174,8 +180,9 @@ public class FriendshipStatusController implements Observer<Event> {
 
     @FXML
     public void handleRejectFriend(){
+
         User mainUser = rootPage.getRoot();
-        RequestInvitationGUIDTO requestInvitationGUIDTO = requestFriendshipTableViewReact
+        RequestInvitationGUIDTO requestInvitationGUIDTO = requestsReceivedListView
                 .getSelectionModel().getSelectedItem();
         if(requestInvitationGUIDTO != null){
 
@@ -189,9 +196,6 @@ public class FriendshipStatusController implements Observer<Event> {
             catch(ExceptionBaseClass exceptionBaseClass){
                 MessageAlert.showErrorMessage(displayStage,exceptionBaseClass.getMessage());
             }
-            finally {
-                requestFriendshipTableViewReact.getSelectionModel().clearSelection();
-            }
         }
         else{
             MessageAlert.showErrorMessage(displayStage,"There is no selection!");
@@ -200,8 +204,9 @@ public class FriendshipStatusController implements Observer<Event> {
 
     @FXML
     public void handleResubmissionRequest(){
+
         User mainUser = rootPage.getRoot();
-        RequestInvitationGUIDTO requestInvitationGUIDTO = requestFriendshipTableViewReact
+        RequestInvitationGUIDTO requestInvitationGUIDTO = requestsReceivedListView
                 .getSelectionModel().getSelectedItem();
         if(requestInvitationGUIDTO == null){
             MessageAlert.showErrorMessage(displayStage,"There is no selection!");
@@ -224,7 +229,120 @@ public class FriendshipStatusController implements Observer<Event> {
             MessageAlert.showErrorMessage(displayStage,exceptionBaseClass.getMessage());
         }
         finally {
-            requestFriendshipTableViewReact.getSelectionModel().clearSelection();
+            requestsReceivedListView.getSelectionModel().clearSelection();
+        }
+    }
+
+    @FXML
+    public void showRequestsReceivedListView(){
+        showRequestsSentButton.setStyle("");
+        showRequestsReceivedButton.setStyle("-fx-font-weight: bold");
+        requestsSentListView.setVisible(false);
+        requestsReceivedListView.setVisible(true);
+        approveRequestButton.setDisable(false);
+        rejectRequestButton.setDisable(false);
+        resubmissionRequestButton.setDisable(false);
+    }
+
+    @FXML
+    public void showRequestsSentListView(){
+        showRequestsSentButton.setStyle("-fx-font-weight: bold");
+        showRequestsReceivedButton.setStyle("");
+        requestsSentListView.setVisible(true);
+        requestsReceivedListView.setVisible(false);
+        approveRequestButton.setDisable(true);
+        rejectRequestButton.setDisable(true);
+        resubmissionRequestButton.setDisable(true);
+    }
+
+    private void handleFilterInFriendshipStatusController(){
+        ListViewInitialize.handleFilter(networkController,rootPage, searchFriendshipField, modelSearchFriends);
+    }
+
+    @FXML
+    public void enableFriendsLabel(){
+        friendsLabel.setVisible(true);
+    }
+
+    @FXML
+    public void enableFriendRequestsLabel(){
+        friendRequestsLabel.setVisible(true);
+    }
+
+    @FXML
+    public void enableMessagesLabel(){
+        messagesLabel.setVisible(true);
+    }
+
+    @FXML
+    public void disableFriendsLabel(){
+        friendsLabel.setVisible(false);
+    }
+
+    @FXML
+    public void disableFriendRequestsLabel(){
+        friendRequestsLabel.setVisible(false);
+    }
+
+    @FXML
+    public void disableMessagesLabel(){
+        messagesLabel.setVisible(false);
+    }
+
+    @FXML
+    public void setUsersListViewOnVisible(){
+        usersListView.setVisible(true);
+        triangleAuxiliaryLabel.setVisible(true);
+    }
+
+    @FXML
+    public void setUsersListViewOnInvisible(){
+        usersListView.setVisible(false);
+        triangleAuxiliaryLabel.setVisible(false);
+        searchFriendshipField.clear();
+    }
+
+    @FXML
+    public void handleFriendshipRequestFromRequestsController(){
+        UsersSearchProcess.sendFriendshipRequest(usersListView, rootPage, networkController, displayStage);
+    }
+
+    @FXML
+    public void enableAllButtonsAndClearSelection(){
+        addFriendshipButton.setDisable(true);
+        rejectRequestButton.setDisable(false);
+        approveRequestButton.setDisable(false);
+        resubmissionRequestButton.setDisable(false);
+        requestsSentListView.getSelectionModel().clearSelection();
+    }
+
+    @FXML
+    public void disableWhenSearchForUser(){
+        if(usersListView.getSelectionModel().getSelectedItem() != null){
+            addFriendshipButton.setDisable(false);
+            rejectRequestButton.setDisable(true);
+            approveRequestButton.setDisable(true);
+            resubmissionRequestButton.setDisable(true);
+        }
+    }
+
+    @FXML
+    public void disableButtonsOnRequestSentListView(){
+        if(requestsSentListView.getSelectionModel().getSelectedItem() != null){
+            addFriendshipButton.setDisable(true);
+            rejectRequestButton.setDisable(true);
+            approveRequestButton.setDisable(true);
+            resubmissionRequestButton.setDisable(true);
+        }
+    }
+
+    @FXML
+    public void disableButtonsOnRequestReceivedListView(){
+        if(requestsReceivedListView.getSelectionModel().getSelectedItem() != null){
+            addFriendshipButton.setDisable(true);
+            rejectRequestButton.setDisable(false);
+            approveRequestButton.setDisable(false);
+            resubmissionRequestButton.setDisable(false);
         }
     }
 

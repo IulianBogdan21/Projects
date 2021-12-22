@@ -18,7 +18,7 @@ public class StageBuilder {
         loader.setLocation(sourceClass.getResource(path));
         Parent root = loader.load();
         Stage stage = new Stage();
-        Image icon = new Image("images/loginPicture.jpg");
+        Image icon = new Image("images/applicationLogo.png");
         stage.getIcons().add(icon);
         stage.setTitle(title);
         stage.initModality(Modality.WINDOW_MODAL);
