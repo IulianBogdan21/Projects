@@ -21,9 +21,26 @@ public class Page implements Observer<Event> {
         networkController.getMessageService().addObserver(this);
     }
 
-    public Page(User root, List<User> friendList,
-                List<FriendRequest> friendRequestList, List<Chat> chatList,
-                NetworkController networkController) {
+    public void unsubscribePage(){
+        networkController.getNetworkService().removeObserver(this);
+        networkController.getFriendRequestService().removeObserver(this);
+        networkController.getMessageService().removeObserver(this);
+    }
+
+
+    public void refresh(String username){
+        root =  networkController.getAllUsers()
+                .stream()
+                .filter(user -> user.getUsername().equals(username))
+                .toList()
+                .get(0);
+        friendList = networkController.getAllFriendshipForSpecifiedUser(root.getId());
+        friendRequestList = networkController.getAllFriendRequestForSpecifiedUser(root.getId());
+        setChatMap( networkController.getAllChatsSpecifiedUser(root.getId()) );
+    }
+
+    public Page(User root, List<User> friendList, List<FriendRequest> friendRequestList,
+                List<Chat> chatList, NetworkController networkController) {
         this.root = root;
         this.friendList = friendList;
         this.friendRequestList = friendRequestList;
@@ -65,7 +82,7 @@ public class Page implements Observer<Event> {
         this.friendRequestList = friendRequestList;
     }
 
-    public List<Chat> getChatMap() {
+    public List<Chat> getChatList() {
         return chatMap.entrySet()
                 .stream()
                 .map(x -> x.getValue())
@@ -119,11 +136,13 @@ public class Page implements Observer<Event> {
             friendRequestList = networkController.getAllFriendRequestForSpecifiedUser(root.getId());
             if(!event.getType().equals(FriendRequestChangeEventType.PENDING))
                 friendList = networkController.getAllFriendshipForSpecifiedUser(root.getId());
+            return;
         }
 
         if(event instanceof FriendshipChangeEvent){
             friendRequestList = networkController.getAllFriendRequestForSpecifiedUser(root.getId());
             friendList = networkController.getAllFriendshipForSpecifiedUser(root.getId());
+            return;
         }
 
         if(event instanceof MessageChangeEvent){
@@ -131,7 +150,7 @@ public class Page implements Observer<Event> {
             MessageDTO data = eventUpdate.getData();
 
             Message mainMessage = data.getMainMessage();
-            List<User> members = mainMessage.getTo();
+            List<User> members = new ArrayList<>( mainMessage.getTo() );
             members.add(mainMessage.getFrom());
             List<User> sortedMembers =  members.stream()
                     .sorted((User userX,User userY) -> {
@@ -140,12 +159,24 @@ public class Page implements Observer<Event> {
                     .toList();
 
             if(chatMap.containsKey(sortedMembers)) {
-                if(eventUpdate.getType().equals(MessageChangeEventType.SEND))
-                    chatMap.get(sortedMembers).addMessage(mainMessage);
+                if(eventUpdate.getType().equals(MessageChangeEventType.SEND)) {
+                    Chat oldChat = chatMap.get(sortedMembers);
+                    //create a new list.The list from Value is unmutable
+                    List < Message > allNewMessages = new ArrayList<>(oldChat.getMessageList());
+                    allNewMessages.add(mainMessage);
+                    Chat newChat = new Chat(sortedMembers,allNewMessages,oldChat.getReplyMessageList());
+                    chatMap.put(sortedMembers,newChat);
+                }
                 else if(eventUpdate.getType().equals(MessageChangeEventType.RESPOND)){
                     ReplyMessage replyMessage = new ReplyMessage(mainMessage.getFrom(),
                             mainMessage.getTo(), mainMessage.getText(),data.getMessageToRespondTo());
-                    chatMap.get(sortedMembers).addReplyMessage(replyMessage);
+                    replyMessage.setIdEntity(mainMessage.getId()); //VERY IMPORTANT!We create here reply message
+
+                    Chat oldChat = chatMap.get(sortedMembers);
+                    List < ReplyMessage > allNewReplyMessages =new ArrayList<>(oldChat.getReplyMessageList());
+                    allNewReplyMessages.add(replyMessage);
+                    Chat newChat = new Chat(sortedMembers,oldChat.getMessageList(),allNewReplyMessages);
+                    chatMap.put(sortedMembers,newChat);
                 }
             }
             else { //here I will create a new Chat
@@ -153,6 +184,8 @@ public class Page implements Observer<Event> {
                     chatMap.put(sortedMembers,new Chat(sortedMembers,Arrays.asList(mainMessage),
                             new ArrayList<ReplyMessage>()));
             }
+
+            return;
         }
     }
 }

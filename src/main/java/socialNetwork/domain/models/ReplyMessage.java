@@ -24,7 +24,7 @@ public class ReplyMessage extends Message{
 
     @Override
     public String toString() {
-        return super.toString();
+        return super.toString() + " " + message.toString();
     }
 
     @Override

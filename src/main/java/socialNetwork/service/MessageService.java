@@ -45,7 +45,6 @@ public class MessageService implements Observable<Event> {
 
         MessageDTO messageDTO = buildMessageToSendDto(userFrom, usersTo, text);
 
-        notifyObservers(new MessageChangeEvent(MessageChangeEventType.SEND,messageDTO));
         return saveMessageThatIsNotReplyInRepo(messageDTO);
     }
 
@@ -407,8 +406,10 @@ public class MessageService implements Observable<Event> {
      */
     private Optional<Message> saveMessageThatIsNotReplyInRepo(MessageDTO messageDTO){
         Optional<MessageDTO> saveMessageDTO = repoMessagesDTO.save(messageDTO);
-        if(saveMessageDTO.isEmpty())
+        if(saveMessageDTO.isEmpty()) {
+            notifyObservers(new MessageChangeEvent(MessageChangeEventType.SEND,messageDTO));
             return Optional.empty();
+        }
         return Optional.of(saveMessageDTO.get().getMainMessage());
     }
 

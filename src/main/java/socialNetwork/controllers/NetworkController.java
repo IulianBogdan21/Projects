@@ -190,36 +190,47 @@ public class NetworkController  {
         return messageService.getAllMessagesToRespondForUserService(idUser);
     }
 
-    public Optional<FriendRequest> withdrawFriendRequest(Long firstUserId, Long secondUserId){
-        return friendRequestService.withdrawFriendRequestService(firstUserId,secondUserId);
+    public Optional<FriendRequest> withdrawFriendRequest(Long userIdThatSendInvitationButWithdrawIt,
+                                                         Long userIdThatReceiveInvitation){
+        return friendRequestService.withdrawFriendRequestService(userIdThatSendInvitationButWithdrawIt,
+                userIdThatReceiveInvitation);
     }
 
-    public Optional<FriendRequest> sendInvitationForFriendships(Long firstUserId,Long secondUserId){
-        return friendRequestService.sendInvitationForFriendRequestService(firstUserId,secondUserId);
+    public Optional<FriendRequest> sendInvitationForFriendships(Long userIdThatSendInvitation,
+                                                                Long userIdThatReceiveInvitation){
+        return friendRequestService.sendInvitationForFriendRequestService(userIdThatSendInvitation,
+                userIdThatReceiveInvitation);
     }
 
-    public Optional<Friendship> updateApprovedFriendship(Long firstUserId,Long secondUserId){
+    public Optional<Friendship> updateApprovedFriendship(Long userThatReceivesInvitationAndAcceptedId,
+                                                         Long userThatSendInvitationAndWaitVerdictId){
         Optional<Friendship> friendshipOptional = friendRequestService.
-                updateApprovedFriendRequestService(firstUserId,secondUserId);
+                updateApprovedFriendRequestService(userThatReceivesInvitationAndAcceptedId,
+                        userThatSendInvitationAndWaitVerdictId);
         return friendshipOptional;
     }
 
-    public Optional<Friendship> updateRejectedFriendship(Long firstUserId,Long secondUserId){
+    public Optional<Friendship> updateRejectedFriendship(Long userThatReceivesInvitationAndRejectedId,
+                                                         Long userThatSendInvitationAndWaitVerdictId){
         Optional<Friendship> friendshipOptional = friendRequestService.
-                updateRejectedFriendRequestService(firstUserId,secondUserId);
+                updateRejectedFriendRequestService(userThatReceivesInvitationAndRejectedId,
+                        userThatSendInvitationAndWaitVerdictId);
         return friendshipOptional;
     }
 
 
-    public Optional<FriendRequest> updateRejectedToPendingFriendship(Long idUserThatSends,Long idUserThatReceive) {
+    public Optional<FriendRequest> updateRejectedToPendingFriendship(Long idUserThatRejectButChangeHisMind,
+                                                                     Long idUserThatSendInitiallyInvitation) {
         Optional<FriendRequest> friendshipOptional = friendRequestService
-                .updateRejectedToPendingFriendRequestService(idUserThatSends,idUserThatReceive);
+                .updateRejectedToPendingFriendRequestService(idUserThatRejectButChangeHisMind,
+                        idUserThatSendInitiallyInvitation);
         return friendshipOptional;
     }
 
     public Map<Optional<User>, LocalDateTime> findAllApprovedFriendshipsForUser(Long idUser){
         return userService.findAllFriendsForUserService(idUser);
     }
+
 
     public Optional<Autentification> saveAuthentification(String username,String password){
         return authentificationService.saveAuthentificationService(username,password);
@@ -244,7 +255,7 @@ public class NetworkController  {
     }
 
     private Page createPageObject(String username){
-        User root =  userService.getAllService()
+        User root = getAllUsers()
                 .stream()
                 .filter(user -> user.getUsername().equals(username))
                 .toList()

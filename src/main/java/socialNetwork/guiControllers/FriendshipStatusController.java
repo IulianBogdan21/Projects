@@ -78,6 +78,7 @@ public class FriendshipStatusController implements Observer<Event> {
         networkController.getFriendRequestService().addObserver(this);
         this.displayStage = primaryStage;
         this.rootPage = rootPage;
+        rootPage.refresh(rootPage.getRoot().getUsername());
         initModelFriendRequest();
     }
 
@@ -152,10 +153,10 @@ public class FriendshipStatusController implements Observer<Event> {
         RequestInvitationGUIDTO requestInvitationGUIDTO = requestFriendshipTableViewReact
                 .getSelectionModel().getSelectedItem();
         if(requestInvitationGUIDTO != null){
-            Long idSecondUser = mainUser.getId();
-            Long idFirstUser = requestInvitationGUIDTO.getId();
+            Long userThatReceivesInvitationAndAcceptedId = mainUser.getId();
+            Long userThatSendInvitationAndWaitVerdictId = requestInvitationGUIDTO.getId();
             try {
-                networkController.updateApprovedFriendship(idFirstUser, idSecondUser);
+                networkController.updateApprovedFriendship(userThatReceivesInvitationAndAcceptedId,userThatSendInvitationAndWaitVerdictId);
                 MessageAlert.showMessage(displayStage, Alert.AlertType.INFORMATION,"Approved Request",
                         "The friendship request has been approved!");
             }
@@ -177,10 +178,11 @@ public class FriendshipStatusController implements Observer<Event> {
         RequestInvitationGUIDTO requestInvitationGUIDTO = requestFriendshipTableViewReact
                 .getSelectionModel().getSelectedItem();
         if(requestInvitationGUIDTO != null){
-            Long idSecondUser = mainUser.getId();
-            Long idFirstUser = requestInvitationGUIDTO.getId();
+
+            Long userThatReceivesInvitationAndRejectedId = mainUser.getId();
+            Long userThatSendInvitationAndWaitVerdictId = requestInvitationGUIDTO.getId();
             try {
-                networkController.updateRejectedFriendship(idFirstUser, idSecondUser);
+                networkController.updateRejectedFriendship(userThatReceivesInvitationAndRejectedId , userThatSendInvitationAndWaitVerdictId);
                 MessageAlert.showMessage(displayStage, Alert.AlertType.INFORMATION,"Rejected Request",
                         "The friendship request has been rejected!");
             }
@@ -212,9 +214,9 @@ public class FriendshipStatusController implements Observer<Event> {
         }
 
         try{
-            Long idUserThatSend = mainUser.getId();
-            Long idUserThatReceive = requestInvitationGUIDTO.getId();
-            networkController.updateRejectedToPendingFriendship(idUserThatSend,idUserThatReceive);
+            Long idUserThatRejectButChangeHisMind = mainUser.getId();
+            Long idUserThatSendInitiallyInvitation = requestInvitationGUIDTO.getId();
+            networkController.updateRejectedToPendingFriendship(idUserThatRejectButChangeHisMind,idUserThatSendInitiallyInvitation);
             MessageAlert.showMessage(displayStage, Alert.AlertType.INFORMATION,"Resubmitted Request",
                     "The friendship request has been resubmitted!");
         }

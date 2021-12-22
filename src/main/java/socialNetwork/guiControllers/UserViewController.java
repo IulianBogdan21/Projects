@@ -68,6 +68,7 @@ public class UserViewController implements Observer<Event> {
         networkController.getNetworkService().addObserver(this);
         this.displayStage = primaryStage;
         this.rootPage = rootPage;
+        rootPage.refresh(rootPage.getRoot().getUsername());
         initModelFriends();
     }
 
