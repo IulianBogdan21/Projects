@@ -44,7 +44,9 @@ public class SceneSwitcher {
                                                               Page rootPage, Stage displayStage) throws IOException {
         Parent root = loader.load();
         displayStage =  (Stage)(((Node)event.getSource()).getScene().getWindow());
-        displayStage.setScene(new Scene(root));
+        Scene newScene = new Scene(root);
+        newScene.getStylesheets().add(sourceClass.getResource("/css/chatNameListView.css").toExternalForm());
+        displayStage.setScene(newScene);
         MessageController messageController = loader.getController();
         messageController.setNetworkController(displayStage,networkController,rootPage);
         displayStage.show();

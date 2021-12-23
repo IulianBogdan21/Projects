@@ -14,6 +14,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.shape.Polygon;
 import javafx.stage.Stage;
 import socialNetwork.controllers.NetworkController;
+import socialNetwork.domain.models.Chat;
 import socialNetwork.domain.models.Page;
 import socialNetwork.domain.models.User;
 import socialNetwork.utilitaries.ListViewInitialize;
@@ -27,6 +28,7 @@ import java.io.IOException;
 
 public class MessageController implements Observer<Event> {
     ObservableList<User> modelSearchFriends = FXCollections.observableArrayList();
+    ObservableList<Chat> modelChatsName = FXCollections.observableArrayList();
 
     @FXML
     AnchorPane mainAnchorPane;
@@ -60,6 +62,10 @@ public class MessageController implements Observer<Event> {
     ListView<User> startConversationListView;
     @FXML
     VBox newConversationBox;
+    @FXML
+    Label usernameLabelChat;
+    @FXML
+    ListView<Chat> chatsNameListView;
 
     NetworkController networkController;
     Page rootPage;
@@ -70,10 +76,14 @@ public class MessageController implements Observer<Event> {
         networkController.getMessageService().addObserver(this);
         this.displayStage = primaryStage;
         this.rootPage = rootPage;
-        initModelFriends();
+        usernameLabelChat.setText(rootPage.getRoot().getUsername());
+        ListViewInitialize.createListViewWithChats(chatsNameListView,modelChatsName,rootPage.getRoot());
+        initModelChatsName();
     }
 
-    private void initModelFriends(){}
+    private void initModelChatsName(){
+        modelChatsName.setAll(rootPage.getChatList());
+    }
 
     @FXML
     public void initialize(){
@@ -85,7 +95,7 @@ public class MessageController implements Observer<Event> {
 
     @Override
     public void update(Event event) {
-        initModelFriends();
+        initModelChatsName();
     }
 
     @FXML
