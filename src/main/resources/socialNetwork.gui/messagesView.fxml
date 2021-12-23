@@ -126,10 +126,10 @@
             <ListView fx:id="startConversationListView" prefHeight="200.0" prefWidth="200.0" style="-fx-border-color: #d53939;" />
          </children>
       </VBox>
-      <AnchorPane layoutX="219.0" layoutY="44.0" prefHeight="342.0" prefWidth="404.0" style="-fx-background-color: white;">
+      <AnchorPane fx:id="conversationAnchorPane" layoutX="219.0" layoutY="44.0" prefHeight="342.0" prefWidth="404.0" style="-fx-background-color: white;">
          <children>
             <TextField fx:id="messageField" layoutX="45.0" layoutY="293.0" prefHeight="26.0" prefWidth="257.0" style="-fx-background-radius: 15px;" visible="false" />
-            <FontAwesomeIconView fx:id="sendMessageIcon" glyphName="SEND" layoutX="315.0" layoutY="315.0" size="25" visible="false" />
+            <FontAwesomeIconView fx:id="sendMessageIcon" glyphName="SEND" layoutX="315.0" layoutY="315.0" onMousePressed="#sendMessage" size="25" visible="false" />
             <ScrollPane fx:id="conversationScrollPane" prefHeight="286.0" prefWidth="404.0">
                <content>
                   <VBox fx:id="conversationVerticalBox" prefHeight="274.0" prefWidth="392.0" />

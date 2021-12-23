@@ -6,12 +6,15 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.effect.Lighting;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -27,6 +30,7 @@ import socialNetwork.utilitaries.MessageAlert;
 import socialNetwork.utilitaries.SceneSwitcher;
 import socialNetwork.utilitaries.UsersSearchProcess;
 import socialNetwork.utilitaries.events.Event;
+import socialNetwork.utilitaries.events.MessageChangeEvent;
 import socialNetwork.utilitaries.observer.Observer;
 
 import java.io.IOException;
@@ -35,6 +39,7 @@ import java.util.List;
 public class MessageController implements Observer<Event> {
     ObservableList<User> modelSearchFriends = FXCollections.observableArrayList();
     ObservableList<Chat> modelChatsName = FXCollections.observableArrayList();
+    Chat chatConversation = null;
 
     @FXML
     AnchorPane mainAnchorPane;
@@ -82,6 +87,8 @@ public class MessageController implements Observer<Event> {
     VBox conversationVerticalBox;
     @FXML
     Label welcomeMessageLabel;
+    @FXML
+    AnchorPane conversationAnchorPane;
 
     NetworkController networkController;
     Page rootPage;
@@ -93,6 +100,7 @@ public class MessageController implements Observer<Event> {
         networkController.getMessageService().addObserver(this);
         this.displayStage = primaryStage;
         this.rootPage = rootPage;
+        rootPage.refresh(rootPage.getRoot().getUsername());
         usernameLabelChat.setText(rootPage.getRoot().getUsername());
         ListViewInitialize.createListViewWithChats(chatsNameListView,modelChatsName,rootPage.getRoot());
         initModelChatsName();
@@ -102,6 +110,10 @@ public class MessageController implements Observer<Event> {
         modelChatsName.setAll(rootPage.getChatList());
     }
 
+    private void updateChatWithTheLatestMessages(){
+
+    }
+
     @FXML
     public void initialize(){
         conversationScrollPane.setVisible(false);
@@ -109,11 +121,22 @@ public class MessageController implements Observer<Event> {
         ListViewInitialize.createListViewWithUser(startConversationListView, modelSearchFriends);
         searchFriendshipField.textProperty().addListener(o -> handleFilterInUserController());
         searchUserToStartConversationField.textProperty().addListener(o -> handleFilterSearchUserForNewConversation());
+        messageField.textProperty().addListener(o -> handleMessageIcon());
+
+        messageField.setOnKeyPressed(new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent ke) {
+                if (ke.getCode().equals(KeyCode.ENTER)) {
+                    sendMessage();
+                }
+            }
+        });
     }
 
     @Override
     public void update(Event event) {
-        initModelChatsName();
+        if(event instanceof MessageChangeEvent)
+            initModelChatsName();
     }
 
     @FXML
@@ -121,12 +144,11 @@ public class MessageController implements Observer<Event> {
         if(firstTime) {
             conversationScrollPane.setVisible(true);
             welcomeMessageLabel.setVisible(false);
-            sendMessageIcon.setVisible(true);
             messageField.setVisible(true);
             firstTime = false;
         }
         conversationVerticalBox.getChildren().clear();
-        Chat chat = chatsNameListView.getSelectionModel().getSelectedItem();
+        chatConversation = chatsNameListView.getSelectionModel().getSelectedItem();
         conversationVerticalBox.heightProperty().addListener(new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
@@ -134,8 +156,8 @@ public class MessageController implements Observer<Event> {
             }
         });
         User root = rootPage.getRoot();
-        List<Message> chatMessages = chat.getMessageList();
-        List<ReplyMessage> chatReplyMessages = chat.getReplyMessageList();
+        List<Message> chatMessages = chatConversation.getMessageList();
+        List<ReplyMessage> chatReplyMessages = chatConversation.getReplyMessageList();
         int i = 0, j = 0;
         int n = chatMessages.size();
         int m = chatReplyMessages.size();
@@ -216,6 +238,32 @@ public class MessageController implements Observer<Event> {
     }
 
     @FXML
+    public void sendMessage(){
+        String text = messageField.getText();
+        Long idUserFrom = rootPage.getRoot().getId();
+        List<Long> to = idMembersWithoutRootForChat(chatConversation, rootPage.getRoot());
+        networkController.sendMessages(idUserFrom,to,text);
+        //conversationVerticalBox Is the same with the selected chat
+        putMessageInScrollPane("sent",text);
+        messageField.clear();
+    }
+
+    private List<Long> idMembersWithoutRootForChat(Chat chat,User root){
+        return chat.getMembers()
+                .stream()
+                .filter(user -> !user.getId().equals(root.getId()))
+                .map(user -> user.getId())
+                .toList();
+    }
+
+    private void handleMessageIcon(){
+        if(messageField.getText().equals(""))
+            sendMessageIcon.setVisible(false);
+        else
+            sendMessageIcon.setVisible(true);
+    }
+
+    @FXML
     public void handleFriendshipRequestFromMessageController(){
         UsersSearchProcess.sendFriendshipRequest(usersListView, rootPage, networkController, displayStage);
     }
@@ -293,6 +341,8 @@ public class MessageController implements Observer<Event> {
         mainHorizontalBox.setEffect(null);
         mainHorizontalBox.setDisable(false);
         newConversationBox.setVisible(false);
+        conversationAnchorPane.setEffect(null);
+        conversationAnchorPane.setDisable(false);
     }
 
     @FXML
@@ -308,6 +358,8 @@ public class MessageController implements Observer<Event> {
         mainHorizontalBox.setEffect(lighting);
         mainHorizontalBox.setDisable(true);
         newConversationBox.setVisible(true);
+        conversationAnchorPane.setEffect(lighting);
+        conversationAnchorPane.setDisable(true);
     }
 
 }
