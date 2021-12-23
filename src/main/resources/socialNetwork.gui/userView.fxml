@@ -17,7 +17,7 @@
 <?import javafx.scene.shape.Polygon?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="379.0" prefWidth="623.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="socialNetwork.guiControllers.UserViewController">
+<AnchorPane fx:id="mainAnchorPane" prefHeight="379.0" prefWidth="623.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="socialNetwork.guiControllers.UserViewController">
    <children>
       <AnchorPane layoutX="-7.0" layoutY="38.0" prefHeight="342.0" prefWidth="630.0">
          <children>

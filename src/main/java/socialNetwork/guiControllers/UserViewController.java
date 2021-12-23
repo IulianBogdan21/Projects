@@ -10,8 +10,11 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.effect.Effect;
+import javafx.scene.effect.Lighting;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.shape.Polygon;
 import javafx.stage.Stage;
 import javafx.scene.control.ListCell;
@@ -38,6 +41,8 @@ public class UserViewController implements Observer<Event> {
     ObservableList<User> modelFriends = FXCollections.observableArrayList();
     ObservableList<User> modelSearchFriends = FXCollections.observableArrayList();
 
+    @FXML
+    AnchorPane mainAnchorPane;
     @FXML
     ListView<User> listViewOfFriends;
     @FXML

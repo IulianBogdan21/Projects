@@ -1,10 +1,16 @@
 package socialNetwork.guiControllers;
 
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.effect.Lighting;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.shape.Polygon;
 import javafx.stage.Stage;
 import socialNetwork.controllers.NetworkController;
@@ -23,6 +29,10 @@ public class MessageController implements Observer<Event> {
     ObservableList<User> modelSearchFriends = FXCollections.observableArrayList();
 
     @FXML
+    AnchorPane mainAnchorPane;
+    @FXML
+    HBox mainHorizontalBox;
+    @FXML
     ListView<User> usersListView;
     @FXML
     Button addFriendshipButton;
@@ -38,6 +48,18 @@ public class MessageController implements Observer<Event> {
     Label messagesLabel;
     @FXML
     Polygon triangleAuxiliaryLabel;
+    @FXML
+    FontAwesomeIconView newPersonConversationIcon;
+    @FXML
+    FontAwesomeIconView closeConversationStartIcon;
+    @FXML
+    FontAwesomeIconView confirmDestinationIcon;
+    @FXML
+    TextField searchUserToStartConversationField;
+    @FXML
+    ListView<User> startConversationListView;
+    @FXML
+    VBox newConversationBox;
 
     NetworkController networkController;
     Page rootPage;
@@ -56,7 +78,9 @@ public class MessageController implements Observer<Event> {
     @FXML
     public void initialize(){
         ListViewInitialize.createListViewWithUser(usersListView, modelSearchFriends);
+        ListViewInitialize.createListViewWithUser(startConversationListView, modelSearchFriends);
         searchFriendshipField.textProperty().addListener(o -> handleFilterInUserController());
+        searchUserToStartConversationField.textProperty().addListener(o -> handleFilterSearchUserForNewConversation());
     }
 
     @Override
@@ -129,6 +153,34 @@ public class MessageController implements Observer<Event> {
 
     private void handleFilterInUserController(){
         ListViewInitialize.handleFilter(networkController, rootPage, searchFriendshipField, modelSearchFriends);
+    }
+
+    private void handleFilterSearchUserForNewConversation(){
+        ListViewInitialize.handleFilter(networkController, rootPage, searchUserToStartConversationField, modelSearchFriends);
+    }
+
+    @FXML
+    public void closeStartConversationWindow(){
+        mainAnchorPane.setEffect(null);
+        mainAnchorPane.setDisable(false);
+        mainHorizontalBox.setEffect(null);
+        mainHorizontalBox.setDisable(false);
+        newConversationBox.setVisible(false);
+    }
+
+    @FXML
+    public void proceedWithNewConversation(){
+        closeStartConversationWindow();
+    }
+
+    @FXML
+    public void openWindowNewConversation(){
+        Lighting lighting = new Lighting();
+        mainAnchorPane.setEffect(lighting);
+        mainAnchorPane.setDisable(true);
+        mainHorizontalBox.setEffect(lighting);
+        mainHorizontalBox.setDisable(true);
+        newConversationBox.setVisible(true);
     }
 
 }
