@@ -26,6 +26,7 @@ import socialNetwork.utilitaries.MessageAlert;
 import socialNetwork.utilitaries.SceneSwitcher;
 import socialNetwork.utilitaries.UsersSearchProcess;
 import socialNetwork.utilitaries.events.Event;
+import socialNetwork.utilitaries.events.FriendshipChangeEvent;
 import socialNetwork.utilitaries.observer.Observer;
 
 import java.io.IOException;
@@ -85,7 +86,8 @@ public class UserViewController implements Observer<Event> {
 
     @Override
     public void update(Event event) {
-        initModelFriends();
+        if(event instanceof FriendshipChangeEvent)
+            initModelFriends();
     }
 
     @FXML
