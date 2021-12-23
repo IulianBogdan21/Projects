@@ -34,6 +34,7 @@ import socialNetwork.utilitaries.events.MessageChangeEvent;
 import socialNetwork.utilitaries.observer.Observer;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MessageController implements Observer<Event> {
@@ -117,6 +118,7 @@ public class MessageController implements Observer<Event> {
     @FXML
     public void initialize(){
         conversationScrollPane.setVisible(false);
+        startConversationListView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         ListViewInitialize.createListViewWithUser(usersListView, modelSearchFriends);
         ListViewInitialize.createListViewWithUser(startConversationListView, modelSearchFriends);
         searchFriendshipField.textProperty().addListener(o -> handleFilterInUserController());
@@ -347,7 +349,15 @@ public class MessageController implements Observer<Event> {
 
     @FXML
     public void proceedWithNewConversation(){
+        List<User> members = new ArrayList<>( startConversationListView.getSelectionModel()
+                        .getSelectedItems()
+                        .stream()
+                        .toList() );
+        System.out.println(members);
         closeStartConversationWindow();
+        members.add(rootPage.getRoot());
+        Chat temporaryChat = new Chat(members,new ArrayList<Message>(), new ArrayList<ReplyMessage>());
+        modelChatsName.add(temporaryChat);
     }
 
     @FXML
