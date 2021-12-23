@@ -13,18 +13,21 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Line?>
 <?import javafx.scene.shape.Polygon?>
 <?import javafx.scene.text.Font?>
 
+
 <AnchorPane prefHeight="379.0" prefWidth="623.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="socialNetwork.guiControllers.MessageController">
     <children>
-        <AnchorPane layoutX="-7.0" layoutY="38.0" prefHeight="342.0" prefWidth="630.0">
+        <AnchorPane fx:id="mainAnchorPane" layoutX="-7.0" layoutY="38.0" prefHeight="342.0" prefWidth="630.0">
             <children>
                 <ImageView fitHeight="342.0" fitWidth="623.0" layoutX="7.0" layoutY="-1.0" onMouseClicked="#enableAllButtonsAndClearSelection" onMousePressed="#setUsersListViewOnInvisible" pickOnBounds="true">
                     <image>
                         <Image url="@../images/userView.png" />
-                    </image></ImageView>
+                    </image>
+            </ImageView>
                 <AnchorPane layoutX="6.0" layoutY="9.0" prefHeight="334.0" prefWidth="218.0">
                     <children>
                         <ImageView fitHeight="334.0" fitWidth="218.0" layoutX="1.0" onMouseClicked="#enableAllButtonsAndClearSelection" onMousePressed="#setUsersListViewOnInvisible" pickOnBounds="true">
@@ -49,7 +52,9 @@
                         </Label>
                         <Line endX="100.0" layoutX="110.0" layoutY="87.0" startX="-100.0" stroke="#d53939" />
                         <Button fx:id="addFriendshipButton" layoutX="48.0" layoutY="115.0" mnemonicParsing="false" onAction="#handleFriendshipRequestFromMessageController" prefHeight="26.0" prefWidth="119.0" style="-fx-background-color: #d53939; -fx-background-radius: 15px;" text="Request friendship" textFill="WHITE" />
-                    </children></AnchorPane>
+                  <FontAwesomeIconView fx:id="newPersonConversationIcon" glyphName="PENCIL" onMousePressed="#openWindowNewConversation" size="25" x="100.0" y="200.0" />
+                    </children>
+            </AnchorPane>
                 <Line endX="1.399993896484375" endY="259.1999816894531" layoutX="225.0" layoutY="82.0" startX="-3.0517578125E-5" startY="-72.99999237060547" stroke="#d53939" />
                 <Label fx:id="friendsLabel" layoutX="430.0" layoutY="14.0" text="Friends" textFill="GREY" visible="false" />
                 <Label fx:id="friendRequestsLabel" layoutX="460.0" layoutY="14.0" text="Friend requests" textFill="GREY" visible="false" />
@@ -58,7 +63,7 @@
                 <Label fx:id="messagesLabel" layoutX="542.0" layoutY="14.0" text="Messages" textFill="GREY" visible="false" />
             </children>
         </AnchorPane>
-        <HBox prefHeight="38.0" prefWidth="623.0">
+        <HBox fx:id="mainHorizontalBox" prefHeight="38.0" prefWidth="623.0">
             <children>
                 <Label prefHeight="18.0" prefWidth="74.0" text="Kage" textFill="#d53939">
                     <font>
@@ -96,5 +101,29 @@
                 </Button>
             </children>
         </HBox>
+      <VBox fx:id="newConversationBox" layoutX="180.0" layoutY="70.0" prefHeight="250.0" prefWidth="250.0" visible="false">
+         <children>
+            <HBox prefHeight="58.0" prefWidth="250.0" style="-fx-border-color: #d53939; -fx-background-color: white;">
+               <children>
+                  <FontAwesomeIconView fx:id="closeConversationStartIcon" glyphName="REMOVE" onMousePressed="#closeStartConversationWindow" size="25">
+                     <HBox.margin>
+                        <Insets left="15.0" top="10.0" />
+                     </HBox.margin>
+                  </FontAwesomeIconView>
+                  <TextField fx:id="searchUserToStartConversationField" prefHeight="30.0" prefWidth="150.0" promptText="Search user..." style="-fx-background-radius: 15px;">
+                     <HBox.margin>
+                        <Insets left="12.0" top="10.0" />
+                     </HBox.margin>
+                  </TextField>
+                  <FontAwesomeIconView fx:id="confirmDestinationIcon" glyphName="CHECK" onMousePressed="#proceedWithNewConversation" size="25">
+                     <HBox.margin>
+                        <Insets left="15.0" top="10.0" />
+                     </HBox.margin>
+                  </FontAwesomeIconView>
+               </children>
+            </HBox>
+            <ListView fx:id="startConversationListView" prefHeight="200.0" prefWidth="200.0" style="-fx-border-color: #d53939;" />
+         </children>
+      </VBox>
     </children>
 </AnchorPane>
