@@ -197,8 +197,10 @@ public class MessageService implements Observable<Event> {
                             .filter(messageDTO -> messageDTO.getMessageToRespondTo() != null)
                             .map(messageDTO -> {
                                 Message mainMessage = messageDTO.getMainMessage();
-                                return new ReplyMessage(mainMessage.getFrom(),
+                                ReplyMessage replyMessage = new ReplyMessage(mainMessage.getFrom(),
                                         mainMessage.getTo(), mainMessage.getText(), messageDTO.getMessageToRespondTo());
+                                replyMessage.setDate(mainMessage.getDate());
+                                return replyMessage;
                             })
                             .toList();
                     return new Chat(members,messageList,replyMessageList);

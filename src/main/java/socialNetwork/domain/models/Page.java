@@ -165,6 +165,7 @@ public class Page implements Observer<Event> {
                 else if(eventUpdate.getType().equals(MessageChangeEventType.RESPOND)){
                     ReplyMessage replyMessage = new ReplyMessage(mainMessage.getFrom(),
                             mainMessage.getTo(), mainMessage.getText(),data.getMessageToRespondTo());
+                    replyMessage.setDate(mainMessage.getDate());
                     replyMessage.setIdEntity(mainMessage.getId()); //VERY IMPORTANT!We create here reply message
 
                     Chat oldChat = chatMap.get(sortedMembers);
