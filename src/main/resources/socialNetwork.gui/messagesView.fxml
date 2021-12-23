@@ -18,7 +18,6 @@
 <?import javafx.scene.shape.Polygon?>
 <?import javafx.scene.text.Font?>
 
-
 <AnchorPane prefHeight="379.0" prefWidth="623.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="socialNetwork.guiControllers.MessageController">
     <children>
         <AnchorPane fx:id="mainAnchorPane" layoutX="-7.0" layoutY="38.0" prefHeight="342.0" prefWidth="630.0">
@@ -35,7 +34,7 @@
                                 <Image url="@../images/signUp.png" />
                             </image>
                         </ImageView>
-                        <Label layoutX="72.0" layoutY="49.0" prefHeight="18.0" prefWidth="74.0" text="Options" textFill="#d53939">
+                        <Label fx:id="usernameLabelChat" layoutX="14.0" layoutY="36.0" prefHeight="30.0" prefWidth="150.0" textFill="#d53939">
                             <font>
                                 <Font name="System Bold" size="20.0" />
                             </font>
@@ -50,9 +49,10 @@
                                 </Lighting>
                             </effect>
                         </Label>
-                        <Line endX="100.0" layoutX="110.0" layoutY="87.0" startX="-100.0" stroke="#d53939" />
-                        <Button fx:id="addFriendshipButton" layoutX="48.0" layoutY="115.0" mnemonicParsing="false" onAction="#handleFriendshipRequestFromMessageController" prefHeight="26.0" prefWidth="119.0" style="-fx-background-color: #d53939; -fx-background-radius: 15px;" text="Request friendship" textFill="WHITE" />
-                  <FontAwesomeIconView fx:id="newPersonConversationIcon" glyphName="PENCIL" onMousePressed="#openWindowNewConversation" size="25" x="100.0" y="200.0" />
+                        <Line endX="108.99996948242188" layoutX="110.0" layoutY="86.0" startX="-108.99999237060547" stroke="#d53939" />
+                  <FontAwesomeIconView fx:id="newPersonConversationIcon" glyphName="PENCIL" layoutX="73.0" layoutY="-161.0" onMousePressed="#openWindowNewConversation" size="25" text="" x="100.0" y="200.0" />
+                  <FontAwesomeIconView glyphName="USER_PLUS" layoutX="169.0" layoutY="73.0" onMousePressed="#handleFriendshipRequestFromMessageController" size="25" />
+                  <ListView fx:id="chatsNameListView" layoutY="87.0" prefHeight="250.0" prefWidth="218.0" />
                     </children>
             </AnchorPane>
                 <Line endX="1.399993896484375" endY="259.1999816894531" layoutX="225.0" layoutY="82.0" startX="-3.0517578125E-5" startY="-72.99999237060547" stroke="#d53939" />

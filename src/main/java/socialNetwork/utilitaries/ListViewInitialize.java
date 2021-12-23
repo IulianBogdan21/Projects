@@ -6,7 +6,10 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundImage;
 import socialNetwork.controllers.NetworkController;
+import socialNetwork.domain.models.Chat;
 import socialNetwork.domain.models.Page;
 import socialNetwork.domain.models.User;
 
@@ -51,5 +54,43 @@ public class ListViewInitialize {
         modelSearchFriends.setAll(userListWithoutMainUser.stream()
                 .filter(nameOfUserPredicate)
                 .toList());
+    }
+
+    public static void createListViewWithChats(ListView<Chat> listView, ObservableList<Chat> modelChats,User root){
+        Image genericUserImage = new Image("images/emptyProfilePicture.jpg");
+        listView.setItems(modelChats);
+        listView.setCellFactory(u -> new ListCell<Chat>(){
+            private ImageView imageView = new ImageView();
+            @Override
+            protected void updateItem(Chat item, boolean empty) {
+                super.updateItem(item, empty);
+                if(empty){
+                    setText(null);
+                    setGraphic(null);
+                }
+                else{
+                    imageView.setImage(genericUserImage);
+                    imageView.setFitHeight(50);
+                    imageView.setFitWidth(50);
+                    imageView.setPreserveRatio(true);
+
+                    if(item.getMembers().size() == 2){
+                        User otherGuy = item.getMembers().get(0);
+                        if(otherGuy.getId().equals(root.getId()))
+                            otherGuy = item.getMembers().get(1);
+                        setText(otherGuy.getUsername());
+                    }else{
+                        String nameAllMembers = item.getMembers()
+                                .stream()
+                                .filter(user -> !user.getId().equals(root.getId()))
+                                .map(user -> user.getUsername())
+                                .reduce("",(x,y) -> x + ", " + y);
+                        String editNameAllMembers = nameAllMembers.substring(2);
+                        setText(editNameAllMembers);
+                    }
+                    setGraphic(imageView);
+                }
+            }
+        });
     }
 }
