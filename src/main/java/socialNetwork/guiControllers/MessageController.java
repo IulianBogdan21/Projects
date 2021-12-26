@@ -12,7 +12,6 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.effect.Lighting;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
@@ -36,6 +35,7 @@ import socialNetwork.utilitaries.observer.Observer;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MessageController implements Observer<Event> {
     ObservableList<User> modelSearchFriends = FXCollections.observableArrayList();
@@ -48,8 +48,6 @@ public class MessageController implements Observer<Event> {
     HBox mainHorizontalBox;
     @FXML
     ListView<User> usersListView;
-    @FXML
-    Button addFriendshipButton;
     @FXML
     Button friendRequestButton;
     @FXML
@@ -109,10 +107,6 @@ public class MessageController implements Observer<Event> {
 
     private void initModelChatsName(){
         modelChatsName.setAll(rootPage.getChatList());
-    }
-
-    private void updateChatWithTheLatestMessages(){
-
     }
 
     @FXML
@@ -349,15 +343,38 @@ public class MessageController implements Observer<Event> {
 
     @FXML
     public void proceedWithNewConversation(){
+        if(startConversationListView.getSelectionModel().getSelectedItems() == null){
+            MessageAlert.showErrorMessage(displayStage, "You have not selected anyone to start a conversation with!");
+            closeStartConversationWindow();
+            return;
+        }
         List<User> members = new ArrayList<>( startConversationListView.getSelectionModel()
                         .getSelectedItems()
                         .stream()
                         .toList() );
-        System.out.println(members);
         closeStartConversationWindow();
         members.add(rootPage.getRoot());
+        if(checkIfChatExists(members, rootPage.getChatList()))
+            return;
         Chat temporaryChat = new Chat(members,new ArrayList<Message>(), new ArrayList<ReplyMessage>());
         modelChatsName.add(temporaryChat);
+    }
+
+    private boolean checkIfChatExists(List<User> members, List<Chat> allChats){
+        for(Chat chat: allChats){
+            boolean checkIfCurrentChatExists = true;
+            if(chat.getMembers().size() != members.size())
+                continue;
+            for (User member : members) {
+                if (!chat.getMembers().contains(member)) {
+                    checkIfCurrentChatExists = false;
+                    break;
+                }
+            }
+            if(checkIfCurrentChatExists)
+                return true;
+        }
+        return false;
     }
 
     @FXML
