@@ -111,10 +111,6 @@ public class MessageController implements Observer<Event> {
         modelChatsName.setAll(rootPage.getChatList());
     }
 
-    private void updateChatWithTheLatestMessages(){
-
-    }
-
     @FXML
     public void initialize(){
         conversationScrollPane.setVisible(false);
@@ -245,7 +241,7 @@ public class MessageController implements Observer<Event> {
         Long idUserFrom = rootPage.getRoot().getId();
         List<Long> to = idMembersWithoutRootForChat(chatConversation, rootPage.getRoot());
         networkController.sendMessages(idUserFrom,to,text);
-        //conversationVerticalBox Is the same with the selected chat
+        //conversationVerticalBox is the same with the selected chat
         putMessageInScrollPane("sent",text);
         messageField.clear();
     }
