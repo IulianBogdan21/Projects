@@ -343,7 +343,8 @@ public class MessageController implements Observer<Event> {
 
     @FXML
     public void proceedWithNewConversation(){
-        if(startConversationListView.getSelectionModel().getSelectedItems() == null){
+        if(startConversationListView.getSelectionModel().getSelectedItems()
+                .equals( FXCollections.observableArrayList() )){
             MessageAlert.showErrorMessage(displayStage, "You have not selected anyone to start a conversation with!");
             closeStartConversationWindow();
             return;
@@ -352,6 +353,7 @@ public class MessageController implements Observer<Event> {
                         .getSelectedItems()
                         .stream()
                         .toList() );
+        System.out.println(members);
         closeStartConversationWindow();
         members.add(rootPage.getRoot());
         if(checkIfChatExists(members, rootPage.getChatList()))
