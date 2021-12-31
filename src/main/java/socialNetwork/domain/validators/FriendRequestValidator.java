@@ -5,15 +5,15 @@ import socialNetwork.domain.models.Friendship;
 import socialNetwork.domain.models.User;
 import socialNetwork.exceptions.EntityMissingValidationException;
 import socialNetwork.exceptions.InvalidEntityException;
-import socialNetwork.repository.RepositoryInterface;
+import socialNetwork.repository.paging.PagingRepository;
 import socialNetwork.utilitaries.UnorderedPair;
 
 public class FriendRequestValidator implements
         EntityValidatorInterface<UnorderedPair<Long, Long>, FriendRequest>{
 
-    private RepositoryInterface<Long, User> userRepository;
+    private PagingRepository<Long, User> userRepository;
 
-    public FriendRequestValidator(RepositoryInterface<Long, User> userRepository) {
+    public FriendRequestValidator(PagingRepository<Long, User> userRepository) {
         this.userRepository = userRepository;
     }
 

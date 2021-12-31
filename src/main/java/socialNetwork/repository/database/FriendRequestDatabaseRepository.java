@@ -4,7 +4,10 @@ import socialNetwork.domain.models.FriendRequest;
 import socialNetwork.domain.models.Friendship;
 import socialNetwork.domain.models.InvitationStage;
 import socialNetwork.exceptions.DatabaseException;
-import socialNetwork.repository.RepositoryInterface;
+import socialNetwork.repository.paging.Page;
+import socialNetwork.repository.paging.Pageable;
+import socialNetwork.repository.paging.Paginator;
+import socialNetwork.repository.paging.PagingRepository;
 import socialNetwork.utilitaries.UnorderedPair;
 
 import java.sql.*;
@@ -14,7 +17,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class FriendRequestDatabaseRepository implements
-        RepositoryInterface<UnorderedPair<Long,Long>, FriendRequest> {
+        PagingRepository<UnorderedPair<Long,Long>, FriendRequest> {
 
     private String url;
     private String user;
@@ -54,6 +57,12 @@ public class FriendRequestDatabaseRepository implements
         } catch (SQLException exception) {
             throw new DatabaseException(exception.getMessage());
         }
+    }
+
+    @Override
+    public Page<FriendRequest> getAll(Pageable pageable){
+        Paginator<FriendRequest> paginator = new Paginator<FriendRequest>(pageable,getAll());
+        return paginator.paginate();
     }
 
     @Override

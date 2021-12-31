@@ -6,7 +6,7 @@ import socialNetwork.utilitaries.observer.Observer;
 
 import java.util.*;
 
-public class Page implements Observer<Event> {
+public class PageUser implements Observer<Event> {
 
     private User root;
     private List<User> friendList;
@@ -33,8 +33,8 @@ public class Page implements Observer<Event> {
         setChatMap( networkController.getAllChatsSpecifiedUser(root.getId()) );
     }
 
-    public Page(User root, List<User> friendList, List<FriendRequest> friendRequestList,
-                List<Chat> chatList, NetworkController networkController) {
+    public PageUser(User root, List<User> friendList, List<FriendRequest> friendRequestList,
+                    List<Chat> chatList, NetworkController networkController) {
         this.root = root;
         this.friendList = friendList;
         this.friendRequestList = friendRequestList;
@@ -103,8 +103,8 @@ public class Page implements Observer<Event> {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Page page = (Page) o;
-        return Objects.equals(root, page.root) && Objects.equals(friendList, page.friendList) && Objects.equals(friendRequestList, page.friendRequestList) && Objects.equals(chatMap, page.chatMap);
+        PageUser pageUser = (PageUser) o;
+        return Objects.equals(root, pageUser.root) && Objects.equals(friendList, pageUser.friendList) && Objects.equals(friendRequestList, pageUser.friendRequestList) && Objects.equals(chatMap, pageUser.chatMap);
     }
 
     @Override

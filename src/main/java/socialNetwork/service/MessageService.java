@@ -3,7 +3,10 @@ package socialNetwork.service;
 import socialNetwork.domain.models.*;
 import socialNetwork.exceptions.CorruptedDataException;
 import socialNetwork.exceptions.EntityMissingValidationException;
-import socialNetwork.repository.RepositoryInterface;
+import socialNetwork.repository.paging.Page;
+import socialNetwork.repository.paging.Pageable;
+import socialNetwork.repository.paging.PageableImplementation;
+import socialNetwork.repository.paging.PagingRepository;
 import socialNetwork.utilitaries.events.Event;
 import socialNetwork.utilitaries.events.MessageChangeEvent;
 import socialNetwork.utilitaries.events.MessageChangeEventType;
@@ -11,22 +14,19 @@ import socialNetwork.utilitaries.observer.Observable;
 import socialNetwork.utilitaries.observer.Observer;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class MessageService implements Observable<Event> {
-    RepositoryInterface<Long, User> repoUser;
-    RepositoryInterface<Long, MessageDTO> repoMessagesDTO;
+    PagingRepository<Long, User> repoUser;
+    PagingRepository<Long, MessageDTO> repoMessagesDTO;
     private List< Observer<Event> > observersMessage = new ArrayList<>();
     private static final int DATES_ARE_IDENTICAL = 0;
     private static final int MESSAGES_ARE_IN_CORRECT_ORDER = -1;
     private static final int REVERSE_ORDER_OF_MESSAGES = 1;
 
-    public MessageService(RepositoryInterface<Long, User> repoUser, RepositoryInterface<Long, MessageDTO> repoMessagesDTO) {
+    public MessageService(PagingRepository<Long, User> repoUser, PagingRepository<Long, MessageDTO> repoMessagesDTO) {
         this.repoUser = repoUser;
         this.repoMessagesDTO = repoMessagesDTO;
     }
@@ -486,4 +486,30 @@ public class MessageService implements Observable<Event> {
     public void notifyObservers(Event event) {
         observersMessage.forEach(obs -> obs.update(event));
     }
+
+    private int pageNumber = 0;
+    private int pageSize = 1;
+
+    private Pageable pageable;
+
+    public void setPageSize(int pageSize){
+        this.pageSize = pageSize;
+    }
+
+    public void setPageable(Pageable pageable){
+        this.pageable = pageable;
+    }
+
+    public Set<MessageDTO> getNextMessagesDTO(){
+        this.pageNumber++;
+        return getMessagesDTOnPage(this.pageNumber);
+    }
+
+    public Set<MessageDTO> getMessagesDTOnPage(int pageNumber){
+        this.pageNumber = pageNumber;
+        Pageable pageable = new PageableImplementation(pageNumber,this.pageSize);
+        Page<MessageDTO> messagesDTOPage = repoMessagesDTO.getAll(pageable);
+        return messagesDTOPage.getContent().collect(Collectors.toSet());
+    }
+
 }

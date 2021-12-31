@@ -7,8 +7,8 @@ import org.junit.jupiter.api.TestInstance;
 import repository.UserRepositorySetterTest;
 import socialNetwork.domain.models.User;
 import socialNetwork.exceptions.DatabaseException;
-import socialNetwork.repository.RepositoryInterface;
 import socialNetwork.repository.database.UserDatabaseRepository;
+import socialNetwork.repository.paging.PagingRepository;
 
 import java.sql.*;
 
@@ -20,7 +20,7 @@ import java.sql.*;
     UserDatabaseRepository testRepository;
 
     @Override
-    public RepositoryInterface<Long, User> getRepository() {
+    public PagingRepository<Long, User> getRepository() {
         if(testRepository == null)
             testRepository = new UserDatabaseRepository(url, user, password);
         return testRepository;

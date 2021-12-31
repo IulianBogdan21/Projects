@@ -6,7 +6,10 @@ import socialNetwork.domain.models.InvitationStage;
 import socialNetwork.domain.validators.EntityValidatorInterface;
 import socialNetwork.exceptions.EntityMissingValidationException;
 import socialNetwork.exceptions.InvitationStatusException;
-import socialNetwork.repository.RepositoryInterface;
+import socialNetwork.repository.paging.Page;
+import socialNetwork.repository.paging.Pageable;
+import socialNetwork.repository.paging.PageableImplementation;
+import socialNetwork.repository.paging.PagingRepository;
 import socialNetwork.utilitaries.UnorderedPair;
 import socialNetwork.utilitaries.events.Event;
 import socialNetwork.utilitaries.events.FriendRequestChangeEvent;
@@ -18,17 +21,19 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class FriendRequestService implements Observable<Event> {
 
-    RepositoryInterface<UnorderedPair<Long,Long>, FriendRequest> friendRequestRepository;
-    RepositoryInterface<UnorderedPair<Long,Long>, Friendship> friendshipRepository;
+    PagingRepository<UnorderedPair<Long,Long>, FriendRequest> friendRequestRepository;
+    PagingRepository<UnorderedPair<Long,Long>, Friendship> friendshipRepository;
     EntityValidatorInterface<UnorderedPair<Long, Long>, FriendRequest> friendRequestValidator;
     private List< Observer<Event> > observersFriendRequest = new ArrayList<>();
 
-    public FriendRequestService(RepositoryInterface<UnorderedPair<Long, Long>, FriendRequest> friendRequestRepository,
-                                RepositoryInterface<UnorderedPair<Long, Long>, Friendship> friendshipRepository,
+    public FriendRequestService(PagingRepository<UnorderedPair<Long, Long>, FriendRequest> friendRequestRepository,
+                                PagingRepository<UnorderedPair<Long, Long>, Friendship> friendshipRepository,
                                 EntityValidatorInterface<UnorderedPair<Long, Long>, FriendRequest> friendRequestValidator) {
         this.friendRequestRepository = friendRequestRepository;
         this.friendshipRepository = friendshipRepository;
@@ -209,4 +214,30 @@ public class FriendRequestService implements Observable<Event> {
     public void notifyObservers(Event event) {
         observersFriendRequest.forEach(obs -> obs.update(event));
     }
+
+    private int pageNumber = 0;
+    private int pageSize = 1;
+
+    private Pageable pageable;
+
+    public void setPageSize(int pageSize){
+        this.pageSize = pageSize;
+    }
+
+    public void setPageable(Pageable pageable){
+        this.pageable = pageable;
+    }
+
+    public Set<FriendRequest> getNextMessages(){
+        this.pageNumber++;
+        return getFriendRequestsOnPage(this.pageNumber);
+    }
+
+    public Set<FriendRequest> getFriendRequestsOnPage(int pageNumber){
+        this.pageNumber = pageNumber;
+        Pageable pageable = new PageableImplementation(pageNumber,this.pageSize);
+        Page<FriendRequest> friendRequestPage = friendRequestRepository.getAll(pageable);
+        return friendRequestPage.getContent().collect(Collectors.toSet());
+    }
+
 }

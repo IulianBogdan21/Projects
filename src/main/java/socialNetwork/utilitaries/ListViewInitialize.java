@@ -8,7 +8,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import socialNetwork.controllers.NetworkController;
 import socialNetwork.domain.models.Chat;
-import socialNetwork.domain.models.Page;
+import socialNetwork.domain.models.PageUser;
 import socialNetwork.domain.models.User;
 
 import java.util.List;
@@ -40,9 +40,9 @@ public class ListViewInitialize {
         });
     }
 
-    public static void handleFilter(NetworkController networkController, Page rootPage, TextField searchFriendshipField,
+    public static void handleFilter(NetworkController networkController, PageUser rootPageUser, TextField searchFriendshipField,
                                     ObservableList<User> modelSearchFriends){
-        User mainUser = rootPage.getRoot();
+        User mainUser = rootPageUser.getRoot();
         Predicate<User> nameOfUserPredicate = u -> u.getUsername()
                 .startsWith(searchFriendshipField.getText());
         List<User> userListWithoutMainUser = networkController.getAllUsers()

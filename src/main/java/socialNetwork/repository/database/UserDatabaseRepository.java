@@ -2,7 +2,10 @@ package socialNetwork.repository.database;
 
 import socialNetwork.domain.models.User;
 import socialNetwork.exceptions.DatabaseException;
-import socialNetwork.repository.RepositoryInterface;
+import socialNetwork.repository.paging.Page;
+import socialNetwork.repository.paging.Pageable;
+import socialNetwork.repository.paging.Paginator;
+import socialNetwork.repository.paging.PagingRepository;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -12,7 +15,7 @@ import java.util.Optional;
 /**
  * database repository for entity User
  */
-public class UserDatabaseRepository implements RepositoryInterface<Long, User>{
+public class UserDatabaseRepository implements PagingRepository<Long, User> {
     private String url;
     private String user;
     private String password;
@@ -54,6 +57,12 @@ public class UserDatabaseRepository implements RepositoryInterface<Long, User>{
         }catch (SQLException exception){
             throw new DatabaseException(exception.getMessage());
         }
+    }
+
+    @Override
+    public Page<User> getAll(Pageable pageable) {
+        Paginator<User> paginator = new Paginator<User>(pageable,getAll());
+        return paginator.paginate();
     }
 
 

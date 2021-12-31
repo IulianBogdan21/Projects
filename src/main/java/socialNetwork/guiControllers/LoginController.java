@@ -7,7 +7,7 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import socialNetwork.controllers.NetworkController;
-import socialNetwork.domain.models.Page;
+import socialNetwork.domain.models.PageUser;
 import socialNetwork.exceptions.ExceptionBaseClass;
 import socialNetwork.utilitaries.MessageAlert;
 import socialNetwork.utilitaries.StageBuilder;
@@ -41,7 +41,7 @@ public class LoginController {
         String username = usernameField.getText();
         String password = passwordField.getText();
         try {
-            Page rootPage =  networkController.logIn(username, password);
+            PageUser rootPageUser =  networkController.logIn(username, password);
             UnorderedPair<Stage,FXMLLoader> unorderedPair = StageBuilder.buildStage(
                     getClass(),
                     "/socialNetwork.gui/userView.fxml",
@@ -49,7 +49,7 @@ public class LoginController {
             Stage userViewStage = unorderedPair.left;
             FXMLLoader loader = unorderedPair.right;
             UserViewController userViewController = loader.getController();
-            userViewController.setNetworkController(userViewStage,networkController, rootPage);
+            userViewController.setNetworkController(userViewStage,networkController, rootPageUser);
             userViewStage.show();
             stage.close();
         } catch (ExceptionBaseClass | IOException exception) {

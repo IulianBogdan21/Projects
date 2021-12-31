@@ -89,23 +89,23 @@ public class MessageController implements Observer<Event> {
     AnchorPane conversationAnchorPane;
 
     NetworkController networkController;
-    Page rootPage;
+    PageUser rootPageUser;
     Stage displayStage;
     boolean firstTime = true;
 
-    public void setNetworkController(Stage primaryStage, NetworkController service, Page rootPage){
+    public void setNetworkController(Stage primaryStage, NetworkController service, PageUser rootPageUser){
         this.networkController = service;
         networkController.getMessageService().addObserver(this);
         this.displayStage = primaryStage;
-        this.rootPage = rootPage;
-        rootPage.refresh(rootPage.getRoot().getUsername());
-        usernameLabelChat.setText(rootPage.getRoot().getUsername());
-        ListViewInitialize.createListViewWithChats(chatsNameListView,modelChatsName, rootPage.getRoot());
+        this.rootPageUser = rootPageUser;
+        rootPageUser.refresh(rootPageUser.getRoot().getUsername());
+        usernameLabelChat.setText(rootPageUser.getRoot().getUsername());
+        ListViewInitialize.createListViewWithChats(chatsNameListView,modelChatsName, rootPageUser.getRoot());
         initModelChatsName();
     }
 
     private void initModelChatsName(){
-        modelChatsName.setAll(rootPage.getChatList());
+        modelChatsName.setAll(rootPageUser.getChatList());
     }
 
     @FXML
@@ -150,7 +150,7 @@ public class MessageController implements Observer<Event> {
                 conversationScrollPane.setVvalue((Double) newValue);
             }
         });
-        User root = rootPage.getRoot();
+        User root = rootPageUser.getRoot();
         List<Message> chatMessages = chatConversation.getMessageList();
         List<ReplyMessage> chatReplyMessages = chatConversation.getReplyMessageList();
         int i = 0, j = 0;
@@ -235,8 +235,8 @@ public class MessageController implements Observer<Event> {
     @FXML
     public void sendMessage(){
         String text = messageField.getText();
-        Long idUserFrom = rootPage.getRoot().getId();
-        List<Long> to = idMembersWithoutRootForChat(chatConversation, rootPage.getRoot());
+        Long idUserFrom = rootPageUser.getRoot().getId();
+        List<Long> to = idMembersWithoutRootForChat(chatConversation, rootPageUser.getRoot());
         networkController.sendMessages(idUserFrom,to,text);
         //conversationVerticalBox is the same with the selected chat
         putMessageInScrollPane("sent",text);
@@ -260,22 +260,22 @@ public class MessageController implements Observer<Event> {
 
     @FXML
     public void handleFriendshipRequestFromMessageController(){
-        UsersSearchProcess.sendFriendshipRequest(usersListView, rootPage, networkController, displayStage);
+        UsersSearchProcess.sendFriendshipRequest(usersListView, rootPageUser, networkController, displayStage);
     }
 
     @FXML
     public void switchToFriendshipRequestSceneFromMessageScene(ActionEvent event) throws IOException {
-        SceneSwitcher.switchToFriendshipRequestScene(event, getClass(), networkController, rootPage, displayStage);
+        SceneSwitcher.switchToFriendshipRequestScene(event, getClass(), networkController, rootPageUser, displayStage);
     }
 
     @FXML
     public void switchToUserViewSceneFromMessageScene(ActionEvent event) throws IOException{
-        SceneSwitcher.switchToUserViewScene(event, getClass(), networkController, rootPage, displayStage);
+        SceneSwitcher.switchToUserViewScene(event, getClass(), networkController, rootPageUser, displayStage);
     }
 
     @FXML
     public void switchToMessagesSceneFromMessagesScene(ActionEvent event) throws IOException{
-        SceneSwitcher.switchToMessageScene(event, getClass(), networkController, rootPage, displayStage);
+        SceneSwitcher.switchToMessageScene(event, getClass(), networkController, rootPageUser, displayStage);
     }
 
     @FXML
@@ -322,11 +322,11 @@ public class MessageController implements Observer<Event> {
     }
 
     private void handleFilterInUserController(){
-        ListViewInitialize.handleFilter(networkController, rootPage, searchFriendshipField, modelSearchFriends);
+        ListViewInitialize.handleFilter(networkController, rootPageUser, searchFriendshipField, modelSearchFriends);
     }
 
     private void handleFilterSearchUserForNewConversation(){
-        ListViewInitialize.handleFilter(networkController, rootPage, searchUserToStartConversationField, modelSearchFriends);
+        ListViewInitialize.handleFilter(networkController, rootPageUser, searchUserToStartConversationField, modelSearchFriends);
     }
 
     @FXML
@@ -354,8 +354,8 @@ public class MessageController implements Observer<Event> {
                         .toList() );
         System.out.println(members);
         closeStartConversationWindow();
-        members.add(rootPage.getRoot());
-        if(checkIfChatExists(members, rootPage.getChatList()))
+        members.add(rootPageUser.getRoot());
+        if(checkIfChatExists(members, rootPageUser.getChatList()))
             return;
         Chat temporaryChat = new Chat(members,new ArrayList<Message>(), new ArrayList<ReplyMessage>());
         modelChatsName.add(temporaryChat);

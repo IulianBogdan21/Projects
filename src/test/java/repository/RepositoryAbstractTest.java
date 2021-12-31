@@ -2,10 +2,10 @@ package repository;
 
 import socialNetwork.domain.models.Entity;
 import socialNetwork.exceptions.InvalidEntityException;
-import socialNetwork.repository.RepositoryInterface;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import socialNetwork.repository.paging.PagingRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,7 +17,7 @@ public abstract class RepositoryAbstractTest<ID, E extends Entity<ID>> {
     public abstract ID getExistingId();
     public abstract ID getMinimumId();
     public abstract ID getMaximumId();
-    public abstract RepositoryInterface<ID, E> getRepository();
+    public abstract PagingRepository<ID, E> getRepository();
     public abstract List<E> getTestData();
 
     @Test

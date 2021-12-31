@@ -3,14 +3,18 @@ package socialNetwork.guiControllers;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.geometry.Orientation;
+import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.shape.Polygon;
 import javafx.stage.Stage;
 import javafx.scene.control.ListView;
 import socialNetwork.controllers.NetworkController;
-import socialNetwork.domain.models.Page;
+import socialNetwork.domain.models.PageUser;
 import socialNetwork.domain.models.User;
 import socialNetwork.utilitaries.ListViewInitialize;
 import socialNetwork.utilitaries.MessageAlert;
@@ -50,22 +54,36 @@ public class UserViewController implements Observer<Event> {
     Label messagesLabel;
     @FXML
     Polygon triangleAuxiliaryLabel;
+    ScrollBar scrollBarListViewOfFriends;
 
     NetworkController networkController;
-    Page rootPage;
+    PageUser rootPageUser;
     Stage displayStage;
 
-    public void setNetworkController(Stage primaryStage, NetworkController service, Page rootPage){
+    public void setNetworkController(Stage primaryStage, NetworkController service, PageUser rootPageUser){
         this.networkController = service;
         networkController.getNetworkService().addObserver(this);
         this.displayStage = primaryStage;
-        this.rootPage = rootPage;
-        rootPage.refresh(rootPage.getRoot().getUsername());
+        this.rootPageUser = rootPageUser;
+        rootPageUser.refresh(rootPageUser.getRoot().getUsername());
         initModelFriends();
     }
 
+    private ScrollBar getListViewScrollBar(ListView<?> listView) {
+        ScrollBar scrollbar = null;
+        for (Node node : listView.lookupAll(".scroll-bar")) {
+            if (node instanceof ScrollBar) {
+                ScrollBar bar = (ScrollBar) node;
+                if (bar.getOrientation().equals(Orientation.VERTICAL)) {
+                    scrollbar = bar;
+                }
+            }
+        }
+        return scrollbar;
+    }
+
     private void initModelFriends(){
-        List< User > friendListForUser = rootPage.getFriendList();
+        List< User > friendListForUser = rootPageUser.getFriendList();
         modelFriends.setAll(friendListForUser);
     }
 
@@ -74,6 +92,7 @@ public class UserViewController implements Observer<Event> {
         ListViewInitialize.createListViewWithUser(listViewOfFriends, modelFriends);
         ListViewInitialize.createListViewWithUser(usersListView, modelSearchFriends);
         searchFriendshipField.textProperty().addListener(o -> handleFilterInUserController());
+        //scrollBarListViewOfFriends = getListViewScrollBar(listViewOfFriends);
     }
 
     @Override
@@ -83,9 +102,14 @@ public class UserViewController implements Observer<Event> {
     }
 
     @FXML
+    public void handleScrollListViewFriends(ScrollEvent event){
+        System.out.println(event.getX() + " " +  event.getY());
+    }
+
+    @FXML
     public void handleFriendshipDelete(){
 
-        User mainUser = rootPage.getRoot();
+        User mainUser = rootPageUser.getRoot();
         if(listViewOfFriends.getSelectionModel().getSelectedItem() != null){
             User user = listViewOfFriends.getSelectionModel().getSelectedItem();
             Long idFirstUser = mainUser.getId();
@@ -101,22 +125,22 @@ public class UserViewController implements Observer<Event> {
 
     @FXML
     public void handleFriendshipRequestFromUserViewController(){
-        UsersSearchProcess.sendFriendshipRequest(usersListView, rootPage, networkController, displayStage);
+        UsersSearchProcess.sendFriendshipRequest(usersListView, rootPageUser, networkController, displayStage);
     }
 
     @FXML
     public void switchToFriendshipRequestSceneFromUserScene(ActionEvent event) throws IOException {
-        SceneSwitcher.switchToFriendshipRequestScene(event, getClass(), networkController, rootPage, displayStage);
+        SceneSwitcher.switchToFriendshipRequestScene(event, getClass(), networkController, rootPageUser, displayStage);
     }
 
     @FXML
     public void switchToUserViewSceneFromUserScene(ActionEvent event) throws IOException{
-        SceneSwitcher.switchToUserViewScene(event, getClass(), networkController, rootPage, displayStage);
+        SceneSwitcher.switchToUserViewScene(event, getClass(), networkController, rootPageUser, displayStage);
     }
 
     @FXML
     public void switchToMessagesViewSceneFromUserScene(ActionEvent event) throws IOException{
-        SceneSwitcher.switchToMessageScene(event, getClass(), networkController, rootPage, displayStage);
+        SceneSwitcher.switchToMessageScene(event, getClass(), networkController, rootPageUser, displayStage);
     }
 
     @FXML
@@ -184,7 +208,7 @@ public class UserViewController implements Observer<Event> {
 
     @FXML
     private void handleFilterInUserController(){
-        ListViewInitialize.handleFilter(networkController, rootPage, searchFriendshipField, modelSearchFriends);
+        ListViewInitialize.handleFilter(networkController, rootPageUser, searchFriendshipField, modelSearchFriends);
     }
 
 }
