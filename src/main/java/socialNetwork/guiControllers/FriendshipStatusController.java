@@ -5,7 +5,6 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 import javafx.stage.Stage;
 import socialNetwork.controllers.NetworkController;
@@ -65,7 +64,7 @@ public class FriendshipStatusController implements Observer<Event> {
     @FXML
     Button withdrawRequestButton;
 
-    public void setNetworkController(Stage primaryStage, NetworkController service,Page rootPage){
+    public void setNetworkController(Stage primaryStage, NetworkController service, Page rootPage){
         this.networkController = service;
         networkController.getFriendRequestService().addObserver(this);
         this.displayStage = primaryStage;
@@ -287,7 +286,7 @@ public class FriendshipStatusController implements Observer<Event> {
     }
 
     private void handleFilterInFriendshipStatusController(){
-        ListViewInitialize.handleFilter(networkController,rootPage, searchFriendshipField, modelSearchFriends);
+        ListViewInitialize.handleFilter(networkController, rootPage, searchFriendshipField, modelSearchFriends);
     }
 
     @FXML

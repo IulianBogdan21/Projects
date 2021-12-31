@@ -1,29 +1,17 @@
 package socialNetwork.guiControllers;
 
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.effect.Effect;
-import javafx.scene.effect.Lighting;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.shape.Polygon;
 import javafx.stage.Stage;
-import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
-import org.w3c.dom.events.MouseEvent;
 import socialNetwork.controllers.NetworkController;
 import socialNetwork.domain.models.Page;
 import socialNetwork.domain.models.User;
-import socialNetwork.exceptions.ExceptionBaseClass;
 import socialNetwork.utilitaries.ListViewInitialize;
 import socialNetwork.utilitaries.MessageAlert;
 import socialNetwork.utilitaries.SceneSwitcher;
@@ -34,7 +22,6 @@ import socialNetwork.utilitaries.observer.Observer;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.function.Predicate;
 
 
 public class UserViewController implements Observer<Event> {

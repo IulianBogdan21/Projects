@@ -5,7 +5,6 @@ import socialNetwork.utilitaries.events.*;
 import socialNetwork.utilitaries.observer.Observer;
 
 import java.util.*;
-import java.util.function.Predicate;
 
 public class Page implements Observer<Event> {
 

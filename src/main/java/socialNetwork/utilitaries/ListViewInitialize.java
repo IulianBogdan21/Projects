@@ -6,8 +6,6 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundImage;
 import socialNetwork.controllers.NetworkController;
 import socialNetwork.domain.models.Chat;
 import socialNetwork.domain.models.Page;

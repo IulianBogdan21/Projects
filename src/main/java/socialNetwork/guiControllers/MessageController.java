@@ -35,7 +35,6 @@ import socialNetwork.utilitaries.observer.Observer;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MessageController implements Observer<Event> {
     ObservableList<User> modelSearchFriends = FXCollections.observableArrayList();
@@ -94,14 +93,14 @@ public class MessageController implements Observer<Event> {
     Stage displayStage;
     boolean firstTime = true;
 
-    public void setNetworkController(Stage primaryStage, NetworkController service,Page rootPage){
+    public void setNetworkController(Stage primaryStage, NetworkController service, Page rootPage){
         this.networkController = service;
         networkController.getMessageService().addObserver(this);
         this.displayStage = primaryStage;
         this.rootPage = rootPage;
         rootPage.refresh(rootPage.getRoot().getUsername());
         usernameLabelChat.setText(rootPage.getRoot().getUsername());
-        ListViewInitialize.createListViewWithChats(chatsNameListView,modelChatsName,rootPage.getRoot());
+        ListViewInitialize.createListViewWithChats(chatsNameListView,modelChatsName, rootPage.getRoot());
         initModelChatsName();
     }
 

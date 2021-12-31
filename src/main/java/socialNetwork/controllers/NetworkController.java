@@ -4,7 +4,6 @@ import socialNetwork.domain.models.*;
 import socialNetwork.exceptions.LogInException;
 import socialNetwork.service.*;
 import socialNetwork.utilitaries.events.*;
-import socialNetwork.utilitaries.observer.Observable;
 import socialNetwork.utilitaries.observer.Observer;
 
 import java.time.LocalDateTime;
@@ -266,7 +265,7 @@ public class NetworkController  {
         return new Page(root,friendList,friendRequestList,chatList,this);
     }
 
-    public Page logIn(String username,String password){
+    public Page logIn(String username, String password){
         Optional<Autentification> findAutentification = authentificationService
                 .findAuthentificationService(username);
         if(findAutentification.isEmpty())

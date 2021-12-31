@@ -8,7 +8,6 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import socialNetwork.controllers.NetworkController;
 import socialNetwork.domain.models.Page;
-import socialNetwork.domain.models.User;
 import socialNetwork.guiControllers.FriendshipStatusController;
 import socialNetwork.guiControllers.MessageController;
 import socialNetwork.guiControllers.UserViewController;
@@ -24,23 +23,23 @@ public class SceneSwitcher {
         displayStage =  (Stage)(((Node)event.getSource()).getScene().getWindow());
         displayStage.setScene(new Scene(root));
         UserViewController userViewController = loader.getController();
-        userViewController.setNetworkController(displayStage,networkController,rootPage);
+        userViewController.setNetworkController(displayStage,networkController, rootPage);
         displayStage.show();
     }
 
     private static void defaultSceneOperationForFriendshipRequestSwitch(FXMLLoader loader, ActionEvent event, Class sourceClass,
-                                                               NetworkController networkController,
+                                                                        NetworkController networkController,
                                                                         Page rootPage, Stage displayStage) throws IOException {
         Parent root = loader.load();
         displayStage =  (Stage)(((Node)event.getSource()).getScene().getWindow());
         displayStage.setScene(new Scene(root));
         FriendshipStatusController friendshipStatusController = loader.getController();
-        friendshipStatusController.setNetworkController(displayStage,networkController,rootPage);
+        friendshipStatusController.setNetworkController(displayStage,networkController, rootPage);
         displayStage.show();
     }
 
     private static void defaultSceneOperationForMessageSwitch(FXMLLoader loader, ActionEvent event, Class sourceClass,
-                                                                        NetworkController networkController,
+                                                              NetworkController networkController,
                                                               Page rootPage, Stage displayStage) throws IOException {
         Parent root = loader.load();
         displayStage =  (Stage)(((Node)event.getSource()).getScene().getWindow());
@@ -48,7 +47,7 @@ public class SceneSwitcher {
         newScene.getStylesheets().add(sourceClass.getResource("/css/chatNameListView.css").toExternalForm());
         displayStage.setScene(newScene);
         MessageController messageController = loader.getController();
-        messageController.setNetworkController(displayStage,networkController,rootPage);
+        messageController.setNetworkController(displayStage,networkController, rootPage);
         displayStage.show();
     }
 

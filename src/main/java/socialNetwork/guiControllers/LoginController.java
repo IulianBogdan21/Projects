@@ -2,17 +2,12 @@ package socialNetwork.guiControllers;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
-import javafx.scene.control.SplitPane;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import socialNetwork.controllers.NetworkController;
 import socialNetwork.domain.models.Page;
-import socialNetwork.domain.models.User;
 import socialNetwork.exceptions.ExceptionBaseClass;
 import socialNetwork.utilitaries.MessageAlert;
 import socialNetwork.utilitaries.StageBuilder;
@@ -54,7 +49,7 @@ public class LoginController {
             Stage userViewStage = unorderedPair.left;
             FXMLLoader loader = unorderedPair.right;
             UserViewController userViewController = loader.getController();
-            userViewController.setNetworkController(userViewStage,networkController,rootPage);
+            userViewController.setNetworkController(userViewStage,networkController, rootPage);
             userViewStage.show();
             stage.close();
         } catch (ExceptionBaseClass | IOException exception) {
