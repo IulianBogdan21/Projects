@@ -215,58 +215,58 @@ public class ControllerTest {
 
     @Test
     void testPageObjectWithoutChat(){
-        Page page = getNetworkController().logIn("a1","pa1");
+        PageUser pageUser = getNetworkController().logIn("a1","pa1");
 
         //send 3 pending invitations
         getNetworkController().sendInvitationForFriendships(getMinimumId(),getMinimumId()+1);
         getNetworkController().sendInvitationForFriendships(getMinimumId(),getMinimumId()+2);
         getNetworkController().sendInvitationForFriendships(getMinimumId(),getMinimumId()+3);
-        List<FriendRequest> friendRequestList = page.getFriendRequestList();
+        List<FriendRequest> friendRequestList = pageUser.getFriendRequestList();
         Assertions.assertEquals(friendRequestList.size(),3);
 
         //accept last 2 invitations
         getNetworkController().updateApprovedFriendship(getMinimumId() + 2,getMinimumId());
         getNetworkController().updateApprovedFriendship(getMinimumId() + 3,getMinimumId());
-        List<User> friendshipList = page.getFriendList();
+        List<User> friendshipList = pageUser.getFriendList();
         Assertions.assertEquals(friendshipList.size(),2);
         Assertions.assertTrue(friendshipInTheList(friendshipList,getMinimumId()+2));
         Assertions.assertTrue(friendshipInTheList(friendshipList,getMinimumId()+3));
 
         //reject last approve invitation by the receiver
         getNetworkController().updateRejectedFriendship(getMinimumId()+3,getMinimumId());
-        friendshipList = page.getFriendList();
+        friendshipList = pageUser.getFriendList();
         Assertions.assertEquals(friendshipList.size(),1);
         Assertions.assertTrue(friendshipInTheList(friendshipList,getMinimumId()+2));
 
         //withdraw the pending invitation
         getNetworkController().withdrawFriendRequest(getMinimumId(),getMinimumId()+1);
-        friendRequestList = page.getFriendRequestList();
+        friendRequestList = pageUser.getFriendRequestList();
         Assertions.assertEquals(friendRequestList.size(),2);
 
         //remove a friend .There it will be just the rejecte invitation
         getNetworkController().removeFriendship(getMinimumId(),getMinimumId()+2);
-        friendRequestList = page.getFriendRequestList();
+        friendRequestList = pageUser.getFriendRequestList();
         Assertions.assertEquals(friendRequestList.size(),1);
         Assertions.assertEquals(friendRequestList.get(0).getInvitationStage(),InvitationStage.REJECTED);
-        friendshipList = page.getFriendList();
+        friendshipList = pageUser.getFriendList();
         Assertions.assertEquals(friendshipList.size(),0);
 
         //resubmit the rejected invitation
         getNetworkController().updateRejectedToPendingFriendship(getMinimumId()+3,getMinimumId());
         getNetworkController().updateApprovedFriendship(getMinimumId(),getMinimumId() + 3);
-        friendRequestList = page.getFriendRequestList();
+        friendRequestList = pageUser.getFriendRequestList();
         Assertions.assertEquals(friendRequestList.size(),1);
         Assertions.assertEquals(friendRequestList.get(0).getInvitationStage(),InvitationStage.APPROVED);
-        friendshipList = page.getFriendList();
+        friendshipList = pageUser.getFriendList();
         Assertions.assertEquals(friendshipList.size(),1);
 
-        page.unsubscribePage();
+        pageUser.unsubscribePage();
     }
 
     @Test
     void testPageObjectChat(){
-        Page page = getNetworkController().logIn("a6","pa6");
-        List<Chat> chatList = page.getChatList();
+        PageUser pageUser = getNetworkController().logIn("a6","pa6");
+        List<Chat> chatList = pageUser.getChatList();
         Assertions.assertEquals(chatList.size(),0);
 
         //send 2 message
@@ -274,14 +274,14 @@ public class ControllerTest {
                 getMinimumId()+1,getMinimumId()+2),"Cel fara de nume");
         getNetworkController().sendMessages(getMaximumId(),Arrays.asList(
                 getMinimumId()+2,getMinimumId()+1),"Se va ridica din nou");
-        chatList = page.getChatList();
+        chatList = pageUser.getChatList();
         Assertions.assertEquals(chatList.get(0).getMessageList().size(),2);
 
         getNetworkController().respondMessage(getMinimumId()+1,getMinimumMessageId(),"Cel fara de neam");
-        chatList = page.getChatList();
+        chatList = pageUser.getChatList();
         Assertions.assertEquals(chatList.size(),1);
         Assertions.assertEquals(chatList.get(0).getReplyMessageList().size(),1);
 
-        page.unsubscribePage();
+        pageUser.unsubscribePage();
     }
 }

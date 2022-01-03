@@ -4,8 +4,8 @@ import config.ApplicationContext;
 import org.junit.jupiter.api.BeforeEach;
 import repository.UserRepositorySetterTest;
 import socialNetwork.domain.models.User;
-import socialNetwork.repository.RepositoryInterface;
 import socialNetwork.repository.csv.UserCsvFileRepository;
+import socialNetwork.repository.paging.PagingRepository;
 
 
 import java.io.BufferedWriter;
@@ -16,7 +16,7 @@ public class UserCsvFileRepositoryTest extends UserCsvFileRepositorySetterTest {
     UserCsvFileRepository testRepository;
     String TEST_FILE_PATH = ApplicationContext.getProperty("repository.csv.users.test");
     @Override
-    public RepositoryInterface<Long, User> getRepository() {
+    public PagingRepository<Long, User> getRepository() {
         if(testRepository == null)
             testRepository = new UserCsvFileRepository(TEST_FILE_PATH);
         return testRepository;

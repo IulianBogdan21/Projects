@@ -4,8 +4,8 @@ import config.ApplicationContext;
 import org.junit.jupiter.api.BeforeEach;
 import repository.FriendshipRepositorySetterTest;
 import socialNetwork.domain.models.Friendship;
-import socialNetwork.repository.RepositoryInterface;
 import socialNetwork.repository.csv.FriendshipCsvFileRepository;
+import socialNetwork.repository.paging.PagingRepository;
 import socialNetwork.utilitaries.UnorderedPair;
 
 import java.io.BufferedWriter;
@@ -17,7 +17,7 @@ public class FriendshipCsvFileRepositoryTest extends FriendshipCsvFileRepository
     FriendshipCsvFileRepository testRepository;
 
     @Override
-    public RepositoryInterface<UnorderedPair<Long, Long>, Friendship> getRepository() {
+    public PagingRepository<UnorderedPair<Long, Long>, Friendship> getRepository() {
         if(testRepository == null)
             testRepository = new FriendshipCsvFileRepository(TEST_FILE_PATH);
         return testRepository;

@@ -1,21 +1,20 @@
 package socialNetwork.utilitaries;
 
-import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.shape.Polygon;
 import javafx.stage.Stage;
 import socialNetwork.controllers.NetworkController;
-import socialNetwork.domain.models.Page;
+import socialNetwork.domain.models.PageUser;
 import socialNetwork.domain.models.User;
 import socialNetwork.exceptions.ExceptionBaseClass;
 
 public class UsersSearchProcess {
 
-    public static void sendFriendshipRequest(ListView<User> usersListView, Page rootPage,
+    public static void sendFriendshipRequest(ListView<User> usersListView, PageUser rootPageUser,
                                                NetworkController networkController, Stage displayStage){
-        User mainUser = rootPage.getRoot();
+        User mainUser = rootPageUser.getRoot();
         if(usersListView.getSelectionModel().getSelectedItem() != null){
             User user = usersListView.getSelectionModel().getSelectedItem();
             Long idFirstUser = mainUser.getId();

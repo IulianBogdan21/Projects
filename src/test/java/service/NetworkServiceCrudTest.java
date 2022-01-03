@@ -12,12 +12,12 @@ import socialNetwork.domain.models.User;
 import socialNetwork.domain.validators.FriendshipValidator;
 import socialNetwork.exceptions.DatabaseException;
 import socialNetwork.exceptions.InvalidEntityException;
-import socialNetwork.repository.RepositoryInterface;
 import socialNetwork.repository.csv.FriendshipCsvFileRepository;
 import socialNetwork.repository.csv.UserCsvFileRepository;
 import socialNetwork.repository.database.FriendRequestDatabaseRepository;
 import socialNetwork.repository.database.FriendshipDatabaseRepository;
 import socialNetwork.repository.database.UserDatabaseRepository;
+import socialNetwork.repository.paging.PagingRepository;
 import socialNetwork.service.NetworkService;
 import socialNetwork.utilitaries.UndirectedGraph;
 import socialNetwork.utilitaries.UnorderedPair;
@@ -31,10 +31,10 @@ public class NetworkServiceCrudTest {
     private String url = ApplicationContext.getProperty("network.database.url");
     private String user = ApplicationContext.getProperty("network.database.user");
     private String password = ApplicationContext.getProperty("network.database.password");
-    RepositoryInterface<Long, User> userTestRepository = new UserDatabaseRepository(url, user, password);;
-    RepositoryInterface<UnorderedPair<Long, Long>, Friendship> friendshipTestRepository
+    PagingRepository<Long, User> userTestRepository = new UserDatabaseRepository(url, user, password);;
+    PagingRepository<UnorderedPair<Long, Long>, Friendship> friendshipTestRepository
             = new FriendshipDatabaseRepository(url, user, password);
-    RepositoryInterface<UnorderedPair<Long, Long>, FriendRequest> friendRequestTestRepository
+    PagingRepository<UnorderedPair<Long, Long>, FriendRequest> friendRequestTestRepository
             = new FriendRequestDatabaseRepository(url, user, password);;
 
     NetworkService testService = new NetworkService(friendshipTestRepository,friendRequestTestRepository,

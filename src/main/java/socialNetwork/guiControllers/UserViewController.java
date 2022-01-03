@@ -1,29 +1,21 @@
 package socialNetwork.guiControllers;
 
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
+import javafx.geometry.Orientation;
 import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.effect.Effect;
-import javafx.scene.effect.Lighting;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.shape.Polygon;
 import javafx.stage.Stage;
-import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
-import org.w3c.dom.events.MouseEvent;
 import socialNetwork.controllers.NetworkController;
-import socialNetwork.domain.models.Page;
+import socialNetwork.domain.models.PageUser;
 import socialNetwork.domain.models.User;
-import socialNetwork.exceptions.ExceptionBaseClass;
 import socialNetwork.utilitaries.ListViewInitialize;
 import socialNetwork.utilitaries.MessageAlert;
 import socialNetwork.utilitaries.SceneSwitcher;
@@ -34,7 +26,6 @@ import socialNetwork.utilitaries.observer.Observer;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.function.Predicate;
 
 
 public class UserViewController implements Observer<Event> {
@@ -63,18 +54,35 @@ public class UserViewController implements Observer<Event> {
     Label messagesLabel;
     @FXML
     Polygon triangleAuxiliaryLabel;
+    ScrollBar scrollBarListViewOfFriends;
+    @FXML
+    Label reportsLabel;
+
 
     NetworkController networkController;
-    Page rootPage;
+    PageUser rootPage;
     Stage displayStage;
 
-    public void setNetworkController(Stage primaryStage, NetworkController service, Page rootPage){
+    public void setNetworkController(Stage primaryStage, NetworkController service, PageUser rootPage){
         this.networkController = service;
         networkController.getNetworkService().addObserver(this);
         this.displayStage = primaryStage;
         this.rootPage = rootPage;
         rootPage.refresh(rootPage.getRoot().getUsername());
         initModelFriends();
+    }
+
+    private ScrollBar getListViewScrollBar(ListView<?> listView) {
+        ScrollBar scrollbar = null;
+        for (Node node : listView.lookupAll(".scroll-bar")) {
+            if (node instanceof ScrollBar) {
+                ScrollBar bar = (ScrollBar) node;
+                if (bar.getOrientation().equals(Orientation.VERTICAL)) {
+                    scrollbar = bar;
+                }
+            }
+        }
+        return scrollbar;
     }
 
     private void initModelFriends(){
@@ -87,12 +95,18 @@ public class UserViewController implements Observer<Event> {
         ListViewInitialize.createListViewWithUser(listViewOfFriends, modelFriends);
         ListViewInitialize.createListViewWithUser(usersListView, modelSearchFriends);
         searchFriendshipField.textProperty().addListener(o -> handleFilterInUserController());
+        //scrollBarListViewOfFriends = getListViewScrollBar(listViewOfFriends);
     }
 
     @Override
     public void update(Event event) {
         if(event instanceof FriendshipChangeEvent)
             initModelFriends();
+    }
+
+    @FXML
+    public void handleScrollListViewFriends(ScrollEvent event){
+        System.out.println(event.getX() + " " +  event.getY());
     }
 
     @FXML
@@ -130,6 +144,11 @@ public class UserViewController implements Observer<Event> {
     @FXML
     public void switchToMessagesViewSceneFromUserScene(ActionEvent event) throws IOException{
         SceneSwitcher.switchToMessageScene(event, getClass(), networkController, rootPage, displayStage);
+    }
+
+    @FXML
+    public void switchToReportsViewSceneFromUserScene(ActionEvent event) throws IOException{
+        SceneSwitcher.switchToReportsScene(event, getClass(), networkController, rootPage, displayStage);
     }
 
     @FXML
@@ -171,6 +190,11 @@ public class UserViewController implements Observer<Event> {
     }
 
     @FXML
+    public void enableReportsLabel(){
+        reportsLabel.setVisible(true);
+    }
+
+    @FXML
     public void disableFriendsLabel(){
         friendsLabel.setVisible(false);
     }
@@ -183,6 +207,11 @@ public class UserViewController implements Observer<Event> {
     @FXML
     public void disableMessagesLabel(){
         messagesLabel.setVisible(false);
+    }
+
+    @FXML
+    public void disableReportsLabel(){
+        reportsLabel.setVisible(false);
     }
 
     @FXML

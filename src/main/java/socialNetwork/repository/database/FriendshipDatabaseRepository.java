@@ -3,7 +3,10 @@ package socialNetwork.repository.database;
 import socialNetwork.domain.models.Friendship;
 import socialNetwork.domain.models.InvitationStage;
 import socialNetwork.exceptions.DatabaseException;
-import socialNetwork.repository.RepositoryInterface;
+import socialNetwork.repository.paging.Page;
+import socialNetwork.repository.paging.Pageable;
+import socialNetwork.repository.paging.Paginator;
+import socialNetwork.repository.paging.PagingRepository;
 import socialNetwork.utilitaries.UnorderedPair;
 
 import java.sql.*;
@@ -14,7 +17,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class FriendshipDatabaseRepository
-        implements RepositoryInterface<UnorderedPair<Long, Long>, Friendship> {
+        implements PagingRepository<UnorderedPair<Long, Long>, Friendship> {
     private String url;
     private String user;
     private String password;
@@ -59,6 +62,12 @@ public class FriendshipDatabaseRepository
         } catch (SQLException exception) {
             throw new DatabaseException(exception.getMessage());
         }
+    }
+
+    @Override
+    public Page<Friendship> getAll(Pageable pageable) {
+        Paginator<Friendship> paginator = new Paginator<Friendship>(pageable,getAll());
+        return paginator.paginate();
     }
 
     @Override
@@ -180,5 +189,4 @@ public class FriendshipDatabaseRepository
         findStatement.setLong(4,id.right);
         return findStatement;
     }
-
 }

@@ -57,14 +57,9 @@
                     </children>
             </AnchorPane>
                 <Line endX="1.399993896484375" endY="259.1999816894531" layoutX="225.0" layoutY="82.0" startX="-3.0517578125E-5" startY="-72.99999237060547" stroke="#d53939" />
-                <Label fx:id="friendsLabel" layoutX="430.0" layoutY="14.0" text="Friends" textFill="GREY" visible="false" />
-                <Label fx:id="friendRequestsLabel" layoutX="460.0" layoutY="14.0" text="Friend requests" textFill="GREY" visible="false" />
-                <Polygon fx:id="triangleAuxiliaryLabel" fill="#d53939" layoutX="349.0" layoutY="-20.0" points="-9.399993896484375, 40.0, 8.600006103515625, 40.00000762939453, 0.199981689453125, 27.199981689453125" stroke="GREY" strokeType="INSIDE" visible="false" />
-                <ListView fx:id="usersListView" layoutX="249.0" layoutY="20.0" prefHeight="268.0" prefWidth="200.0" style="-fx-border-color: #e17474;" visible="false" />
-                <Label fx:id="messagesLabel" layoutX="542.0" layoutY="14.0" text="Messages" textFill="GREY" visible="false" />
             </children>
         </AnchorPane>
-        <HBox fx:id="mainHorizontalBox" prefHeight="38.0" prefWidth="623.0">
+        <HBox fx:id="mainHorizontalBox" onMousePressed="#setUsersListViewOnInvisible" prefHeight="38.0" prefWidth="623.0">
             <children>
                 <Label prefHeight="18.0" prefWidth="74.0" text="Kage" textFill="#d53939">
                     <font>
@@ -98,6 +93,11 @@
                 <Button alignment="CENTER_RIGHT" mnemonicParsing="false" onAction="#switchToMessagesSceneFromMessagesScene" onMouseEntered="#enableMessagesLabel" onMouseExited="#disableMessagesLabel" prefHeight="34.0" prefWidth="57.0" style="-fx-background-color: transparent;">
                     <graphic>
                         <FontAwesomeIconView glyphName="ENVELOPE" size="25" />
+                    </graphic>
+                </Button>
+                <Button alignment="CENTER_RIGHT" mnemonicParsing="false" onAction="#switchToReportsSceneFromMessagesScene" onMouseEntered="#enableReportsLabel" onMouseExited="#disableReportsLabel" prefHeight="34.0" prefWidth="58.0" style="-fx-background-color: transparent;">
+                    <graphic>
+                        <FontAwesomeIconView glyphName="FILE" size="25" />
                     </graphic>
                 </Button>
             </children>
@@ -142,5 +142,11 @@
             <ListView fx:id="startConversationListView" prefHeight="200.0" prefWidth="200.0" style="-fx-border-color: #d53939;" />
          </children>
       </VBox>
+          <Label fx:id="friendsLabel" layoutX="420.0" layoutY="42.0" text="Friends" textFill="GREY" visible="false" />
+          <Label fx:id="friendRequestsLabel" layoutX="450.0" layoutY="42.0" text="Friend requests" textFill="GREY" visible="false" />
+          <Label fx:id="messagesLabel" layoutX="520.0" layoutY="42.0" text="Messages" textFill="GREY" visible="false" />
+          <Label fx:id="reportsLabel" layoutX="570.0" layoutY="42.0" prefHeight="18.0" prefWidth="45.0" text="Reports" textFill="GREY" visible="false" />
+          <Polygon fx:id="triangleAuxiliaryLabel" fill="#d53939" layoutX="340.0" layoutY="14.0" points="-9.399993896484375, 40.0, 8.600006103515625, 40.00000762939453, 0.199981689453125, 27.199981689453125" stroke="GREY" strokeType="INSIDE" visible="false" />
+          <ListView fx:id="usersListView" layoutX="240.0" layoutY="56.0" prefHeight="268.0" prefWidth="200.0" style="-fx-border-color: #e17474;" visible="false" />
     </children>
 </AnchorPane>

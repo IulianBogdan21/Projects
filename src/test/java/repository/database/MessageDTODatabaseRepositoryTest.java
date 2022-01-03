@@ -7,9 +7,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import socialNetwork.domain.models.*;
 import socialNetwork.exceptions.DatabaseException;
-import socialNetwork.repository.RepositoryInterface;
 import socialNetwork.repository.database.MessageDTODatabaseRepository;
 import socialNetwork.repository.database.UserDatabaseRepository;
+import socialNetwork.repository.paging.PagingRepository;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -24,7 +24,7 @@ public class MessageDTODatabaseRepositoryTest {
     String password = ApplicationContext.getProperty("network.database.password");
     MessageDTODatabaseRepository testRepository;
 
-    public RepositoryInterface<Long, MessageDTO> getRepository() {
+    public PagingRepository<Long, MessageDTO> getRepository() {
         if(testRepository == null)
             testRepository = new MessageDTODatabaseRepository(url, user, password);
         return testRepository;

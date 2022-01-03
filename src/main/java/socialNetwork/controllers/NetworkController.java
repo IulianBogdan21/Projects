@@ -4,7 +4,6 @@ import socialNetwork.domain.models.*;
 import socialNetwork.exceptions.LogInException;
 import socialNetwork.service.*;
 import socialNetwork.utilitaries.events.*;
-import socialNetwork.utilitaries.observer.Observable;
 import socialNetwork.utilitaries.observer.Observer;
 
 import java.time.LocalDateTime;
@@ -254,7 +253,7 @@ public class NetworkController  {
         return false;
     }
 
-    private Page createPageObject(String username){
+    private PageUser createPageObject(String username){
         User root = getAllUsers()
                 .stream()
                 .filter(user -> user.getUsername().equals(username))
@@ -263,10 +262,10 @@ public class NetworkController  {
         List<User> friendList = getAllFriendshipForSpecifiedUser(root.getId());
         List<FriendRequest> friendRequestList = getAllFriendRequestForSpecifiedUser(root.getId());
         List<Chat> chatList = getAllChatsSpecifiedUser(root.getId());
-        return new Page(root,friendList,friendRequestList,chatList,this);
+        return new PageUser(root,friendList,friendRequestList,chatList,this);
     }
 
-    public Page logIn(String username,String password){
+    public PageUser logIn(String username, String password){
         Optional<Autentification> findAutentification = authentificationService
                 .findAuthentificationService(username);
         if(findAutentification.isEmpty())

@@ -101,8 +101,14 @@
                         <FontAwesomeIconView glyphName="ENVELOPE" size="25" />
                     </graphic>
                 </Button>
+                <Button alignment="CENTER_RIGHT" mnemonicParsing="false" onAction="#switchToReportsScene" onMouseEntered="#enableReportsLabel" onMouseExited="#disableReportsLabel" prefHeight="34.0" prefWidth="58.0" style="-fx-background-color: transparent;">
+                    <graphic>
+                        <FontAwesomeIconView glyphName="FILE" size="25" />
+                    </graphic>
+                </Button>
             </children>
         </HBox>
+          <Label fx:id="reportsLabel" layoutX="570.0" layoutY="50.0" prefHeight="18.0" prefWidth="45.0" text="Reports" textFill="GREY" visible="false" />
           <ListView fx:id="usersListView" layoutX="250.0" layoutY="59.0" onMouseClicked="#disableWhenSearchForUser" prefHeight="268.0" prefWidth="200.0" style="-fx-border-color: #e17474;" visible="false" />
           <Polygon fx:id="triangleAuxiliaryLabel" fill="#d53939" layoutX="345.0" layoutY="5.0" points="-9.399993896484375, 40.0, 8.600006103515625, 40.00000762939453, 0.199981689453125, 27.199981689453125" stroke="GREY" strokeType="INSIDE" visible="false" />
           <Label fx:id="friendsLabel" layoutX="425.0" layoutY="50.0" text="Friends" textFill="GREY" visible="false" />

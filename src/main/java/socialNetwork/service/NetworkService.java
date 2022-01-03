@@ -7,7 +7,10 @@ import socialNetwork.domain.models.User;
 import socialNetwork.domain.validators.EntityValidatorInterface;
 import socialNetwork.exceptions.EntityMissingValidationException;
 import socialNetwork.exceptions.InvitationStatusException;
-import socialNetwork.repository.RepositoryInterface;
+import socialNetwork.repository.paging.Page;
+import socialNetwork.repository.paging.Pageable;
+import socialNetwork.repository.paging.PageableImplementation;
+import socialNetwork.repository.paging.PagingRepository;
 import socialNetwork.utilitaries.UndirectedGraph;
 import socialNetwork.utilitaries.UnorderedPair;
 import socialNetwork.utilitaries.events.ChangeEventType;
@@ -20,21 +23,23 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * business layer for Friendship model
  */
 public class NetworkService implements Observable<Event> {
-    private final RepositoryInterface<UnorderedPair<Long, Long>, Friendship> friendshipRepository;
-    private final RepositoryInterface<UnorderedPair<Long, Long>, FriendRequest> friendRequestRepository;
-    private final RepositoryInterface<Long, User> userRepository;
+    private final PagingRepository<UnorderedPair<Long, Long>, Friendship> friendshipRepository;
+    private final PagingRepository<UnorderedPair<Long, Long>, FriendRequest> friendRequestRepository;
+    private final PagingRepository<Long, User> userRepository;
     private final EntityValidatorInterface<UnorderedPair<Long, Long>, Friendship> friendshipValidator;
     private List< Observer<Event> > observersFriendship = new ArrayList<>();
 
-    public NetworkService(RepositoryInterface<UnorderedPair<Long, Long>, Friendship> friendshipRepository,
-                          RepositoryInterface<UnorderedPair<Long, Long>, FriendRequest> friendRequestRepository,
-                          RepositoryInterface<Long, User> userRepository,
+    public NetworkService(PagingRepository<UnorderedPair<Long, Long>, Friendship> friendshipRepository,
+                          PagingRepository<UnorderedPair<Long, Long>, FriendRequest> friendRequestRepository,
+                          PagingRepository<Long, User> userRepository,
                           EntityValidatorInterface<UnorderedPair<Long, Long>, Friendship> friendshipValidator) {
         this.friendshipRepository = friendshipRepository;
         this.friendRequestRepository = friendRequestRepository;
@@ -161,4 +166,30 @@ public class NetworkService implements Observable<Event> {
     public void notifyObservers(Event event) {
         observersFriendship.forEach(obs -> obs.update(event));
     }
+
+    private int pageNumber = 0;
+    private int pageSize = 1;
+
+    private Pageable pageable;
+
+    public void setPageSize(int pageSize){
+        this.pageSize = pageSize;
+    }
+
+    public void setPageable(Pageable pageable){
+        this.pageable = pageable;
+    }
+
+    public Set<Friendship> getNextFriendships(){
+        this.pageNumber++;
+        return getFriendshipsOnPage(this.pageNumber);
+    }
+
+    public Set<Friendship> getFriendshipsOnPage(int pageNumber){
+        this.pageNumber = pageNumber;
+        Pageable pageable = new PageableImplementation(pageNumber,this.pageSize);
+        Page<Friendship> friendshipsPage = friendshipRepository.getAll(pageable);
+        return friendshipsPage.getContent().collect(Collectors.toSet());
+    }
+
 }

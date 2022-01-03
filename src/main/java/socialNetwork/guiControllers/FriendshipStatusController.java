@@ -5,7 +5,6 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 import javafx.stage.Stage;
 import socialNetwork.controllers.NetworkController;
@@ -29,7 +28,7 @@ public class FriendshipStatusController implements Observer<Event> {
     ObservableList<User> modelSearchFriends = FXCollections.observableArrayList();
 
     NetworkController networkController;
-    Page rootPage;
+    PageUser rootPageUser;
     Stage displayStage;
 
     @FXML
@@ -64,18 +63,20 @@ public class FriendshipStatusController implements Observer<Event> {
     Button resubmissionRequestButton;
     @FXML
     Button withdrawRequestButton;
+    @FXML
+    Label reportsLabel;
 
-    public void setNetworkController(Stage primaryStage, NetworkController service,Page rootPage){
+    public void setNetworkController(Stage primaryStage, NetworkController service, PageUser rootPageUser){
         this.networkController = service;
         networkController.getFriendRequestService().addObserver(this);
         this.displayStage = primaryStage;
-        this.rootPage = rootPage;
-        rootPage.refresh(rootPage.getRoot().getUsername());
+        this.rootPageUser = rootPageUser;
+        rootPageUser.refresh(rootPageUser.getRoot().getUsername());
         initModelFriendRequest();
     }
 
     private void initModelFriendRequest(){
-        User mainUser = rootPage.getRoot();
+        User mainUser = rootPageUser.getRoot();
         List<FriendshipRequestDTO> friendshipRequestDTOList = networkController
                 .findAllRequestFriendsForUser(mainUser.getId());
 
@@ -142,24 +143,29 @@ public class FriendshipStatusController implements Observer<Event> {
 
     @FXML
     public void switchToUserViewScene(ActionEvent event) throws IOException {
-        SceneSwitcher.switchToUserViewScene(event, getClass(), networkController, rootPage, displayStage);
+        SceneSwitcher.switchToUserViewScene(event, getClass(), networkController, rootPageUser, displayStage);
     }
 
     @FXML
     public void switchToFriendshipRequestScene(ActionEvent event) throws IOException{
-        SceneSwitcher.switchToFriendshipRequestScene(event, getClass(), networkController, rootPage, displayStage);
+        SceneSwitcher.switchToFriendshipRequestScene(event, getClass(), networkController, rootPageUser, displayStage);
     }
 
     @FXML
     public void switchToMessagesScene(ActionEvent event) throws IOException{
-        SceneSwitcher.switchToMessageScene(event, getClass(), networkController, rootPage, displayStage);
+        SceneSwitcher.switchToMessageScene(event, getClass(), networkController, rootPageUser, displayStage);
 
+    }
+
+    @FXML
+    public void switchToReportsScene(ActionEvent event) throws IOException{
+        SceneSwitcher.switchToReportsScene(event, getClass(), networkController, rootPageUser, displayStage);
     }
 
     @FXML
     public void handleApprovedFriend(){
 
-        User mainUser = rootPage.getRoot();
+        User mainUser = rootPageUser.getRoot();
         RequestInvitationGUIDTO requestInvitationGUIDTO = requestsReceivedListView
                 .getSelectionModel().getSelectedItem();
         if(requestInvitationGUIDTO != null){
@@ -185,7 +191,7 @@ public class FriendshipStatusController implements Observer<Event> {
     @FXML
     public void handleRejectFriend(){
 
-        User mainUser = rootPage.getRoot();
+        User mainUser = rootPageUser.getRoot();
         RequestInvitationGUIDTO requestInvitationGUIDTO = requestsReceivedListView
                 .getSelectionModel().getSelectedItem();
         if(requestInvitationGUIDTO != null){
@@ -209,7 +215,7 @@ public class FriendshipStatusController implements Observer<Event> {
     @FXML
     public void handleResubmissionRequest(){
 
-        User mainUser = rootPage.getRoot();
+        User mainUser = rootPageUser.getRoot();
         RequestInvitationGUIDTO requestInvitationGUIDTO = requestsReceivedListView
                 .getSelectionModel().getSelectedItem();
         if(requestInvitationGUIDTO == null){
@@ -239,7 +245,7 @@ public class FriendshipStatusController implements Observer<Event> {
 
     @FXML
     public void handleWithdrawRequest(){
-        User mainUser = rootPage.getRoot();
+        User mainUser = rootPageUser.getRoot();
         RequestInvitationGUIDTO requestInvitationGUIDTO = requestsSentListView
                 .getSelectionModel().getSelectedItem();
 
@@ -287,7 +293,7 @@ public class FriendshipStatusController implements Observer<Event> {
     }
 
     private void handleFilterInFriendshipStatusController(){
-        ListViewInitialize.handleFilter(networkController,rootPage, searchFriendshipField, modelSearchFriends);
+        ListViewInitialize.handleFilter(networkController, rootPageUser, searchFriendshipField, modelSearchFriends);
     }
 
     @FXML
@@ -303,6 +309,16 @@ public class FriendshipStatusController implements Observer<Event> {
     @FXML
     public void enableMessagesLabel(){
         messagesLabel.setVisible(true);
+    }
+
+    @FXML
+    public void enableReportsLabel(){
+        reportsLabel.setVisible(true);
+    }
+
+    @FXML
+    public void disableReportsLabel(){
+        reportsLabel.setVisible(false);
     }
 
     @FXML
@@ -335,7 +351,7 @@ public class FriendshipStatusController implements Observer<Event> {
 
     @FXML
     public void handleFriendshipRequestFromRequestsController(){
-        UsersSearchProcess.sendFriendshipRequest(usersListView, rootPage, networkController, displayStage);
+        UsersSearchProcess.sendFriendshipRequest(usersListView, rootPageUser, networkController, displayStage);
     }
 
     @FXML
