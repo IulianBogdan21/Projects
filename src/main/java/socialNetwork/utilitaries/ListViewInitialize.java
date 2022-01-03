@@ -1,6 +1,7 @@
 package socialNetwork.utilitaries;
 
 import javafx.collections.ObservableList;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
@@ -10,6 +11,7 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundImage;
 import socialNetwork.controllers.NetworkController;
 import socialNetwork.domain.models.Chat;
+import socialNetwork.domain.models.Message;
 import socialNetwork.domain.models.Page;
 import socialNetwork.domain.models.User;
 
@@ -37,6 +39,38 @@ public class ListViewInitialize {
                     imageView.setPreserveRatio(true);
                     setText(item.getUsername());
                     setGraphic(imageView);
+                }
+            }
+        });
+    }
+
+    public static void createListViewWithMessages(ListView<Message> listView, ObservableList<Message> modelMessages){
+        listView.setItems(modelMessages);
+        listView.setCellFactory(u -> new ListCell<Message>(){
+            @Override
+            protected void updateItem(Message item, boolean empty) {
+                super.updateItem(item, empty);
+                if(empty){
+                    setText(null);
+                }
+                else{
+                    setText(item.getText());
+                }
+            }
+        });
+    }
+
+    public static void createComboBoxWithFriends(ComboBox<User> comboBox, ObservableList<User> modelFriends){
+        comboBox.setItems(modelFriends);
+        comboBox.setCellFactory(c -> new ListCell<User>(){
+            @Override
+            protected void updateItem(User item, boolean empty){
+                super.updateItem(item, empty);
+                if(empty){
+                    setText(null);
+                }
+                else{
+                    setText(item.getUsername());
                 }
             }
         });

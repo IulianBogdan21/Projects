@@ -8,6 +8,8 @@ module socialNetwork.ui {
     requires org.kordamp.bootstrapfx.core;
     requires java.sql;
 
+    requires org.apache.pdfbox;
+
     opens socialNetwork.ui to javafx.fxml;
     exports socialNetwork.ui;
     exports socialNetwork.gui;

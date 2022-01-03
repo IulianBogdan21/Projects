@@ -20,4 +20,12 @@ public class MessageAlert {
         message.setContentText(text);
         message.showAndWait();
     }
+
+    public static void showInformationMessage(Stage owner, String text){
+        Alert message = new Alert(Alert.AlertType.INFORMATION);
+        message.initOwner(owner);
+        message.setTitle("Information");
+        message.setContentText(text);
+        message.showAndWait();
+    }
 }

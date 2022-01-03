@@ -63,6 +63,8 @@ public class UserViewController implements Observer<Event> {
     Label messagesLabel;
     @FXML
     Polygon triangleAuxiliaryLabel;
+    @FXML
+    Label reportsLabel;
 
     NetworkController networkController;
     Page rootPage;
@@ -133,6 +135,11 @@ public class UserViewController implements Observer<Event> {
     }
 
     @FXML
+    public void switchToReportsViewSceneFromUserScene(ActionEvent event) throws IOException{
+        SceneSwitcher.switchToReportsScene(event, getClass(), networkController, rootPage, displayStage);
+    }
+
+    @FXML
     public void disableAddFriendship(){
         if(listViewOfFriends.getSelectionModel().getSelectedItem() != null){
             addFriendshipButton.setDisable(true);
@@ -171,6 +178,11 @@ public class UserViewController implements Observer<Event> {
     }
 
     @FXML
+    public void enableReportsLabel(){
+        reportsLabel.setVisible(true);
+    }
+
+    @FXML
     public void disableFriendsLabel(){
         friendsLabel.setVisible(false);
     }
@@ -183,6 +195,11 @@ public class UserViewController implements Observer<Event> {
     @FXML
     public void disableMessagesLabel(){
         messagesLabel.setVisible(false);
+    }
+
+    @FXML
+    public void disableReportsLabel(){
+        reportsLabel.setVisible(false);
     }
 
     @FXML

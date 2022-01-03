@@ -88,6 +88,8 @@ public class MessageController implements Observer<Event> {
     Label welcomeMessageLabel;
     @FXML
     AnchorPane conversationAnchorPane;
+    @FXML
+    Label reportsLabel;
 
     NetworkController networkController;
     Page rootPage;
@@ -137,6 +139,8 @@ public class MessageController implements Observer<Event> {
 
     @FXML
     public void loadConversation(){
+        if(chatsNameListView.getSelectionModel().getSelectedItem() == null)
+            return;
         if(firstTime) {
             conversationScrollPane.setVisible(true);
             welcomeMessageLabel.setVisible(false);
@@ -280,7 +284,15 @@ public class MessageController implements Observer<Event> {
     }
 
     @FXML
-    public void enableAllButtonsAndClearSelection(){}
+    public void switchToReportsSceneFromMessagesScene(ActionEvent event) throws IOException{
+        SceneSwitcher.switchToReportsScene(event, getClass(), networkController, rootPage, displayStage);
+    }
+
+    @FXML
+    public void enableAllButtonsAndClearSelection(){
+        usersListView.getSelectionModel().clearSelection();
+
+    }
 
     @FXML
     public void enableFriendsLabel(){
@@ -295,6 +307,16 @@ public class MessageController implements Observer<Event> {
     @FXML
     public void enableMessagesLabel(){
         messagesLabel.setVisible(true);
+    }
+
+    @FXML
+    public void enableReportsLabel(){
+        reportsLabel.setVisible(true);
+    }
+
+    @FXML
+    public void disableReportsLabel(){
+        reportsLabel.setVisible(false);
     }
 
     @FXML

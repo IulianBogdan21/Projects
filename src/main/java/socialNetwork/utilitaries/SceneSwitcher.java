@@ -11,6 +11,7 @@ import socialNetwork.domain.models.Page;
 import socialNetwork.domain.models.User;
 import socialNetwork.guiControllers.FriendshipStatusController;
 import socialNetwork.guiControllers.MessageController;
+import socialNetwork.guiControllers.ReportsController;
 import socialNetwork.guiControllers.UserViewController;
 
 import java.io.IOException;
@@ -52,6 +53,18 @@ public class SceneSwitcher {
         displayStage.show();
     }
 
+    private static void defaultSceneOperationForReportsSwitch(FXMLLoader loader, ActionEvent event, Class sourceClass,
+                                                              NetworkController networkController,
+                                                              Page rootPage, Stage displayStage) throws IOException {
+        Parent root = loader.load();
+        displayStage =  (Stage)(((Node)event.getSource()).getScene().getWindow());
+        Scene newScene = new Scene(root);
+        displayStage.setScene(newScene);
+        ReportsController reportsController = loader.getController();
+        reportsController.setNetworkController(displayStage,networkController,rootPage);
+        displayStage.show();
+    }
+
     public static void switchToUserViewScene(ActionEvent event, Class sourceClass, NetworkController networkController,
                                              Page rootPage, Stage displayStage) throws IOException {
         FXMLLoader loader = new FXMLLoader(sourceClass.getResource("/socialNetwork.gui/userView.fxml"));
@@ -70,6 +83,13 @@ public class SceneSwitcher {
                                                       Stage displayStage) throws IOException{
         FXMLLoader loader = new FXMLLoader(sourceClass.getResource("/socialNetwork.gui/messagesView.fxml"));
         defaultSceneOperationForMessageSwitch(loader, event, sourceClass, networkController, rootPage, displayStage);
+    }
+
+    public static void switchToReportsScene(ActionEvent event, Class sourceClass,
+                                            NetworkController networkController, Page rootPage,
+                                            Stage displayStage) throws IOException{
+        FXMLLoader loader = new FXMLLoader(sourceClass.getResource("/socialNetwork.gui/reportsView.fxml"));
+        defaultSceneOperationForReportsSwitch(loader, event, sourceClass, networkController, rootPage, displayStage);
     }
 
 }
