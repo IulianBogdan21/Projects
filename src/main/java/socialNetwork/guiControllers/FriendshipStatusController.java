@@ -63,6 +63,8 @@ public class FriendshipStatusController implements Observer<Event> {
     Button resubmissionRequestButton;
     @FXML
     Button withdrawRequestButton;
+    @FXML
+    Label reportsLabel;
 
     public void setNetworkController(Stage primaryStage, NetworkController service, PageUser rootPageUser){
         this.networkController = service;
@@ -153,6 +155,11 @@ public class FriendshipStatusController implements Observer<Event> {
     public void switchToMessagesScene(ActionEvent event) throws IOException{
         SceneSwitcher.switchToMessageScene(event, getClass(), networkController, rootPageUser, displayStage);
 
+    }
+
+    @FXML
+    public void switchToReportsScene(ActionEvent event) throws IOException{
+        SceneSwitcher.switchToReportsScene(event, getClass(), networkController, rootPageUser, displayStage);
     }
 
     @FXML
@@ -302,6 +309,16 @@ public class FriendshipStatusController implements Observer<Event> {
     @FXML
     public void enableMessagesLabel(){
         messagesLabel.setVisible(true);
+    }
+
+    @FXML
+    public void enableReportsLabel(){
+        reportsLabel.setVisible(true);
+    }
+
+    @FXML
+    public void disableReportsLabel(){
+        reportsLabel.setVisible(false);
     }
 
     @FXML

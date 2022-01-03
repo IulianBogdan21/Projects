@@ -55,17 +55,20 @@ public class UserViewController implements Observer<Event> {
     @FXML
     Polygon triangleAuxiliaryLabel;
     ScrollBar scrollBarListViewOfFriends;
+    @FXML
+    Label reportsLabel;
+
 
     NetworkController networkController;
-    PageUser rootPageUser;
+    PageUser rootPage;
     Stage displayStage;
 
-    public void setNetworkController(Stage primaryStage, NetworkController service, PageUser rootPageUser){
+    public void setNetworkController(Stage primaryStage, NetworkController service, PageUser rootPage){
         this.networkController = service;
         networkController.getNetworkService().addObserver(this);
         this.displayStage = primaryStage;
-        this.rootPageUser = rootPageUser;
-        rootPageUser.refresh(rootPageUser.getRoot().getUsername());
+        this.rootPage = rootPage;
+        rootPage.refresh(rootPage.getRoot().getUsername());
         initModelFriends();
     }
 
@@ -83,7 +86,7 @@ public class UserViewController implements Observer<Event> {
     }
 
     private void initModelFriends(){
-        List< User > friendListForUser = rootPageUser.getFriendList();
+        List< User > friendListForUser = rootPage.getFriendList();
         modelFriends.setAll(friendListForUser);
     }
 
@@ -109,7 +112,7 @@ public class UserViewController implements Observer<Event> {
     @FXML
     public void handleFriendshipDelete(){
 
-        User mainUser = rootPageUser.getRoot();
+        User mainUser = rootPage.getRoot();
         if(listViewOfFriends.getSelectionModel().getSelectedItem() != null){
             User user = listViewOfFriends.getSelectionModel().getSelectedItem();
             Long idFirstUser = mainUser.getId();
@@ -125,22 +128,27 @@ public class UserViewController implements Observer<Event> {
 
     @FXML
     public void handleFriendshipRequestFromUserViewController(){
-        UsersSearchProcess.sendFriendshipRequest(usersListView, rootPageUser, networkController, displayStage);
+        UsersSearchProcess.sendFriendshipRequest(usersListView, rootPage, networkController, displayStage);
     }
 
     @FXML
     public void switchToFriendshipRequestSceneFromUserScene(ActionEvent event) throws IOException {
-        SceneSwitcher.switchToFriendshipRequestScene(event, getClass(), networkController, rootPageUser, displayStage);
+        SceneSwitcher.switchToFriendshipRequestScene(event, getClass(), networkController, rootPage, displayStage);
     }
 
     @FXML
     public void switchToUserViewSceneFromUserScene(ActionEvent event) throws IOException{
-        SceneSwitcher.switchToUserViewScene(event, getClass(), networkController, rootPageUser, displayStage);
+        SceneSwitcher.switchToUserViewScene(event, getClass(), networkController, rootPage, displayStage);
     }
 
     @FXML
     public void switchToMessagesViewSceneFromUserScene(ActionEvent event) throws IOException{
-        SceneSwitcher.switchToMessageScene(event, getClass(), networkController, rootPageUser, displayStage);
+        SceneSwitcher.switchToMessageScene(event, getClass(), networkController, rootPage, displayStage);
+    }
+
+    @FXML
+    public void switchToReportsViewSceneFromUserScene(ActionEvent event) throws IOException{
+        SceneSwitcher.switchToReportsScene(event, getClass(), networkController, rootPage, displayStage);
     }
 
     @FXML
@@ -182,6 +190,11 @@ public class UserViewController implements Observer<Event> {
     }
 
     @FXML
+    public void enableReportsLabel(){
+        reportsLabel.setVisible(true);
+    }
+
+    @FXML
     public void disableFriendsLabel(){
         friendsLabel.setVisible(false);
     }
@@ -197,6 +210,11 @@ public class UserViewController implements Observer<Event> {
     }
 
     @FXML
+    public void disableReportsLabel(){
+        reportsLabel.setVisible(false);
+    }
+
+    @FXML
     public void setUsersListViewOnVisible(){
         UsersSearchProcess.setUsersListViewOnVisible(usersListView, triangleAuxiliaryLabel);
     }
@@ -208,7 +226,7 @@ public class UserViewController implements Observer<Event> {
 
     @FXML
     private void handleFilterInUserController(){
-        ListViewInitialize.handleFilter(networkController, rootPageUser, searchFriendshipField, modelSearchFriends);
+        ListViewInitialize.handleFilter(networkController, rootPage, searchFriendshipField, modelSearchFriends);
     }
 
 }
