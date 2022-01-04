@@ -14,11 +14,10 @@ import javafx.scene.control.*;
 import javafx.scene.effect.Lighting;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
@@ -94,6 +93,7 @@ public class MessageController implements Observer<Event> {
     PageUser rootPageUser;
     Stage displayStage;
     boolean firstTime = true;
+    Long idUserLastMessage = -1L;
 
     public void setNetworkController(Stage primaryStage, NetworkController service, PageUser rootPageUser){
         this.networkController = service;
@@ -146,6 +146,7 @@ public class MessageController implements Observer<Event> {
             messageField.setVisible(true);
             firstTime = false;
         }
+        idUserLastMessage = -1L;
         conversationVerticalBox.getChildren().clear();
         chatConversation = chatsNameListView.getSelectionModel().getSelectedItem();
         conversationVerticalBox.heightProperty().addListener(new ChangeListener<Number>() {
@@ -164,20 +165,20 @@ public class MessageController implements Observer<Event> {
             if(chatMessages.get(i).getDate().compareTo(chatReplyMessages.get(j).getDate()) < 0){
                 Message message = chatMessages.get(i);
                 if(message.getFrom().getId().equals(root.getId())){
-                    putMessageInScrollPane("sent",message.getText());
+                    putMessageInScrollPane("sent",message);
                 }
                 else{
-                    putMessageInScrollPane("receive",message.getText());
+                    putMessageInScrollPane("receive",message);
                 }
                 i++;
             }
             else{
                 ReplyMessage replyMessage = chatReplyMessages.get(j);
                 if(replyMessage.getFrom().getId().equals(root.getId())){
-                    putMessageInScrollPane("sent",replyMessage.getText());
+                    putMessageInScrollPane("sent",replyMessage);
                 }
                 else{
-                    putMessageInScrollPane("receive",replyMessage.getText());
+                    putMessageInScrollPane("receive",replyMessage);
                 }
                 j++;
             }
@@ -186,10 +187,10 @@ public class MessageController implements Observer<Event> {
         while(i < n){
             Message message = chatMessages.get(i);
             if(message.getFrom().getId().equals(root.getId())){
-                putMessageInScrollPane("sent",message.getText());
+                putMessageInScrollPane("sent",message);
             }
             else{
-                putMessageInScrollPane("receive",message.getText());
+                putMessageInScrollPane("receive",message);
             }
             i++;
         }
@@ -197,17 +198,19 @@ public class MessageController implements Observer<Event> {
         while(j < m){
             ReplyMessage replyMessage = chatReplyMessages.get(j);
             if(replyMessage.getFrom().getId().equals(root.getId())){
-                putMessageInScrollPane("sent",replyMessage.getText());
+                putMessageInScrollPane("sent",replyMessage);
             }
             else{
-                putMessageInScrollPane("receive",replyMessage.getText());
+                putMessageInScrollPane("receive",replyMessage);
             }
             j++;
         }
     }
 
-    private void putMessageInScrollPane(String action, String messageText){
+    private void putMessageInScrollPane(String action, Message message){
+        String messageText = message.getText();
         HBox hBox = new HBox();
+      //  hBox.setId(message.getId().toString());
         if(action.equals("sent")) {
             hBox.setAlignment(Pos.CENTER_RIGHT);
         }
@@ -232,26 +235,81 @@ public class MessageController implements Observer<Event> {
         if(action.equals("sent")){
             text.setFill(Color.color(0.934, 0.945, 0.996));
         }
+
+        User userThatSendTheLastMessage = message.getFrom();
+        if(!userThatSendTheLastMessage.getId().equals(idUserLastMessage)){
+            idUserLastMessage = userThatSendTheLastMessage.getId();
+            HBox hBoxLabelNameUser = createLabelForUserThatWriteMessages(action,userThatSendTheLastMessage);
+            conversationVerticalBox.getChildren().add(hBoxLabelNameUser);
+        }
+
+        if(message instanceof ReplyMessage){
+            ReplyMessage replyMessage = (ReplyMessage) message;
+            HBox hBoxReplyMessage = createReplyMessageForShowGUI(action,
+                    replyMessage.getMessage().getText());
+            conversationVerticalBox.getChildren().add(hBoxReplyMessage);
+        }
+
         hBox.getChildren().add(textFlow);
         conversationVerticalBox.getChildren().add(hBox);
+    }
+
+    private HBox createReplyMessageForShowGUI(String action,String messageText){
+        HBox hBox = new HBox();
+        if(action.equals("sent")) {
+            hBox.setAlignment(Pos.CENTER_RIGHT);
+        }
+        else{
+            hBox.setAlignment(Pos.CENTER_LEFT);
+        }
+        hBox.setPadding(new Insets(5,5,5,10));
+        Text text = new Text(messageText);
+        TextFlow textFlow = new TextFlow(text);
+        textFlow.setPadding(new Insets(5,10,5,10));
+        textFlow.setStyle("-fx-background-color: #948c8c;" +
+                "-fx-background-radius: 20px"
+        );
+        hBox.getChildren().add(textFlow);
+        return hBox;
+    }
+
+    private HBox createLabelForUserThatWriteMessages(String action,User userThatSendTheLastMessage){
+        HBox hBox = new HBox();
+        Label label = new Label();
+        label.setText(userThatSendTheLastMessage.getFirstName() + " "
+                + userThatSendTheLastMessage.getLastName());
+        label.setFont(new Font("Arial",10));
+        label.setTextFill(Color.web("#9c9999"));
+        hBox.getChildren().add(label);
+        if(action.equals("sent")) {
+            hBox.setAlignment(Pos.CENTER_RIGHT);
+        }
+        else{
+            hBox.setAlignment(Pos.CENTER_LEFT);
+        }
+        hBox.setPadding(new Insets(5,5,5,10));
+        return hBox;
     }
 
     @FXML
     public void sendMessage(){
         String text = messageField.getText();
         Long idUserFrom = rootPageUser.getRoot().getId();
-        List<Long> to = idMembersWithoutRootForChat(chatConversation, rootPageUser.getRoot());
-        networkController.sendMessages(idUserFrom,to,text);
+        List<User> to = idMembersWithoutRootForChat(chatConversation, rootPageUser.getRoot());
+        List<Long> idTo = to.stream().map(user -> user.getId()).toList();
+
+
+        networkController.sendMessages(idUserFrom,idTo,text);
+        Message message = new Message(rootPageUser.getRoot(), to , text);
         //conversationVerticalBox is the same with the selected chat
-        putMessageInScrollPane("sent",text);
+        putMessageInScrollPane("sent",message);
         messageField.clear();
     }
 
-    private List<Long> idMembersWithoutRootForChat(Chat chat,User root){
+    private List<User> idMembersWithoutRootForChat(Chat chat,User root){
         return chat.getMembers()
                 .stream()
                 .filter(user -> !user.getId().equals(root.getId()))
-                .map(user -> user.getId())
                 .toList();
     }
 
