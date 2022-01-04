@@ -159,7 +159,14 @@ public class ControllerTest {
     public void setUp(){
         tearDown();
         getUserTestData().forEach(x->testUserRepository.save(x));
-        getAutentificationTestData().forEach( x -> testAutentificationRepository.save(x));
+        getAutentificationTestData().forEach( x -> {
+            try {
+                getNetworkController().saveAuthentification(
+                        x.getUsername(),x.getPassword());
+            } catch (IllegalBlockSizeException | BadPaddingException | InvalidKeyException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     @Test
@@ -270,7 +277,8 @@ public class ControllerTest {
     }
 
     @Test
-    void testPageObjectChat(){
+    void testPageObjectChat() throws IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
+       // getNetworkController().saveAuthentification("a6","pa6");
         PageUser pageUser = getNetworkController().logIn("a6","pa6");
         List<Chat> chatList = pageUser.getChatList();
         Assertions.assertEquals(chatList.size(),0);
