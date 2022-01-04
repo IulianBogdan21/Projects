@@ -10,6 +10,10 @@ import socialNetwork.controllers.NetworkController;
 import socialNetwork.exceptions.ExceptionBaseClass;
 import socialNetwork.utilitaries.MessageAlert;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import java.security.InvalidKeyException;
+
 public class SignUpController {
 
     NetworkController networkController;
@@ -57,7 +61,7 @@ public class SignUpController {
             else{
                 MessageAlert.showErrorMessage(stage, "Username already exists");
             }
-        } catch (ExceptionBaseClass exceptionBaseClass){
+        } catch (ExceptionBaseClass | IllegalBlockSizeException | BadPaddingException | InvalidKeyException exceptionBaseClass){
             MessageAlert.showErrorMessage(stage, exceptionBaseClass.getMessage());
         }
     }

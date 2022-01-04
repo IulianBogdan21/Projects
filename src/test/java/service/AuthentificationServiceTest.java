@@ -6,12 +6,16 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import socialNetwork.domain.models.Autentification;
+import socialNetwork.domain.models.SecurityPassword;
 import socialNetwork.domain.models.User;
 import socialNetwork.domain.validators.AuthentificationValidator;
 import socialNetwork.repository.database.AutentificationDatabaseRepository;
 import socialNetwork.repository.database.UserDatabaseRepository;
 import socialNetwork.service.AuthentificationService;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import java.security.InvalidKeyException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -31,9 +35,11 @@ public class AuthentificationServiceTest {
 
     private AuthentificationService getAuthentificationService(){
         if(authentificationService == null) {
+            SecurityPassword securityPassword = new SecurityPassword();
             autentificationDatabaseRepository = new AutentificationDatabaseRepository(url, user, password);
             authentificationValidator = new AuthentificationValidator();
-            authentificationService = new AuthentificationService(autentificationDatabaseRepository,authentificationValidator);
+            authentificationService = new AuthentificationService(autentificationDatabaseRepository,
+                    authentificationValidator,securityPassword);
         }
         return authentificationService;
     }
@@ -64,7 +70,7 @@ public class AuthentificationServiceTest {
     }
 
     @Test
-    void testSaveAuthentification() {
+    void testSaveAuthentification() throws IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
         Assertions.assertEquals(Optional.empty(),getAuthentificationService()
                 .saveAuthentificationService("andrei","casa"));
         Assertions.assertEquals(Optional.empty(),getAuthentificationService()
@@ -76,7 +82,7 @@ public class AuthentificationServiceTest {
     }
 
     @Test
-    void testFindAuthentification() {
+    void testFindAuthentification() throws IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
         Autentification authentification0 = new Autentification("andrei","casa");
         Autentification authentification1 = new Autentification("razvan","upup");
         getAuthentificationService().saveAuthentificationService("andrei","casa");
@@ -91,7 +97,7 @@ public class AuthentificationServiceTest {
     }
 
     @Test
-    void testGetAllAuthentification() {
+    void testGetAllAuthentification() throws IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
         Autentification authentification0 = new Autentification("andrei", "casa");
         Autentification authentification1 = new Autentification("razvan", "upup");
         getAuthentificationService().saveAuthentificationService("andrei","casa");

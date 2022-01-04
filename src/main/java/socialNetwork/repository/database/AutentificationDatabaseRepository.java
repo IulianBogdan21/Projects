@@ -102,6 +102,15 @@ public class AutentificationDatabaseRepository implements
 
     @Override
     public Optional<Autentification> update(Autentification entityToUpdate) {
-        return Optional.empty();
+        try (Connection connection = DriverManager.getConnection(url, user, password);
+            PreparedStatement preparedStatement = connection.prepareStatement(
+                    "update autentifications set passwordText = ? where username = ? ")) {
+            preparedStatement.setString(1,entityToUpdate.getPassword());
+            preparedStatement.setString(2,entityToUpdate.getUsername());
+            preparedStatement.executeUpdate();
+            return Optional.empty();
+        } catch (SQLException throwables) {
+            throw new DatabaseException(throwables.getMessage());
+        }
     }
 }

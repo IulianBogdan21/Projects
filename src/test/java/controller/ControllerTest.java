@@ -14,6 +14,9 @@ import socialNetwork.exceptions.DatabaseException;
 import socialNetwork.service.*;
 import socialNetwork.utilitaries.UnorderedPair;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import java.security.InvalidKeyException;
 import java.sql.*;
 import java.util.Arrays;
 import java.util.List;
@@ -22,6 +25,7 @@ import java.util.Optional;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ControllerTest {
 
+    SecurityPassword securityPassword;
     String url = ApplicationContext.getProperty("network.database.url");
     String user = ApplicationContext.getProperty("network.database.user");
     String password = ApplicationContext.getProperty("network.database.password");
@@ -43,6 +47,7 @@ public class ControllerTest {
 
     public NetworkController getNetworkController() {
         if(testNetworkController == null) {
+            securityPassword = new SecurityPassword();
             testFriendshipRepository = new FriendshipDatabaseRepository(url,user,password);
             testFriendRequestRepository = new FriendRequestDatabaseRepository(url,user,password);
             testMessageRepository = new MessageDTODatabaseRepository(url,user,password);
@@ -53,12 +58,13 @@ public class ControllerTest {
             testNetworkService = new NetworkService(testFriendshipRepository,testFriendRequestRepository,
                     testUserRepository,testFriendshipValidator);
             testMessageService = new MessageService(testUserRepository,testMessageRepository);
-            testAuthentificationService = new AuthentificationService(testAutentificationRepository,testAuthentificationValidator);
+            testAuthentificationService = new AuthentificationService(testAutentificationRepository,
+                    testAuthentificationValidator,securityPassword);
             testFriendRequestService = new FriendRequestService(testFriendRequestRepository,testFriendshipRepository,
                     testFriendRequestValidator);
 
             testNetworkController = new NetworkController(testUserService,testNetworkService
-                    ,testMessageService,testAuthentificationService,testFriendRequestService);
+                    ,testMessageService,testAuthentificationService,testFriendRequestService,securityPassword);
         }
         return testNetworkController;
     }
@@ -184,7 +190,7 @@ public class ControllerTest {
     }
 
     @Test
-    void signUpTest(){
+    void signUpTest() throws IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
         Assertions.assertTrue(getNetworkController().
                 signUp("Naruto","Uzumaky","naruzu","casa"));
         Assertions.assertFalse(getNetworkController()
@@ -192,7 +198,7 @@ public class ControllerTest {
     }
 
     @Test
-    void logInTest(){
+    void logInTest() throws IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
         Assertions.assertTrue(getNetworkController().
                 signUp("Naruto","Uzumaky","naruzu","casa"));
         Assertions.assertEquals(new User("Naruto","Uzumaky","naruzu"),

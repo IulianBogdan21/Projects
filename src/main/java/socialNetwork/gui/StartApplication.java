@@ -21,6 +21,7 @@ import java.io.IOException;
 public class StartApplication extends Application {
     @Override
     public void start(Stage stage) throws IOException {
+        SecurityPassword securityPassword = new SecurityPassword();
         String url = ApplicationContext.getProperty("socialnetwork.database.url");
         String user = ApplicationContext.getProperty("socialnetwork.database.user");
         String password = ApplicationContext.getProperty("socialnetwork.database.password");
@@ -52,12 +53,12 @@ public class StartApplication extends Application {
                 userRepository,friendshipValidator);
         MessageService messageService = new MessageService(userRepository, messagesRepository);
         AuthentificationService authentificationService = new AuthentificationService(
-                autentificationRepository,autentificationValidator);
+                autentificationRepository,autentificationValidator,securityPassword);
         FriendRequestService friendRequestService = new FriendRequestService(friendRequestRepository,
                 friendshipRepository,friendRequesttValidator);
         NetworkController networkController =
                 new NetworkController(userService, networkService, messageService,
-                        authentificationService,friendRequestService);
+                        authentificationService,friendRequestService,securityPassword);
 
         FXMLLoader fxmlLoader = new FXMLLoader();
         fxmlLoader.setLocation(getClass().getResource("/socialNetwork.gui/loginView.fxml"));
