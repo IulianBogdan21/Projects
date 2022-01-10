@@ -17,10 +17,12 @@ import socialNetwork.service.*;
 import socialNetwork.utilitaries.UnorderedPair;
 
 import java.io.IOException;
+import java.time.Duration;
 
 public class StartApplication extends Application {
     @Override
     public void start(Stage stage) throws IOException {
+
         SecurityPassword securityPassword = new SecurityPassword();
         String url = ApplicationContext.getProperty("socialnetwork.database.url");
         String user = ApplicationContext.getProperty("socialnetwork.database.user");
@@ -47,6 +49,12 @@ public class StartApplication extends Application {
         EntityValidatorInterface<String,Autentification> autentificationValidator =
                 new AuthentificationValidator();
 
+        PagingRepository<Long,EventPublic> eventPublicPagingRepository =
+                new EventPublicDatabaseRepository(url,user,password);
+        PagingRepository<UnorderedPair<Long,Long>, DTOEventPublicUser> eventPublicUserPagingRepository =
+                new EventPublicUserBindingDatabaseRepository(url,user,password);
+        EventPublicValidator eventPublicValidator = new EventPublicValidator();
+
         UserService userService = new UserService(userRepository, friendshipRepository
                 ,friendRequestRepository,userValidator);
         NetworkService networkService = new NetworkService(friendshipRepository, friendRequestRepository,
@@ -56,9 +64,11 @@ public class StartApplication extends Application {
                 autentificationRepository,autentificationValidator,securityPassword);
         FriendRequestService friendRequestService = new FriendRequestService(friendRequestRepository,
                 friendshipRepository,friendRequesttValidator);
+        EventPublicService eventPublicService = new EventPublicService(eventPublicPagingRepository,
+                eventPublicUserPagingRepository,eventPublicValidator);
         NetworkController networkController =
                 new NetworkController(userService, networkService, messageService,
-                        authentificationService,friendRequestService,securityPassword);
+                        authentificationService,friendRequestService,eventPublicService,securityPassword);
 
         FXMLLoader fxmlLoader = new FXMLLoader();
         fxmlLoader.setLocation(getClass().getResource("/socialNetwork.gui/loginView.fxml"));

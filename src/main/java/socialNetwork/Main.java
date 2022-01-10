@@ -40,6 +40,12 @@ public class Main {
         EntityValidatorInterface<String,Autentification> autentificationValidator =
                 new AuthentificationValidator();
 
+        PagingRepository<Long,EventPublic> eventPublicPagingRepository =
+                new EventPublicDatabaseRepository(url,user,password);
+        PagingRepository<UnorderedPair<Long,Long>, DTOEventPublicUser> eventPublicUserPagingRepository =
+                new EventPublicUserBindingDatabaseRepository(url,user,password);
+        EventPublicValidator eventPublicValidator = new EventPublicValidator();
+
         UserService userService = new UserService(userRepository, friendshipRepository
                 ,friendRequestRepository,userValidator);
         NetworkService networkService = new NetworkService(friendshipRepository, friendRequestRepository,
@@ -49,9 +55,11 @@ public class Main {
                 autentificationRepository,autentificationValidator,securityPassword);
         FriendRequestService friendRequestService = new FriendRequestService(friendRequestRepository,
                 friendshipRepository,friendRequesttValidator);
+        EventPublicService eventPublicService = new EventPublicService(eventPublicPagingRepository,
+                eventPublicUserPagingRepository,eventPublicValidator);
         NetworkController networkController =
                 new NetworkController(userService, networkService, messageService,
-                        authentificationService,friendRequestService,securityPassword);
+                        authentificationService,friendRequestService,eventPublicService,securityPassword);
         ConsoleInterface ui = new ConsoleInterface(networkController);
         ui.run();
     }
