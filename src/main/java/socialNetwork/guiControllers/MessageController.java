@@ -364,6 +364,11 @@ public class MessageController implements Observer<Event> {
     }
 
     @FXML
+    public void switchToEventsViewFromUserScene(ActionEvent event) throws IOException{
+        SceneSwitcher.switchToEventsScene(event, getClass(), networkController, rootPageUser, displayStage);
+    }
+
+    @FXML
     public void enableAllButtonsAndClearSelection(){
         usersListView.getSelectionModel().clearSelection();
 

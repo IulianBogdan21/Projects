@@ -245,6 +245,11 @@ public class ReportsController implements Observer<Event> {
     }
 
     @FXML
+    public void switchToEventsViewFromUserScene(ActionEvent event) throws IOException{
+        SceneSwitcher.switchToEventsScene(event, getClass(), networkController, rootPage, displayStage);
+    }
+
+    @FXML
     public void disableButtonsWhenSendingRequest(){
         if(usersListView.getSelectionModel().getSelectedItem() != null){
             addFriendshipButton.setDisable(false);

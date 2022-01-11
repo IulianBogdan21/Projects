@@ -4,14 +4,11 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.geometry.Orientation;
-import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.shape.Polygon;
 import javafx.stage.Stage;
-import javafx.scene.control.ListView;
 import socialNetwork.controllers.NetworkController;
 import socialNetwork.domain.models.PageUser;
 import socialNetwork.domain.models.User;
@@ -26,37 +23,24 @@ import socialNetwork.utilitaries.observer.Observer;
 import java.io.IOException;
 import java.util.List;
 
+public class EventsController implements Observer<Event>{
 
-public class UserViewController implements Observer<Event> {
     ObservableList<User> modelFriends = FXCollections.observableArrayList();
     ObservableList<User> modelSearchFriends = FXCollections.observableArrayList();
 
     @FXML
     AnchorPane mainAnchorPane;
     @FXML
-    ListView<User> listViewOfFriends;
-    @FXML
     ListView<User> usersListView;
-    @FXML
-    Button deleteFriendshipButton;
-    @FXML
-    Button addFriendshipButton;
     @FXML
     Button friendRequestButton;
     @FXML
+    Button requestFriendshipButton;
+    @FXML
     TextField searchFriendshipField;
-    @FXML
-    Label friendsLabel;
-    @FXML
-    Label friendRequestsLabel;
-    @FXML
-    Label messagesLabel;
     @FXML
     Polygon triangleAuxiliaryLabel;
     ScrollBar scrollBarListViewOfFriends;
-    @FXML
-    Label reportsLabel;
-
 
     NetworkController networkController;
     PageUser rootPage;
@@ -79,7 +63,6 @@ public class UserViewController implements Observer<Event> {
 
     @FXML
     public void initialize(){
-        ListViewInitialize.createListViewWithUser(listViewOfFriends, modelFriends);
         ListViewInitialize.createListViewWithUser(usersListView, modelSearchFriends);
         searchFriendshipField.textProperty().addListener(o -> handleFilterInUserController());
         //scrollBarListViewOfFriends = getListViewScrollBar(listViewOfFriends);
@@ -87,7 +70,7 @@ public class UserViewController implements Observer<Event> {
 
     @Override
     public void update(Event event) {
-        if(event instanceof FriendshipChangeEvent)
+        if (event instanceof FriendshipChangeEvent)
             initModelFriends();
     }
 
@@ -97,20 +80,13 @@ public class UserViewController implements Observer<Event> {
     }
 
     @FXML
-    public void handleFriendshipDelete(){
+    public void enableAllButtonsAndClearSelection(){
 
-        User mainUser = rootPage.getRoot();
-        if(listViewOfFriends.getSelectionModel().getSelectedItem() != null){
-            User user = listViewOfFriends.getSelectionModel().getSelectedItem();
-            Long idFirstUser = mainUser.getId();
-            Long idSecondUser =  user.getId();
-            networkController.removeFriendship(idFirstUser,idSecondUser);
-            MessageAlert.showMessage(displayStage, Alert.AlertType.INFORMATION,
-                    "Delete Friendship","The Friendship has been deleted successfully!");
-        }
-        else{
-            MessageAlert.showErrorMessage(displayStage,"There is no selection!");
-        }
+    }
+
+    @FXML
+    public void disableDeleteFriendship(){
+
     }
 
     @FXML
@@ -129,7 +105,7 @@ public class UserViewController implements Observer<Event> {
     }
 
     @FXML
-    public void switchToMessagesViewSceneFromUserScene(ActionEvent event) throws IOException{
+    public void switchToMessagesViewSceneFromUserScene(ActionEvent event) throws IOException {
         SceneSwitcher.switchToMessageScene(event, getClass(), networkController, rootPage, displayStage);
     }
 
@@ -141,29 +117,6 @@ public class UserViewController implements Observer<Event> {
     @FXML
     public void switchToEventsViewFromUserScene(ActionEvent event) throws IOException{
         SceneSwitcher.switchToEventsScene(event, getClass(), networkController, rootPage, displayStage);
-    }
-
-    @FXML
-    public void disableAddFriendship(){
-        if(listViewOfFriends.getSelectionModel().getSelectedItem() != null){
-            addFriendshipButton.setDisable(true);
-            deleteFriendshipButton.setDisable(false);
-        }
-    }
-
-    @FXML
-    public void disableDeleteFriendship(){
-        if(usersListView.getSelectionModel().getSelectedItem() != null){
-            addFriendshipButton.setDisable(false);
-            deleteFriendshipButton.setDisable(true);
-        }
-    }
-
-    @FXML
-    public void enableAllButtonsAndClearSelection(){
-        addFriendshipButton.setDisable(false);
-        deleteFriendshipButton.setDisable(false);
-        listViewOfFriends.getSelectionModel().clearSelection();
     }
 
     @FXML
@@ -180,5 +133,4 @@ public class UserViewController implements Observer<Event> {
     private void handleFilterInUserController(){
         ListViewInitialize.handleFilter(networkController, rootPage, searchFriendshipField, modelSearchFriends);
     }
-
 }
