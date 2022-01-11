@@ -41,9 +41,8 @@ public class EventPublicUserBindingDatabaseRepository
             ResultSet resultSet = findStatement.executeQuery();
             if( resultSet.next() == false )
                 return Optional.empty();
-            LocalDateTime lastDateNotify = resultSet.getTimestamp("lastDateNotify").toLocalDateTime();
             EventNotification receiveNotification = EventNotification.valueOf(resultSet.getString("receiveNotification"));
-            DTOEventPublicUser dtoEventPublicUser = new DTOEventPublicUser(idUser,idEventPublic,lastDateNotify,receiveNotification);
+            DTOEventPublicUser dtoEventPublicUser = new DTOEventPublicUser(idUser,idEventPublic,receiveNotification);
             return Optional.of(dtoEventPublicUser);
         } catch (SQLException throwables) {
             throw  new DatabaseException(throwables.getMessage());
@@ -81,13 +80,12 @@ public class EventPublicUserBindingDatabaseRepository
     public Optional<DTOEventPublicUser> save(DTOEventPublicUser entityToSave) {
         try(Connection connection = DriverManager.getConnection(url,user,password);
             PreparedStatement saveStatement = connection.prepareStatement(
-                    "insert into eventPublicUser(idUser,idEventPublic,lastDateNotify,receiveNotification) " +
-                            "values (?,?,?,?) ");
+                    "insert into eventPublicUser(idUser,idEventPublic,receiveNotification) " +
+                            "values (?,?,?) ");
             ) {
             saveStatement.setLong(1,entityToSave.getIdUser());
             saveStatement.setLong(2,entityToSave.getIdEventPublic());
-            saveStatement.setTimestamp(3, Timestamp.valueOf(entityToSave.getLastDateNotify()));
-            saveStatement.setString(4 , String.valueOf(entityToSave.getReceivedNotification()) );
+            saveStatement.setString(3 , String.valueOf(entityToSave.getReceivedNotification()) );
             int rows = saveStatement.executeUpdate();
             if( rows == 0 )
                 return Optional.of(entityToSave);

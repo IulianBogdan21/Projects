@@ -29,6 +29,7 @@ import socialNetwork.utilitaries.SceneSwitcher;
 import socialNetwork.utilitaries.UsersSearchProcess;
 import socialNetwork.utilitaries.events.Event;
 import socialNetwork.utilitaries.events.MessageChangeEvent;
+import socialNetwork.utilitaries.events.MessageChangeEventType;
 import socialNetwork.utilitaries.observer.Observer;
 
 import java.io.IOException;
@@ -96,6 +97,7 @@ public class MessageController implements Observer<Event> {
     Long idUserLastMessage = -1L;
 
     public void setNetworkController(Stage primaryStage, NetworkController service, PageUser rootPageUser){
+        System.out.println("Hai cu bubuseala " + service);
         this.networkController = service;
         networkController.getMessageService().addObserver(this);
         this.displayStage = primaryStage;
@@ -130,25 +132,29 @@ public class MessageController implements Observer<Event> {
         });
     }
 
+    private void updateActualChatWithMessages(Event event){
+//        MessageChangeEvent messageChangeEvent = (MessageChangeEvent) event;
+//        Message message = messageChangeEvent.getData().getMainMessage();
+//        MessageChangeEventType typeOfMessage = messageChangeEvent.getType();
+//
+//        if( typeOfMessage.equals(MessageChangeEventType.SEND) ) {
+//            User user = message.getFrom();
+//            if(  )
+//            putMessageInScrollPane("sent", message);
+//        }
+        System.out.println(rootPageUser.getRoot());
+        loadConversationForSpecificSchat();
+    }
+
     @Override
     public void update(Event event) {
         if(event instanceof MessageChangeEvent)
-            initModelChatsName();
+             updateActualChatWithMessages(event);
     }
 
-    @FXML
-    public void loadConversation(){
-        if(chatsNameListView.getSelectionModel().getSelectedItem() == null)
-            return;
-        if(firstTime) {
-            conversationScrollPane.setVisible(true);
-            welcomeMessageLabel.setVisible(false);
-            messageField.setVisible(true);
-            firstTime = false;
-        }
-        idUserLastMessage = -1L;
-        conversationVerticalBox.getChildren().clear();
-        chatConversation = chatsNameListView.getSelectionModel().getSelectedItem();
+    private void loadConversationForSpecificSchat(){
+        //conversationVerticalBox.getChildren().clear();
+        System.out.println("Cine vine pe aixi sa mi spuna: " + rootPageUser.getRoot() );
         conversationVerticalBox.heightProperty().addListener(new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
@@ -205,6 +211,22 @@ public class MessageController implements Observer<Event> {
             }
             j++;
         }
+    }
+
+    @FXML
+    public void loadConversation(){
+        if(chatsNameListView.getSelectionModel().getSelectedItem() == null)
+            return;
+        if(firstTime) {
+            conversationScrollPane.setVisible(true);
+            welcomeMessageLabel.setVisible(false);
+            messageField.setVisible(true);
+            firstTime = false;
+        }
+        idUserLastMessage = -1L;
+        conversationVerticalBox.getChildren().clear();
+        chatConversation = chatsNameListView.getSelectionModel().getSelectedItem();
+        loadConversationForSpecificSchat();
     }
 
     private void putMessageInScrollPane(String action, Message message){

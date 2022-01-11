@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import socialNetwork.domain.models.EventNotification;
+import socialNetwork.domain.models.EventPublic;
 import socialNetwork.domain.models.User;
 import socialNetwork.domain.validators.EventPublicValidator;
 import socialNetwork.exceptions.DatabaseException;
@@ -16,6 +17,7 @@ import socialNetwork.service.EventPublicService;
 
 import java.sql.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class EventPublicServiceTest {
     String url = ApplicationContext.getProperty("network.database.url");
@@ -121,7 +123,11 @@ public class EventPublicServiceTest {
         getService().subscribeEventPublicService(idUser,idEvent+2);
         getService().stopNotificationEventPublicService(idUser,idEvent+1);
 
-       // Duration duration = new Duration(10);
-       // getService().filterAllEventPublicForNotificationService(idUser,duration);
+
+        List<EventPublic> eventPublicList = getService()
+                .filterAllEventPublicForNotificationService(idUser,30L);
+        Assertions.assertEquals(2,eventPublicList.size());
+        Assertions.assertEquals("a1",eventPublicList.get(0).getDescription());
+        Assertions.assertEquals("c1",eventPublicList.get(1).getDescription());
     }
 }

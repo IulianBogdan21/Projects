@@ -72,18 +72,6 @@ public class UserViewController implements Observer<Event> {
         initModelFriends();
     }
 
-    private ScrollBar getListViewScrollBar(ListView<?> listView) {
-        ScrollBar scrollbar = null;
-        for (Node node : listView.lookupAll(".scroll-bar")) {
-            if (node instanceof ScrollBar) {
-                ScrollBar bar = (ScrollBar) node;
-                if (bar.getOrientation().equals(Orientation.VERTICAL)) {
-                    scrollbar = bar;
-                }
-            }
-        }
-        return scrollbar;
-    }
 
     private void initModelFriends(){
         List< User > friendListForUser = rootPage.getFriendList();
@@ -106,7 +94,7 @@ public class UserViewController implements Observer<Event> {
 
     @FXML
     public void handleScrollListViewFriends(ScrollEvent event){
-        System.out.println(event.getX() + " " +  event.getY());
+        //System.out.println(event.getX() + " " +  event.getY());
     }
 
     @FXML

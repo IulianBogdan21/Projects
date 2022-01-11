@@ -5,6 +5,7 @@ import socialNetwork.controllers.NetworkController;
 import socialNetwork.domain.models.*;
 import socialNetwork.domain.validators.*;
 import socialNetwork.exceptions.CorruptedDataException;
+import socialNetwork.gui.StartApplication;
 import socialNetwork.repository.database.*;
 import socialNetwork.repository.paging.PagingRepository;
 import socialNetwork.service.*;
@@ -62,5 +63,7 @@ public class Main {
                         authentificationService,friendRequestService,eventPublicService,securityPassword);
         ConsoleInterface ui = new ConsoleInterface(networkController);
         ui.run();
+        //StartApplication startApplication = new StartApplication();
+       // startApplication.main(args,networkController);
     }
 }

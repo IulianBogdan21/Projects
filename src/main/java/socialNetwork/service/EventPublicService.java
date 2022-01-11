@@ -45,7 +45,7 @@ public class EventPublicService {
 
     public Optional<DTOEventPublicUser> stopNotificationEventPublicService(Long idUser,Long idEventPublic){
         DTOEventPublicUser dtoEventPublicUserToUpdate = new DTOEventPublicUser
-                (idUser,idEventPublic,LocalDateTime.now(), EventNotification.REJECT);
+                (idUser,idEventPublic, EventNotification.REJECT);
         Optional<DTOEventPublicUser> dtoEventPublicUserUpdate = eventPublicUserPagingRepository
                 .update(dtoEventPublicUserToUpdate);
         return dtoEventPublicUserUpdate;
@@ -56,16 +56,10 @@ public class EventPublicService {
     Also return that event whose deadline is less than a given period of time
      */
     public List<EventPublic> filterAllEventPublicForNotificationService(Long idUser, Long days){
-        LocalDate thisMoment = LocalDate.now();
+        LocalDateTime thisMoment = LocalDateTime.now();
         Predicate<DTOEventPublicUser> predicate = dtoEventPublicUser -> {
-            LocalDateTime lastDateNotify = dtoEventPublicUser.getLastDateNotify();
-            Long years = ChronoUnit.YEARS.between(lastDateNotify,thisMoment);
-            Long months = ChronoUnit.MONTHS.between(lastDateNotify,thisMoment);
-            Long daysBetween = ChronoUnit.DAYS.between(lastDateNotify,thisMoment);
-            Long Sum = years*365 + 30*months + daysBetween;
             return dtoEventPublicUser.getIdUser().equals(idUser) &&
-                    dtoEventPublicUser.getReceivedNotification().equals(EventNotification.APPROVE) &&
-                    ( Sum.compareTo(days) <= 0 );
+                    dtoEventPublicUser.getReceivedNotification().equals(EventNotification.APPROVE);
         };
 
         List<EventPublic> eventPublicList = eventPublicUserPagingRepository.getAll()
@@ -75,6 +69,14 @@ public class EventPublicService {
                     Long idEventPublic = dtoEventPublicUser.getIdEventPublic();
                     EventPublic eventPublic = eventPublicPagingRepository.find(idEventPublic).get();
                     return eventPublic;
+                })
+                .filter(eventPublic -> {
+                    LocalDateTime dateOfEvent = eventPublic.getDate();
+                    Long years = ChronoUnit.YEARS.between(dateOfEvent,thisMoment);
+                    Long months = ChronoUnit.MONTHS.between(dateOfEvent,thisMoment);
+                    Long daysUntil = ChronoUnit.DAYS.between(dateOfEvent,thisMoment);
+                    daysUntil += months*30 + years*365;
+                    return  ( daysUntil.compareTo(days) <= 0 );
                 })
                 .toList();
         return eventPublicList;
