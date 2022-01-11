@@ -13,7 +13,9 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.shape.Polygon;
 import javafx.stage.Stage;
 import javafx.scene.control.ListView;
+import javafx.util.Callback;
 import socialNetwork.controllers.NetworkController;
+import socialNetwork.domain.models.FriendRequest;
 import socialNetwork.domain.models.PageUser;
 import socialNetwork.domain.models.User;
 import socialNetwork.utilitaries.ListViewInitialize;
@@ -63,6 +65,36 @@ public class UserViewController implements Observer<Event> {
     PageUser rootPage;
     Stage displayStage;
 
+    private int itemsPerPage(){
+        return 4;
+    }
+
+    private Node createPage(int pageIndex){
+        List<User> userList = networkController
+                .getNetworkService()
+                .getFriendshipsOnPageForUser(rootPage.getRoot().getId(),pageIndex)
+                .stream().toList();
+        modelFriends.setAll(userList);
+        return listViewOfFriends;
+    }
+
+    private void createPagination(){
+        networkController.getFriendRequestService().setPageSize( itemsPerPage() );
+        Pagination pagination = new Pagination(2);
+        pagination.setStyle("-fx-border-color:#036028;");
+        pagination.setPageFactory(new Callback<Integer, Node>() {
+            @Override
+            public Node call(Integer pageIndex) {
+                return createPage(pageIndex);
+            }
+        });
+        AnchorPane.setTopAnchor(pagination,100.0);
+        AnchorPane.setRightAnchor(pagination,100.0);
+        AnchorPane.setBottomAnchor(pagination,100.0);
+        AnchorPane.setLeftAnchor(pagination,100.0);
+        mainAnchorPane.getChildren().add(pagination);
+    }
+
     public void setNetworkController(Stage primaryStage, NetworkController service, PageUser rootPage){
         this.networkController = service;
         networkController.getNetworkService().addObserver(this);
@@ -83,6 +115,7 @@ public class UserViewController implements Observer<Event> {
         ListViewInitialize.createListViewWithUser(listViewOfFriends, modelFriends);
         ListViewInitialize.createListViewWithUser(usersListView, modelSearchFriends);
         searchFriendshipField.textProperty().addListener(o -> handleFilterInUserController());
+
         //scrollBarListViewOfFriends = getListViewScrollBar(listViewOfFriends);
     }
 

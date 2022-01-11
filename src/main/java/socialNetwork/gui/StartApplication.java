@@ -22,6 +22,7 @@ import java.time.Duration;
 
 public class StartApplication extends Application {
 
+    private static final int INSTANCES = 3;
     private static int thereMore = 0;
     private static NetworkController networkController = null;
 
@@ -92,23 +93,25 @@ public class StartApplication extends Application {
 //        LoginController loginController = fxmlLoader.getController();
 //        loginController.setNetworkController(stage, networkController);
 
-        try {
-            if(StartApplication.thereMore < 2) {
-                runAnotherApp(StartApplication.class);
+        for(int i = 0 ; i < INSTANCES ; i++) {
+            try {
+                if (StartApplication.thereMore < INSTANCES) {
+                    runAnotherApp(StartApplication.class);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
 
         //stage.show();
        // System.out.println("-----------------------------------------------");
-        try {
-            if(StartApplication.thereMore < 2) {
-                runAnotherApp(StartApplication.class);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+//        try {
+//            if(StartApplication.thereMore < 2) {
+//                runAnotherApp(StartApplication.class);
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
     }
 
     public void runAnotherApp(Class<? extends Application> anotherAppClass) throws Exception {
