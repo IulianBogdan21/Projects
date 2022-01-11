@@ -46,7 +46,7 @@ public class EventPublicService implements Observable< Event > {
         eventPublicValidator.validate(eventPublicToSave);
         Optional<EventPublic> eventPublicSave = eventPublicPagingRepository.save(eventPublicToSave);
         notifyObservers(new EventPublicChangeEvent(
-                EventPublicChangeEventType.ADD, eventPublicSave.get()));
+                EventPublicChangeEventType.ADD, eventPublicToSave));
         return eventPublicSave;
     }
 

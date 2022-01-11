@@ -484,9 +484,9 @@ public class MessageService implements Observable<Event> {
 
     @Override
     public void notifyObservers(Event event) {
-        System.out.println(observersMessage.get(0).getClass());
-        System.out.println(observersMessage.get(1).getClass());
-        System.out.println("Dimensiune : "+observersMessage.size());
+       // System.out.println(observersMessage.get(0).getClass());
+       // System.out.println(observersMessage.get(1).getClass());
+       // System.out.println("Dimensiune : "+observersMessage.size());
         observersMessage.forEach(obs -> obs.update(event));
     }
 
