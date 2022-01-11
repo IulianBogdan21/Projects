@@ -52,55 +52,57 @@
                   <Button fx:id="deleteFriendshipButton" layoutX="48.0" layoutY="154.0" mnemonicParsing="false" onAction="#handleFriendshipDelete" prefHeight="26.0" prefWidth="119.0" style="-fx-background-color: #d53939; -fx-background-radius: 15px;" text="Delete friendship" textFill="WHITE" />
                   <Button fx:id="addFriendshipButton" layoutX="48.0" layoutY="115.0" mnemonicParsing="false" onAction="#handleFriendshipRequestFromUserViewController" prefHeight="26.0" prefWidth="119.0" style="-fx-background-color: #d53939; -fx-background-radius: 15px;" text="Request friendship" textFill="WHITE" />
                </children></AnchorPane>
-            <Label fx:id="reportsLabel" layoutX="583.0" layoutY="14.0" prefHeight="18.0" prefWidth="45.0" text="Reports" textFill="GREY" visible="false" />
             <Line endX="1.399993896484375" endY="259.1999816894531" layoutX="225.0" layoutY="82.0" startX="-3.0517578125E-5" startY="-72.99999237060547" stroke="#d53939" />
-            <Label fx:id="friendsLabel" layoutX="430.0" layoutY="14.0" text="Friends" textFill="GREY" visible="false" />
-            <Label fx:id="friendRequestsLabel" layoutX="460.0" layoutY="14.0" text="Friend requests" textFill="GREY" visible="false" />
             <Polygon fx:id="triangleAuxiliaryLabel" fill="#d53939" layoutX="349.0" layoutY="-20.0" points="-9.399993896484375, 40.0, 8.600006103515625, 40.00000762939453, 0.199981689453125, 27.199981689453125" stroke="GREY" strokeType="INSIDE" visible="false" />
             <ListView fx:id="usersListView" layoutX="249.0" layoutY="20.0" onMouseClicked="#disableDeleteFriendship" prefHeight="268.0" prefWidth="200.0" style="-fx-border-color: #e17474;" visible="false" />
-            <Label fx:id="messagesLabel" layoutX="530.0" layoutY="14.0" text="Messages" textFill="GREY" visible="false" />
          </children>
       </AnchorPane>
       <HBox prefHeight="38.0" prefWidth="623.0">
          <children>
-            <Label prefHeight="18.0" prefWidth="74.0" text="Kage" textFill="#d53939">
+            <Label prefHeight="22.0" prefWidth="96.0" text="Kage" textFill="#d53939">
                <font>
                   <Font name="FontAwesome" size="20.0" />
                </font>
                <HBox.margin>
-                  <Insets left="40.0" top="7.0" />
+                  <Insets left="20.0" top="6.0" />
                </HBox.margin>
             </Label>
-            <TextField fx:id="searchFriendshipField" onMouseClicked="#setUsersListViewOnVisible" promptText="Search friend...">
+            <Button mnemonicParsing="false" onAction="#switchToUserViewSceneFromUserScene" prefHeight="34.0" prefWidth="85.0" style="-fx-background-color: transparent;" text="Friends">
+               <graphic>
+                  <FontAwesomeIconView glyphName="USER" size="20" wrappingWidth="15.085701942443848" />
+               </graphic>
                <HBox.margin>
-                  <Insets left="150.0" top="6.0" />
+                  <Insets left="5.0" />
+               </HBox.margin>
+            </Button>
+            <Button fx:id="friendRequestButton" mnemonicParsing="false" onAction="#switchToFriendshipRequestSceneFromUserScene" prefHeight="34.0" prefWidth="93.0" style="-fx-background-color: transparent;" text="Requests">
+               <HBox.margin>
+                  <Insets left="5.0" />
+               </HBox.margin>
+               <graphic>
+                  <FontAwesomeIconView glyphName="CHILD" size="20" text="" wrappingWidth="13.857143491506577" />
+               </graphic>
+            </Button>
+            <TextField fx:id="searchFriendshipField" onMouseClicked="#setUsersListViewOnVisible" prefHeight="26.0" prefWidth="145.0" promptText="Search friend...">
+               <HBox.margin>
+                  <Insets left="5.0" top="6.0" />
                </HBox.margin>
             </TextField>
-            <Button mnemonicParsing="false" onAction="#switchToUserViewSceneFromUserScene" onMouseEntered="#enableFriendsLabel" onMouseExited="#disableFriendsLabel" prefHeight="34.0" prefWidth="38.0" style="-fx-background-color: transparent;">
+            <Button alignment="CENTER_RIGHT" mnemonicParsing="false" onAction="#switchToMessagesViewSceneFromUserScene" prefHeight="34.0" prefWidth="107.0" style="-fx-background-color: transparent;" text="Messages">
                <graphic>
-                  <FontAwesomeIconView glyphName="USER" size="25" />
+                  <FontAwesomeIconView glyphName="ENVELOPE" size="20" />
                </graphic>
                <HBox.margin>
-                  <Insets left="10.0" />
+                  <Insets left="5.0" />
                </HBox.margin>
             </Button>
-            <Button fx:id="friendRequestButton" mnemonicParsing="false" onAction="#switchToFriendshipRequestSceneFromUserScene" onMouseEntered="#enableFriendRequestsLabel" onMouseExited="#disableFriendRequestsLabel" prefHeight="34.0" prefWidth="46.0" style="-fx-background-color: transparent;">
+            <Button alignment="CENTER_RIGHT" mnemonicParsing="false" onAction="#switchToReportsViewSceneFromUserScene" prefHeight="34.0" prefWidth="94.0" style="-fx-background-color: transparent;" text="Reports">
+               <graphic>
+                  <FontAwesomeIconView glyphName="FILE" size="20" />
+               </graphic>
                <HBox.margin>
-                  <Insets left="15.0" />
+                  <Insets left="5.0" />
                </HBox.margin>
-               <graphic>
-                  <FontAwesomeIconView glyphName="CHILD" size="25" text="" wrappingWidth="20.25710678100586" />
-               </graphic>
-            </Button>
-            <Button alignment="CENTER_RIGHT" mnemonicParsing="false" onAction="#switchToMessagesViewSceneFromUserScene" onMouseEntered="#enableMessagesLabel" onMouseExited="#disableMessagesLabel" prefHeight="34.0" prefWidth="51.0" style="-fx-background-color: transparent;">
-               <graphic>
-                  <FontAwesomeIconView glyphName="ENVELOPE" size="25" />
-               </graphic>
-            </Button>
-            <Button alignment="CENTER_RIGHT" mnemonicParsing="false" onAction="#switchToReportsViewSceneFromUserScene" onMouseEntered="#enableReportsLabel" onMouseExited="#disableReportsLabel" prefHeight="34.0" prefWidth="58.0" style="-fx-background-color: transparent;">
-               <graphic>
-                  <FontAwesomeIconView glyphName="FILE" size="25" />
-               </graphic>
             </Button>
          </children>
       </HBox>

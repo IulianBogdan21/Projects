@@ -3,7 +3,6 @@ package socialNetwork.guiControllers;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
@@ -172,46 +171,6 @@ public class UserViewController implements Observer<Event> {
         addFriendshipButton.setDisable(false);
         deleteFriendshipButton.setDisable(false);
         listViewOfFriends.getSelectionModel().clearSelection();
-    }
-
-    @FXML
-    public void enableFriendsLabel(){
-        friendsLabel.setVisible(true);
-    }
-
-    @FXML
-    public void enableFriendRequestsLabel(){
-        friendRequestsLabel.setVisible(true);
-    }
-
-    @FXML
-    public void enableMessagesLabel(){
-        messagesLabel.setVisible(true);
-    }
-
-    @FXML
-    public void enableReportsLabel(){
-        reportsLabel.setVisible(true);
-    }
-
-    @FXML
-    public void disableFriendsLabel(){
-        friendsLabel.setVisible(false);
-    }
-
-    @FXML
-    public void disableFriendRequestsLabel(){
-        friendRequestsLabel.setVisible(false);
-    }
-
-    @FXML
-    public void disableMessagesLabel(){
-        messagesLabel.setVisible(false);
-    }
-
-    @FXML
-    public void disableReportsLabel(){
-        reportsLabel.setVisible(false);
     }
 
     @FXML
