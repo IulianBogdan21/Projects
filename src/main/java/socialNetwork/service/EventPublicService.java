@@ -71,6 +71,10 @@ public class EventPublicService implements Observable< Event > {
         return dtoEventPublicUserUpdate;
     }
 
+    public Optional<EventPublic> findPublicEvent(Long idEvent){
+        return eventPublicPagingRepository.find(idEvent);
+    }
+
     /*
     return all events for which the user is subscribed and accept notifications from them
     Also return that event whose deadline is less than a given period of time
@@ -120,6 +124,16 @@ public class EventPublicService implements Observable< Event > {
                     return eventPublic;
                 }).toList();
         return  eventPublicList;
+    }
+
+    public List<DTOEventPublicUser> getAllEventsWithNotificationStatus(Long idUser){
+        Predicate<DTOEventPublicUser> predicate = dtoEventPublicUser -> {
+            return dtoEventPublicUser.getIdUser().equals(idUser);
+        };
+        return eventPublicUserPagingRepository.getAll()
+                .stream()
+                .filter(predicate)
+                .toList();
     }
 
     @Override

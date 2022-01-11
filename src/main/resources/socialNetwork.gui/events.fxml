@@ -49,10 +49,23 @@
                         </Label>
                         <Line endX="100.0" layoutX="110.0" layoutY="87.0" startX="-100.0" stroke="#d53939" />
                   <Button fx:id="requestFriendshipButton" layoutX="45.0" layoutY="103.0" mnemonicParsing="false" onAction="#handleFriendshipRequestFromUserViewController" prefHeight="26.0" prefWidth="138.0" style="-fx-background-radius: 15px; -fx-background-color: #d53939;" text="Request friendship" textFill="WHITE" />
+                  <Button fx:id="addEventButton" layoutX="45.0" layoutY="142.0" mnemonicParsing="false" onAction="#handleAddEvent" prefHeight="26.0" prefWidth="138.0" style="-fx-background-color: #d53939; -fx-background-radius: 15px;" text="Add event" textFill="WHITE" />
+                  <Button fx:id="subscribeToEventButton" layoutX="45.0" layoutY="181.0" mnemonicParsing="false" onAction="#subscribeToEventAction" prefHeight="26.0" prefWidth="138.0" style="-fx-background-radius: 15px; -fx-background-color: #d53939;" text="Subscribe to event" textFill="WHITE" />
                     </children></AnchorPane>
                 <Line endX="1.399993896484375" endY="259.1999816894531" layoutX="225.0" layoutY="82.0" startX="-3.0517578125E-5" startY="-72.99999237060547" stroke="#d53939" />
-                <Polygon fx:id="triangleAuxiliaryLabel" fill="#d53939" layoutX="349.0" layoutY="-20.0" points="-9.399993896484375, 40.0, 8.600006103515625, 40.00000762939453, 0.199981689453125, 27.199981689453125" stroke="GREY" strokeType="INSIDE" visible="false" />
-                <ListView fx:id="usersListView" layoutX="249.0" layoutY="20.0" onMouseClicked="#disableDeleteFriendship" prefHeight="268.0" prefWidth="200.0" style="-fx-border-color: #e17474;" visible="false" />
+            <Line endX="-100.00003051757812" endY="241.80001831054688" layoutX="523.0" layoutY="69.0" startX="-100.00003051757812" startY="-58.99999237060547" stroke="#d53939" />
+            <Label alignment="CENTER" layoutX="232.0" layoutY="33.0" prefHeight="26.0" prefWidth="175.0" text="Other events" textFill="#d53939">
+               <font>
+                  <Font size="20.0" />
+               </font>
+            </Label>
+            <ListView fx:id="unsubscribedEventsListView" layoutX="233.0" layoutY="67.0" onMousePressed="#disableWhenSelectFromUnsubscribedTable" prefHeight="244.0" prefWidth="184.0" style="-fx-border-color: #d53939;" />
+            <Label alignment="CENTER" layoutX="438.0" layoutY="32.0" prefHeight="26.0" prefWidth="175.0" text="Subscribed events" textFill="#d53939">
+               <font>
+                  <Font size="20.0" />
+               </font>
+            </Label>
+            <ListView fx:id="subscribedEventsListView" layoutX="429.0" layoutY="68.0" prefHeight="244.0" prefWidth="194.0" style="-fx-border-color: d53939;" />
             </children>
         </AnchorPane>
         <HBox prefHeight="38.0" prefWidth="623.0">
@@ -112,5 +125,7 @@
             </Button>
             </children>
         </HBox>
+          <ListView fx:id="usersListView" layoutX="230.0" layoutY="60.0" onMouseClicked="#disableDeleteFriendship" prefHeight="268.0" prefWidth="200.0" style="-fx-border-color: #e17474;" visible="false" />
+          <Polygon fx:id="triangleAuxiliaryLabel" fill="#d53939" layoutX="340.0" layoutY="18.0" points="-9.399993896484375, 40.0, 8.600006103515625, 40.00000762939453, 0.199981689453125, 27.199981689453125" stroke="GREY" strokeType="INSIDE" visible="false" />
     </children>
 </AnchorPane>

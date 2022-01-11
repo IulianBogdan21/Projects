@@ -1,17 +1,11 @@
 package socialNetwork.utilitaries;
 
 import javafx.collections.ObservableList;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import socialNetwork.controllers.NetworkController;
-import socialNetwork.domain.models.Chat;
-import socialNetwork.domain.models.PageUser;
-import socialNetwork.domain.models.Message;
-import socialNetwork.domain.models.User;
+import socialNetwork.domain.models.*;
 
 import java.util.List;
 import java.util.function.Predicate;
@@ -53,6 +47,59 @@ public class ListViewInitialize {
                 }
                 else{
                     setText(item.getText());
+                }
+            }
+        });
+    }
+
+    public static void createListViewWithEvent(ListView<EventPublic> listView, ObservableList<EventPublic> modelEvents){
+        listView.setItems(modelEvents);
+        listView.setCellFactory(u -> new ListCell<EventPublic>(){
+            @Override
+            protected void updateItem(EventPublic item, boolean empty){
+                super.updateItem(item, empty);
+                if(empty){
+                    setText(null);
+                }
+                else{
+                    setText(item.getName() + " - " + item.getDescription() + " - " + "taking place at " + item.getDate());
+                }
+            }
+        });
+    }
+
+    public static void createListViewWithDtoEvent(ListView<DTOEventPublicUser> listView,
+                                                  ObservableList<DTOEventPublicUser> modelEvents,
+                                                  PageUser rootPage){
+        listView.setItems(modelEvents);
+        listView.setCellFactory(u -> new ListCell<DTOEventPublicUser>(){
+            private Button myButton = new Button("");
+            {
+                DTOEventPublicUser item = getItem();
+                if(item.getReceivedNotification().equals(EventNotification.APPROVE))
+                    myButton.setText("On");
+                else
+                    myButton.setText("Off");
+                myButton.setOnAction(evt -> {
+                    if(myButton.getText().equals("On")) {
+                        rootPage.getNetworkController().stopNotificationEventPublic(item.getIdUser(), item.getIdEventPublic());
+                        myButton.setText("Off");
+                    }
+                });
+            }
+
+            @Override
+            protected void updateItem(DTOEventPublicUser item, boolean empty){
+                super.updateItem(item, empty);
+                if(item == null){
+                    setGraphic(null);
+                    setText("");
+                }
+                else{
+                    setGraphic(myButton);
+                    EventPublic publicEvent =
+                            rootPage.getNetworkController().getPublicEventWithId(item.getIdEventPublic()).get();
+                    setText(publicEvent.getName() + " - " + publicEvent.getDescription() + " - taking place at " + publicEvent.getDate());
                 }
             }
         });
