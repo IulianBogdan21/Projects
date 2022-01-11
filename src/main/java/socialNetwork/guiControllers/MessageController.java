@@ -10,6 +10,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.effect.Lighting;
 import javafx.scene.input.KeyCode;
@@ -53,12 +54,6 @@ public class MessageController implements Observer<Event> {
     @FXML
     TextField searchFriendshipField;
     @FXML
-    Label friendsLabel;
-    @FXML
-    Label friendRequestsLabel;
-    @FXML
-    Label messagesLabel;
-    @FXML
     Polygon triangleAuxiliaryLabel;
     @FXML
     FontAwesomeIconView newPersonConversationIcon;
@@ -88,8 +83,6 @@ public class MessageController implements Observer<Event> {
     Label welcomeMessageLabel;
     @FXML
     AnchorPane conversationAnchorPane;
-    @FXML
-    Label reportsLabel;
 
     NetworkController networkController;
     PageUser rootPageUser;
@@ -166,6 +159,8 @@ public class MessageController implements Observer<Event> {
         User root = rootPageUser.getRoot();
         List<Message> chatMessages = chatConversation.getMessageList();
         List<ReplyMessage> chatReplyMessages = chatConversation.getReplyMessageList();
+        //chatMessages.forEach(c -> System.out.println(c.getId() + " " + c.getText()));
+        //chatReplyMessages.forEach(c -> System.out.println(c.getId() + " " + c.getText()));
         int i = 0, j = 0;
         int n = chatMessages.size();
         int m = chatReplyMessages.size();
@@ -325,6 +320,7 @@ public class MessageController implements Observer<Event> {
 
 
         networkController.sendMessages(idUserFrom,idTo,text);
+        // ??? se pierde id-ul la mesaj
         Message message = new Message(rootPageUser.getRoot(), to , text);
         //conversationVerticalBox is the same with the selected chat
         putMessageInScrollPane("sent",message);
@@ -371,49 +367,14 @@ public class MessageController implements Observer<Event> {
     }
 
     @FXML
+    public void switchToEventsViewFromUserScene(ActionEvent event) throws IOException{
+        SceneSwitcher.switchToEventsScene(event, getClass(), networkController, rootPageUser, displayStage);
+    }
+
+    @FXML
     public void enableAllButtonsAndClearSelection(){
         usersListView.getSelectionModel().clearSelection();
 
-    }
-
-    @FXML
-    public void enableFriendsLabel(){
-        friendsLabel.setVisible(true);
-    }
-
-    @FXML
-    public void enableFriendRequestsLabel(){
-        friendRequestsLabel.setVisible(true);
-    }
-
-    @FXML
-    public void enableMessagesLabel(){
-        messagesLabel.setVisible(true);
-    }
-
-    @FXML
-    public void enableReportsLabel(){
-        reportsLabel.setVisible(true);
-    }
-
-    @FXML
-    public void disableReportsLabel(){
-        reportsLabel.setVisible(false);
-    }
-
-    @FXML
-    public void disableFriendsLabel(){
-        friendsLabel.setVisible(false);
-    }
-
-    @FXML
-    public void disableFriendRequestsLabel(){
-        friendRequestsLabel.setVisible(false);
-    }
-
-    @FXML
-    public void disableMessagesLabel(){
-        messagesLabel.setVisible(false);
     }
 
     @FXML

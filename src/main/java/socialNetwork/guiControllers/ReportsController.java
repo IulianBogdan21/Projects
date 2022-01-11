@@ -15,7 +15,6 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
-import org.w3c.dom.ls.LSOutput;
 import socialNetwork.controllers.NetworkController;
 import socialNetwork.domain.models.*;
 import socialNetwork.utilitaries.ListViewInitialize;
@@ -28,7 +27,6 @@ import socialNetwork.utilitaries.events.Event;
 
 import java.io.File;
 import java.io.IOException;
-import java.security.PublicKey;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,15 +52,7 @@ public class ReportsController implements Observer<Event> {
     @FXML
     TextField searchFriendshipField;
     @FXML
-    Label friendsLabel;
-    @FXML
-    Label friendRequestsLabel;
-    @FXML
-    Label messagesLabel;
-    @FXML
     Polygon triangleAuxiliaryLabel;
-    @FXML
-    Label reportsLabel;
     @FXML
     Button messagesReceivedPdfButton;
     @FXML
@@ -255,6 +245,11 @@ public class ReportsController implements Observer<Event> {
     }
 
     @FXML
+    public void switchToEventsViewFromUserScene(ActionEvent event) throws IOException{
+        SceneSwitcher.switchToEventsScene(event, getClass(), networkController, rootPage, displayStage);
+    }
+
+    @FXML
     public void disableButtonsWhenSendingRequest(){
         if(usersListView.getSelectionModel().getSelectedItem() != null){
             addFriendshipButton.setDisable(false);
@@ -318,46 +313,6 @@ public class ReportsController implements Observer<Event> {
         firstDatePicker.setValue(null);
         secondDatePicker.setValue(null);
         userActivitiesButton.setDisable(false);
-    }
-
-    @FXML
-    public void enableFriendsLabel(){
-        friendsLabel.setVisible(true);
-    }
-
-    @FXML
-    public void enableFriendRequestsLabel(){
-        friendRequestsLabel.setVisible(true);
-    }
-
-    @FXML
-    public void enableMessagesLabel(){
-        messagesLabel.setVisible(true);
-    }
-
-    @FXML
-    public void enableReportsLabel(){
-        reportsLabel.setVisible(true);
-    }
-
-    @FXML
-    public void disableFriendsLabel(){
-        friendsLabel.setVisible(false);
-    }
-
-    @FXML
-    public void disableFriendRequestsLabel(){
-        friendRequestsLabel.setVisible(false);
-    }
-
-    @FXML
-    public void disableMessagesLabel(){
-        messagesLabel.setVisible(false);
-    }
-
-    @FXML
-    public void disableReportsLabel(){
-        reportsLabel.setVisible(false);
     }
 
     @FXML

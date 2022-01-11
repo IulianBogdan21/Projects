@@ -349,4 +349,12 @@ public class NetworkController {
                 .getAllEventPublicForSpecifiedUserService(idUser);
         return eventPublicList;
     }
+
+    public List<DTOEventPublicUser> getAllPublicEventsWithNotifications(Long idUser){
+        return eventPublicService.getAllEventsWithNotificationStatus(idUser);
+    }
+
+    public Optional<EventPublic> getPublicEventWithId(Long idEvent){
+        return eventPublicService.findPublicEvent(idEvent);
+    }
 }
