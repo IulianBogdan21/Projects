@@ -32,6 +32,7 @@ public class LoginController {
     Stage stage;
 
     public void setNetworkController(Stage primaryStage, NetworkController service){
+       // System.out.println(service);
         networkController = service;
         stage = primaryStage;
     }

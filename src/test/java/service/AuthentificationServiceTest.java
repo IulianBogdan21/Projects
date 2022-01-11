@@ -77,8 +77,8 @@ public class AuthentificationServiceTest {
                 .saveAuthentificationService("razvan","upup"));
 
         Autentification authentification2 = new Autentification("andrei","copac");
-        Assertions.assertEquals(Optional.of(authentification2),getAuthentificationService()
-                .saveAuthentificationService("andrei","copac"));
+        Assertions.assertEquals(authentification2.getUsername(),getAuthentificationService()
+                .saveAuthentificationService("andrei","copac").get().getUsername());
     }
 
     @Test
@@ -88,10 +88,10 @@ public class AuthentificationServiceTest {
         getAuthentificationService().saveAuthentificationService("andrei","casa");
         getAuthentificationService().saveAuthentificationService("razvan","upup");
 
-        Assertions.assertEquals(Optional.of(authentification0),
-                getAuthentificationService().findAuthentificationService("andrei"));
-        Assertions.assertEquals(Optional.of(authentification1),
-                getAuthentificationService().findAuthentificationService("razvan"));
+        Assertions.assertEquals(authentification0.getUsername(),
+                getAuthentificationService().findAuthentificationService("andrei").get().getUsername());
+        Assertions.assertEquals(authentification1.getUsername(),
+                getAuthentificationService().findAuthentificationService("razvan").get().getUsername());
         Assertions.assertEquals(Optional.empty(),
                 getAuthentificationService().findAuthentificationService("upupdown"));
     }
@@ -104,8 +104,10 @@ public class AuthentificationServiceTest {
         getAuthentificationService().saveAuthentificationService("razvan","upup");
 
         List<Autentification> autentificationList = getAuthentificationService().getAllAuthentificationService();
-        Assertions.assertEquals(Optional.of(authentification0).get(),autentificationList.get(0));
-        Assertions.assertEquals(Optional.of(authentification1).get(),autentificationList.get(1));
+        Assertions.assertEquals(Optional.of(authentification0).get().getUsername(),
+                autentificationList.get(0).getUsername());
+        Assertions.assertEquals(Optional.of(authentification1).get().getUsername(),
+                autentificationList.get(1).getUsername());
         Assertions.assertEquals(2,autentificationList.size());
     }
 }
