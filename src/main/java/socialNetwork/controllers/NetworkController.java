@@ -338,4 +338,15 @@ public class NetworkController {
                 .filterAllEventPublicForNotificationService(idUser,days);
         return eventPublicList;
     }
+
+    public List<EventPublic> getAllEventPublic(){
+        List <EventPublic> eventPublicList = eventPublicService.getAllEventPublicService();
+        return eventPublicList;
+    }
+
+    public List<EventPublic> getAllEventPublicForSpecifiedUser(Long idUser){
+        List<EventPublic> eventPublicList = eventPublicService
+                .getAllEventPublicForSpecifiedUserService(idUser);
+        return eventPublicList;
+    }
 }

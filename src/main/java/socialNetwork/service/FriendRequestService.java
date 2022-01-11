@@ -228,7 +228,7 @@ public class FriendRequestService implements Observable<Event> {
         this.pageable = pageable;
     }
 
-    public Set<FriendRequest> getNextMessages(){
+    public Set<FriendRequest> getNextFriendRequests(){
         this.pageNumber++;
         return getFriendRequestsOnPage(this.pageNumber);
     }
