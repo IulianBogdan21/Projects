@@ -130,4 +130,19 @@ public class EventPublicServiceTest {
         Assertions.assertEquals("a1",eventPublicList.get(0).getDescription());
         Assertions.assertEquals("c1",eventPublicList.get(1).getDescription());
     }
+
+    @Test
+    void testEventPublicForUser(){
+        Long idUser = getMiniUserID();
+        Long idEvent = getMiniEventID();
+        getService().subscribeEventPublicService(idUser,idEvent);
+        getService().subscribeEventPublicService(idUser,idEvent+1);
+        getService().subscribeEventPublicService(idUser,idEvent+2);
+        getService().stopNotificationEventPublicService(idUser,idEvent+1);
+
+
+        List<EventPublic> eventPublicList = getService()
+                .getAllEventPublicForSpecifiedUserService(idUser);
+        Assertions.assertEquals(3,eventPublicList.size());
+    }
 }
