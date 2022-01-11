@@ -22,7 +22,7 @@ import java.time.Duration;
 
 public class StartApplication extends Application {
 
-    private static final int INSTANCES = 3;
+    private static final int INSTANCES = 2;
     private static int thereMore = 0;
     private static NetworkController networkController = null;
 

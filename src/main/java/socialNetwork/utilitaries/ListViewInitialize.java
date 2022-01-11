@@ -73,20 +73,6 @@ public class ListViewInitialize {
                                                   PageUser rootPage){
         listView.setItems(modelEvents);
         listView.setCellFactory(u -> new ListCell<DTOEventPublicUser>(){
-            private Button myButton = new Button("");
-            {
-                DTOEventPublicUser item = getItem();
-                if(item.getReceivedNotification().equals(EventNotification.APPROVE))
-                    myButton.setText("On");
-                else
-                    myButton.setText("Off");
-                myButton.setOnAction(evt -> {
-                    if(myButton.getText().equals("On")) {
-                        rootPage.getNetworkController().stopNotificationEventPublic(item.getIdUser(), item.getIdEventPublic());
-                        myButton.setText("Off");
-                    }
-                });
-            }
 
             @Override
             protected void updateItem(DTOEventPublicUser item, boolean empty){
@@ -96,6 +82,20 @@ public class ListViewInitialize {
                     setText("");
                 }
                 else{
+                    Button myButton = new Button("");
+                    {
+                        if(item.getReceivedNotification().equals(EventNotification.APPROVE))
+                            myButton.setText("On");
+                        else
+                            myButton.setText("Off");
+                        myButton.setOnAction(evt -> {
+                            if(myButton.getText().equals("On")) {
+                                rootPage.getNetworkController().stopNotificationEventPublic(item.getIdUser(), item.getIdEventPublic());
+                                myButton.setText("Off");
+                            }
+                        });
+                    }
+
                     setGraphic(myButton);
                     EventPublic publicEvent =
                             rootPage.getNetworkController().getPublicEventWithId(item.getIdEventPublic()).get();

@@ -64,6 +64,10 @@ public class NetworkController {
         return messageService;
     }
 
+    public EventPublicService getEventPublicService() {
+        return eventPublicService;
+    }
+
     public AuthentificationService getAuthentificationService() {
         return authentificationService;
     }
