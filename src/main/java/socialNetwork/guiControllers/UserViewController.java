@@ -36,6 +36,10 @@ public class UserViewController implements Observer<Event> {
     @FXML
     AnchorPane mainAnchorPane;
     @FXML
+    AnchorPane secondAnchorPane;
+    @FXML
+    Pagination paginationListView;
+    @FXML
     ListView<User> listViewOfFriends;
     @FXML
     ListView<User> usersListView;
@@ -65,10 +69,10 @@ public class UserViewController implements Observer<Event> {
     Stage displayStage;
 
     private int itemsPerPage(){
-        return 4;
+        return 3;
     }
 
-    private Node createPage(int pageIndex){
+    private ListView<User> createPage(int pageIndex){
         List<User> userList = networkController
                 .getNetworkService()
                 .getFriendshipsOnPageForUser(rootPage.getRoot().getId(),pageIndex)
@@ -78,20 +82,18 @@ public class UserViewController implements Observer<Event> {
     }
 
     private void createPagination(){
-        networkController.getFriendRequestService().setPageSize( itemsPerPage() );
-        Pagination pagination = new Pagination(2);
-        pagination.setStyle("-fx-border-color:#036028;");
-        pagination.setPageFactory(new Callback<Integer, Node>() {
+        networkController.getNetworkService().setPageSize( itemsPerPage() );
+        int amountOfFriends = networkController.getNetworkService()
+                .getAllFriendshipForSpecifiedUserService(rootPage.getRoot().getId()).size();
+        int numberOfPages = amountOfFriends / itemsPerPage() +
+                ( amountOfFriends % itemsPerPage() != 0 ? 1 : 0 );
+        paginationListView.setPageCount(numberOfPages);
+        paginationListView.setPageFactory(new Callback<Integer, Node>() {
             @Override
             public Node call(Integer pageIndex) {
                 return createPage(pageIndex);
             }
         });
-        AnchorPane.setTopAnchor(pagination,100.0);
-        AnchorPane.setRightAnchor(pagination,100.0);
-        AnchorPane.setBottomAnchor(pagination,100.0);
-        AnchorPane.setLeftAnchor(pagination,100.0);
-        mainAnchorPane.getChildren().add(pagination);
     }
 
     public void setNetworkController(Stage primaryStage, NetworkController service, PageUser rootPage){
@@ -101,6 +103,7 @@ public class UserViewController implements Observer<Event> {
         this.rootPage = rootPage;
         rootPage.refresh(rootPage.getRoot().getUsername());
         initModelFriends();
+        createPagination();
     }
 
 
