@@ -10,7 +10,7 @@ public class Chat {
     private List<ReplyMessage> replyMessageList;
 
     public Chat(List<User> members, List<Message> messageList, List<ReplyMessage> replyMessageList) {
-        this.members = members;
+        this.members = sortMembersByID(members);
         this.messageList = sortMessagesByDate(messageList);;
         this.replyMessageList = sortReplyMessagesByDate(replyMessageList);
     }
@@ -68,6 +68,13 @@ public class Chat {
     @Override
     public int hashCode() {
         return Objects.hash(members, messageList, replyMessageList);
+    }
+
+    private List<User> sortMembersByID(List<User> userList){
+        return userList.stream()
+                .sorted((User X,User Y) -> {
+                    return X.getId().compareTo(Y.getId());
+                }).toList();
     }
 
     private List<Message> sortMessagesByDate(List<Message> messageList) {

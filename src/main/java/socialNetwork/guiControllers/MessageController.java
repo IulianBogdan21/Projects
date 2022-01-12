@@ -325,7 +325,7 @@ public class MessageController implements Observer<Event> {
 
 
         networkController.sendMessages(idUserFrom,idTo,text);
-        // ??? se pierde id-ul la mesaj
+        // !!! se pierde id-ul la mesaj
         Message message = new Message(rootPageUser.getRoot(), to , text);
         //conversationVerticalBox is the same with the selected chat
         putMessageInScrollPane("sent",message);
@@ -425,6 +425,7 @@ public class MessageController implements Observer<Event> {
                         .toList() );
         closeStartConversationWindow();
         members.add(rootPageUser.getRoot());
+
         if(checkIfChatExists(members, rootPageUser.getChatList()))
             return;
         Chat temporaryChat = new Chat(members,new ArrayList<Message>(), new ArrayList<ReplyMessage>());
