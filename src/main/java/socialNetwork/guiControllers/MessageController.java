@@ -36,6 +36,7 @@ import socialNetwork.utilitaries.observer.Observer;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class MessageController implements Observer<Event> {
     ObservableList<User> modelSearchFriends = FXCollections.observableArrayList();
@@ -90,7 +91,6 @@ public class MessageController implements Observer<Event> {
     Long idUserLastMessage = -1L;
 
     public void setNetworkController(Stage primaryStage, NetworkController service, PageUser rootPageUser){
-        System.out.println("Hai cu bubuseala " + service);
         this.networkController = service;
         networkController.getMessageService().addObserver(this);
         this.displayStage = primaryStage;
@@ -126,28 +126,30 @@ public class MessageController implements Observer<Event> {
     }
 
     private void updateActualChatWithMessages(Event event){
-//        MessageChangeEvent messageChangeEvent = (MessageChangeEvent) event;
-//        Message message = messageChangeEvent.getData().getMainMessage();
-//        MessageChangeEventType typeOfMessage = messageChangeEvent.getType();
-//
-//        if( typeOfMessage.equals(MessageChangeEventType.SEND) ) {
-//            User user = message.getFrom();
-//            if(  )
-//            putMessageInScrollPane("sent", message);
-//        }
-        System.out.println(rootPageUser.getRoot());
-        loadConversationForSpecificSchat();
+        MessageChangeEvent messageChangeEvent = (MessageChangeEvent) event;
+        MessageChangeEventType type = messageChangeEvent.getType();
+        Message message = messageChangeEvent.getData().getMainMessage();
+        User userThatSendMessage = message.getFrom();
+
+        if(type.equals(MessageChangeEventType.SEND) &&
+                !userThatSendMessage.getId().equals(rootPageUser.getRoot().getId())){
+
+            Map< List<User> , Chat > chatMap = rootPageUser.getChatMap();
+            chatConversation = chatMap.get(chatConversation.getMembers());
+            loadConversationForSpecificSchat();
+        }
+
     }
 
     @Override
     public void update(Event event) {
-        if(event instanceof MessageChangeEvent)
+        if(event instanceof MessageChangeEvent && chatConversation != null)
              updateActualChatWithMessages(event);
+        modelChatsName.setAll(rootPageUser.getChatList());
     }
 
     private void loadConversationForSpecificSchat(){
-        //conversationVerticalBox.getChildren().clear();
-        System.out.println("Cine vine pe aixi sa mi spuna: " + rootPageUser.getRoot() );
+        conversationVerticalBox.getChildren().clear();
         conversationVerticalBox.heightProperty().addListener(new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
@@ -221,6 +223,7 @@ public class MessageController implements Observer<Event> {
         idUserLastMessage = -1L;
         conversationVerticalBox.getChildren().clear();
         chatConversation = chatsNameListView.getSelectionModel().getSelectedItem();
+
         loadConversationForSpecificSchat();
     }
 
@@ -415,7 +418,6 @@ public class MessageController implements Observer<Event> {
                         .getSelectedItems()
                         .stream()
                         .toList() );
-        System.out.println(members);
         closeStartConversationWindow();
         members.add(rootPageUser.getRoot());
         if(checkIfChatExists(members, rootPageUser.getChatList()))

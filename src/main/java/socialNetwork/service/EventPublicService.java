@@ -71,6 +71,18 @@ public class EventPublicService implements Observable< Event > {
         return dtoEventPublicUserUpdate;
     }
 
+    public Optional<DTOEventPublicUser> turnOnNotificationEventPublicService(Long idUser, Long idEventPublic){
+        EventPublic eventPublicToTurnNotificationsOn = eventPublicPagingRepository.find(idEventPublic).get();
+        DTOEventPublicUser dtoEventPublicUser = new DTOEventPublicUser
+                (idUser, idEventPublic, EventNotification.APPROVE);
+        Optional<DTOEventPublicUser> dtoEventPublicUserUpdate = eventPublicUserPagingRepository
+                .update(dtoEventPublicUser);
+        notifyObservers(new EventPublicChangeEvent(
+                EventPublicChangeEventType.ADD, eventPublicToTurnNotificationsOn)
+        );
+        return dtoEventPublicUserUpdate;
+    }
+
     public Optional<EventPublic> findPublicEvent(Long idEvent){
         return eventPublicPagingRepository.find(idEvent);
     }

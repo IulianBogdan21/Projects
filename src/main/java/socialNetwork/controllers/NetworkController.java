@@ -64,6 +64,10 @@ public class NetworkController {
         return messageService;
     }
 
+    public EventPublicService getEventPublicService() {
+        return eventPublicService;
+    }
+
     public AuthentificationService getAuthentificationService() {
         return authentificationService;
     }
@@ -330,6 +334,12 @@ public class NetworkController {
     public Optional<DTOEventPublicUser> stopNotificationEventPublic(Long idUser, Long idEventPublic) {
         Optional<DTOEventPublicUser> dtoEventPublicUser = eventPublicService
                 .stopNotificationEventPublicService(idUser, idEventPublic);
+        return dtoEventPublicUser;
+    }
+
+    public Optional<DTOEventPublicUser> turnOnNotificationsEventPublic(Long idUser, Long idEventPublic) {
+        Optional<DTOEventPublicUser> dtoEventPublicUser = eventPublicService
+                .turnOnNotificationEventPublicService(idUser, idEventPublic);
         return dtoEventPublicUser;
     }
 

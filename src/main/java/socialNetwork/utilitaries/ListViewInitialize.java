@@ -1,12 +1,18 @@
 package socialNetwork.utilitaries;
 
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import javafx.collections.ObservableList;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
 import socialNetwork.controllers.NetworkController;
 import socialNetwork.domain.models.*;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -68,26 +74,33 @@ public class ListViewInitialize {
         });
     }
 
+    public static void createListViewWithNotification(ListView<EventPublic> listView, ObservableList<EventPublic> modelNotifications){
+        listView.setItems(modelNotifications);
+        listView.setCellFactory(u -> new ListCell<EventPublic>(){
+            @Override
+            protected void updateItem(EventPublic item, boolean empty){
+                super.updateItem(item, empty);
+                if(empty){
+                    setText(null);
+                }
+                else{
+                    LocalDateTime now = LocalDateTime.now();
+                    LocalDateTime eventTime = item.getDate();
+                    Duration duration = Duration.between(now, eventTime);
+                    long hoursDifference = Math.abs(duration.toHours());
+                    long days = hoursDifference / 24;
+                    long hours = (hoursDifference - days*24);
+                    setText("" + days + "d " + hours + "h until " + item.getName() + " begins");
+                }
+            }
+        });
+    }
+
     public static void createListViewWithDtoEvent(ListView<DTOEventPublicUser> listView,
                                                   ObservableList<DTOEventPublicUser> modelEvents,
                                                   PageUser rootPage){
         listView.setItems(modelEvents);
         listView.setCellFactory(u -> new ListCell<DTOEventPublicUser>(){
-           /* private Button myButton = new Button("");
-            {
-                DTOEventPublicUser item = getItem();
-                System.out.println(item);
-                if(item.getReceivedNotification().equals(EventNotification.APPROVE))
-                    myButton.setText("On");
-                else
-                    myButton.setText("Off");
-                myButton.setOnAction(evt -> {
-                    if(myButton.getText().equals("On")) {
-                        rootPage.getNetworkController().stopNotificationEventPublic(item.getIdUser(), item.getIdEventPublic());
-                        myButton.setText("Off");
-                    }
-                });
-            }*/
 
             @Override
             protected void updateItem(DTOEventPublicUser item, boolean empty){
@@ -97,24 +110,32 @@ public class ListViewInitialize {
                     setText("");
                 }
                 else{
+                     HBox hBox = new HBox();
+                     hBox.setAlignment(Pos.CENTER_LEFT);
                      Button myButton = new Button("");
-                    {
-                        System.out.println(item);
-                        if(item.getReceivedNotification().equals(EventNotification.APPROVE))
-                            myButton.setText("On");
-                        else
-                            myButton.setText("Off");
-                        myButton.setOnAction(evt -> {
-                            if(myButton.getText().equals("On")) {
-                                rootPage.getNetworkController().stopNotificationEventPublic(item.getIdUser(), item.getIdEventPublic());
-                                myButton.setText("Off");
-                            }
-                        });
-                    }
-                    setGraphic(myButton);
+                     FontAwesomeIconView fontAwesomeIconView = new FontAwesomeIconView(FontAwesomeIcon.BELL);
+                     myButton.setGraphic(fontAwesomeIconView);
+                     if(item.getReceivedNotification().equals(EventNotification.APPROVE))
+                         myButton.setText("On");
+                     else
+                         myButton.setText("Off");
+                     myButton.setOnAction(evt -> {
+                         if(myButton.getText().equals("On")) {
+                             rootPage.getNetworkController().stopNotificationEventPublic(item.getIdUser(), item.getIdEventPublic());
+                             myButton.setText("Off");
+                         }
+                         else{
+                             rootPage.getNetworkController().turnOnNotificationsEventPublic(item.getIdUser(), item.getIdEventPublic());
+                             myButton.setText("On");
+                         }
+                     });
                     EventPublic publicEvent =
                             rootPage.getNetworkController().getPublicEventWithId(item.getIdEventPublic()).get();
-                    setText(publicEvent.getName() + " - " + publicEvent.getDescription() + " - taking place at " + publicEvent.getDate());
+                    Label label = new Label(publicEvent.getName() + " - " + publicEvent.getDescription() + " - taking place at " + publicEvent.getDate());
+                    hBox.getChildren().addAll(label, myButton);
+                    //setText(publicEvent.getName() + " - " + publicEvent.getDescription() + " - taking place at " + publicEvent.getDate());
+                    //setGraphic(myButton);
+                    setGraphic(hBox);
                 }
             }
         });

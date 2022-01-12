@@ -18,6 +18,8 @@ import socialNetwork.domain.models.User;
 import socialNetwork.exceptions.ExceptionBaseClass;
 import socialNetwork.utilitaries.*;
 import socialNetwork.utilitaries.events.Event;
+import socialNetwork.utilitaries.events.EventPublicChangeEvent;
+import socialNetwork.utilitaries.events.EventPublicChangeEventType;
 import socialNetwork.utilitaries.events.FriendshipChangeEvent;
 import socialNetwork.utilitaries.observer.Observer;
 
@@ -61,20 +63,24 @@ public class EventsController implements Observer<Event>{
 
     public void setNetworkController(Stage primaryStage, NetworkController service, PageUser rootPage){
         this.networkController = service;
-        networkController.getNetworkService().addObserver(this);
+        networkController.getEventPublicService().addObserver(this);
         this.displayStage = primaryStage;
         this.rootPage = rootPage;
-        rootPage.refresh(rootPage.getRoot().getUsername());
         ListViewInitialize.createListViewWithEvent(unsubscribedEventsListView, modelEventsNotSubscribed);
         ListViewInitialize.createListViewWithDtoEvent(subscribedEventsListView, modelEventsSubscribed, rootPage);
-        initModelFriends();
-    }
 
+        rootPage.refresh(rootPage.getRoot().getUsername());
+        initModelFriends();
+        initModelEventPublic();
+    }
 
     private void initModelFriends(){
         List< User > friendListForUser = rootPage.getFriendList();
         modelFriends.setAll(friendListForUser);
 
+    }
+
+    private void initModelEventPublic(){
         List<EventPublic> publicEventsAll =
                 rootPage.getNetworkController().getAllEventPublic();
         List<EventPublic> publicSubscribedEvents =
@@ -102,6 +108,8 @@ public class EventsController implements Observer<Event>{
     public void update(Event event) {
         if (event instanceof FriendshipChangeEvent)
             initModelFriends();
+        if(event instanceof EventPublicChangeEvent)
+            initModelEventPublic();
     }
 
     @FXML

@@ -83,6 +83,10 @@ public class PageUser implements Observer<Event> {
                 .toList();
     }
 
+    public Map< List<User> , Chat> getChatMap(){
+        return chatMap;
+    }
+
     public void setChatMap(List<Chat> chatList) {
         chatMap.clear();
         chatList.forEach( chat -> chatMap.put(chat.getMembers() , chat));
