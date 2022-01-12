@@ -280,9 +280,13 @@ public class NetworkController {
                 .filter(user -> user.getUsername().equals(username))
                 .toList()
                 .get(0);
-        List<User> friendList = getAllFriendshipForSpecifiedUser(root.getId());
-        List<FriendRequest> friendRequestList = getAllFriendRequestForSpecifiedUser(root.getId());
-        List<Chat> chatList = getAllChatsSpecifiedUser(root.getId());
+//        List<User> friendList = getAllFriendshipForSpecifiedUser(root.getId());
+//        List<FriendRequest> friendRequestList = getAllFriendRequestForSpecifiedUser(root.getId());
+//        List<Chat> chatList = getAllChatsSpecifiedUser(root.getId());
+//        return new PageUser(root, friendList, friendRequestList, chatList, this);
+        List<User> friendList = new ArrayList<>();
+        List<FriendRequest> friendRequestList = new ArrayList<>();
+        List<Chat> chatList = new ArrayList<>();
         return new PageUser(root, friendList, friendRequestList, chatList, this);
     }
 

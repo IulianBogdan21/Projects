@@ -102,12 +102,17 @@ public class ReportsController implements Observer<Event> {
     PageUser rootPage;
     Stage displayStage;
 
+    private void refreshPage(){
+        RefreshPageUser refreshPageUser = new RefreshPageUser(false,false,false);
+        rootPage.refresh(rootPage.getRoot().getUsername(),refreshPageUser);
+    }
+
     public void setNetworkController(Stage primaryStage, NetworkController service, PageUser rootPage){
         this.networkController = service;
         networkController.getNetworkService().addObserver(this);
         this.displayStage = primaryStage;
         this.rootPage = rootPage;
-        rootPage.refresh(rootPage.getRoot().getUsername());
+        refreshPage();
         initModelFriends();
     }
 

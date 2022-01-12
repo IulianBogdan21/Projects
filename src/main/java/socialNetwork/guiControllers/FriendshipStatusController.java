@@ -66,12 +66,17 @@ public class FriendshipStatusController implements Observer<Event> {
     @FXML
     Label reportsLabel;
 
+    private void refreshPage(){
+        RefreshPageUser refreshPageUser = new RefreshPageUser(true,true,false);
+        rootPageUser.refresh(rootPageUser.getRoot().getUsername(),refreshPageUser);
+    }
+
     public void setNetworkController(Stage primaryStage, NetworkController service, PageUser rootPageUser){
         this.networkController = service;
         networkController.getFriendRequestService().addObserver(this);
         this.displayStage = primaryStage;
         this.rootPageUser = rootPageUser;
-        rootPageUser.refresh(rootPageUser.getRoot().getUsername());
+        refreshPage();
         initModelFriendRequest();
     }
 
