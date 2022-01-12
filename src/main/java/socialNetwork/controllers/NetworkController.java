@@ -9,6 +9,7 @@ import socialNetwork.utilitaries.observer.Observer;
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import java.security.InvalidKeyException;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +25,7 @@ public class NetworkController {
     private FriendRequestService friendRequestService;
     private MessageService messageService;
     private AuthentificationService authentificationService;
+    private EventPublicService eventPublicService;
     private SecurityPassword securityPassword;
     private List<Observer<Event>> observers = new ArrayList<>();
 
@@ -35,13 +37,14 @@ public class NetworkController {
      */
     public NetworkController(UserService userService, NetworkService networkService,
                              MessageService messageService, AuthentificationService authentificationService,
-                             FriendRequestService friendRequestService,
+                             FriendRequestService friendRequestService, EventPublicService eventPublicService,
                              SecurityPassword securityPassword) {
         this.userService = userService;
         this.networkService = networkService;
         this.messageService = messageService;
         this.authentificationService = authentificationService;
         this.friendRequestService = friendRequestService;
+        this.eventPublicService = eventPublicService;
         this.securityPassword = securityPassword;
     }
 
@@ -59,6 +62,10 @@ public class NetworkController {
 
     public MessageService getMessageService() {
         return messageService;
+    }
+
+    public EventPublicService getEventPublicService() {
+        return eventPublicService;
     }
 
     public AuthentificationService getAuthentificationService() {
@@ -285,10 +292,10 @@ public class NetworkController {
         if (findAutentification.isEmpty())
             throw new LogInException("Username is invalid!");
         try {
-            if (!securityPassword.checkPassword(password,findAutentification.get().getPassword()))
+            if (!securityPassword.checkPassword(password, findAutentification.get().getPassword()))
                 throw new LogInException("Password is invalid!");
-        } catch (IllegalBlockSizeException  | BadPaddingException | InvalidKeyException e) {
-                throw new LogInException("Error to hash the password!");
+        } catch (IllegalBlockSizeException | BadPaddingException | InvalidKeyException e) {
+            throw new LogInException("Error to hash the password!");
         }
         return createPageObject(username);
     }
@@ -311,5 +318,53 @@ public class NetworkController {
 
     public Optional<Autentification> changePasswordToHash(String username, String password) throws IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
         return authentificationService.changePasswordToHashService(username, password);
+    }
+
+    public Optional<EventPublic> addEventPublic(String name, String description, LocalDateTime date) {
+        Optional<EventPublic> eventPublic = eventPublicService.addEventPublicService(name, description, date);
+        return eventPublic;
+    }
+
+    public Optional<DTOEventPublicUser> subscribeEventPublic(Long idUser, Long idEventPublic) {
+        Optional<DTOEventPublicUser> dtoEventPublicUser = eventPublicService
+                .subscribeEventPublicService(idUser, idEventPublic);
+        return dtoEventPublicUser;
+    }
+
+    public Optional<DTOEventPublicUser> stopNotificationEventPublic(Long idUser, Long idEventPublic) {
+        Optional<DTOEventPublicUser> dtoEventPublicUser = eventPublicService
+                .stopNotificationEventPublicService(idUser, idEventPublic);
+        return dtoEventPublicUser;
+    }
+
+    public Optional<DTOEventPublicUser> turnOnNotificationsEventPublic(Long idUser, Long idEventPublic) {
+        Optional<DTOEventPublicUser> dtoEventPublicUser = eventPublicService
+                .turnOnNotificationEventPublicService(idUser, idEventPublic);
+        return dtoEventPublicUser;
+    }
+
+    public List<EventPublic> filterAllEventPublicForNotification(Long idUser, Long days) {
+        List<EventPublic> eventPublicList = eventPublicService
+                .filterAllEventPublicForNotificationService(idUser,days);
+        return eventPublicList;
+    }
+
+    public List<EventPublic> getAllEventPublic(){
+        List <EventPublic> eventPublicList = eventPublicService.getAllEventPublicService();
+        return eventPublicList;
+    }
+
+    public List<EventPublic> getAllEventPublicForSpecifiedUser(Long idUser){
+        List<EventPublic> eventPublicList = eventPublicService
+                .getAllEventPublicForSpecifiedUserService(idUser);
+        return eventPublicList;
+    }
+
+    public List<DTOEventPublicUser> getAllPublicEventsWithNotifications(Long idUser){
+        return eventPublicService.getAllEventsWithNotificationStatus(idUser);
+    }
+
+    public Optional<EventPublic> getPublicEventWithId(Long idEvent){
+        return eventPublicService.findPublicEvent(idEvent);
     }
 }

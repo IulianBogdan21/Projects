@@ -7,10 +7,7 @@ import socialNetwork.domain.models.User;
 import socialNetwork.domain.validators.EntityValidatorInterface;
 import socialNetwork.exceptions.EntityMissingValidationException;
 import socialNetwork.exceptions.InvitationStatusException;
-import socialNetwork.repository.paging.Page;
-import socialNetwork.repository.paging.Pageable;
-import socialNetwork.repository.paging.PageableImplementation;
-import socialNetwork.repository.paging.PagingRepository;
+import socialNetwork.repository.paging.*;
 import socialNetwork.utilitaries.UndirectedGraph;
 import socialNetwork.utilitaries.UnorderedPair;
 import socialNetwork.utilitaries.events.ChangeEventType;
@@ -58,6 +55,12 @@ public class NetworkService implements Observable<Event> {
                     return userRepository.find(idFriend).get();
                 })
                 .toList();
+    }
+
+    public Page<User> getAllFriendshipForSpecifiedUserService(Long idUser,Pageable pageable){
+        Paginator<User> paginator = new Paginator<User>(pageable,
+                getAllFriendshipForSpecifiedUserService(idUser));
+        return paginator.paginate();
     }
 
     /**
@@ -190,6 +193,18 @@ public class NetworkService implements Observable<Event> {
         Pageable pageable = new PageableImplementation(pageNumber,this.pageSize);
         Page<Friendship> friendshipsPage = friendshipRepository.getAll(pageable);
         return friendshipsPage.getContent().collect(Collectors.toSet());
+    }
+
+    public Set<User> getNextFriendshipsForUser(Long idUser){
+        this.pageNumber++;
+        return getFriendshipsOnPageForUser(idUser,this.pageNumber);
+    }
+
+    public Set<User> getFriendshipsOnPageForUser(Long idUser,int pageNumber){
+        this.pageNumber = pageNumber;
+        Pageable pageable = new PageableImplementation(pageNumber,this.pageSize);
+        Page<User> userFriendshipsPage = getAllFriendshipForSpecifiedUserService(idUser,pageable);
+        return userFriendshipsPage.getContent().collect(Collectors.toSet());
     }
 
 }

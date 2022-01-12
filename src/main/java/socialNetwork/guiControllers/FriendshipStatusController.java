@@ -163,6 +163,11 @@ public class FriendshipStatusController implements Observer<Event> {
     }
 
     @FXML
+    public void switchToEventsViewFromUserScene(ActionEvent event) throws IOException{
+        SceneSwitcher.switchToEventsScene(event, getClass(), networkController, rootPageUser, displayStage);
+    }
+
+    @FXML
     public void handleApprovedFriend(){
 
         User mainUser = rootPageUser.getRoot();
@@ -294,46 +299,6 @@ public class FriendshipStatusController implements Observer<Event> {
 
     private void handleFilterInFriendshipStatusController(){
         ListViewInitialize.handleFilter(networkController, rootPageUser, searchFriendshipField, modelSearchFriends);
-    }
-
-    @FXML
-    public void enableFriendsLabel(){
-        friendsLabel.setVisible(true);
-    }
-
-    @FXML
-    public void enableFriendRequestsLabel(){
-        friendRequestsLabel.setVisible(true);
-    }
-
-    @FXML
-    public void enableMessagesLabel(){
-        messagesLabel.setVisible(true);
-    }
-
-    @FXML
-    public void enableReportsLabel(){
-        reportsLabel.setVisible(true);
-    }
-
-    @FXML
-    public void disableReportsLabel(){
-        reportsLabel.setVisible(false);
-    }
-
-    @FXML
-    public void disableFriendsLabel(){
-        friendsLabel.setVisible(false);
-    }
-
-    @FXML
-    public void disableFriendRequestsLabel(){
-        friendRequestsLabel.setVisible(false);
-    }
-
-    @FXML
-    public void disableMessagesLabel(){
-        messagesLabel.setVisible(false);
     }
 
     @FXML

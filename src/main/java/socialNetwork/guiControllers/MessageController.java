@@ -10,6 +10,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.effect.Lighting;
 import javafx.scene.input.KeyCode;
@@ -29,11 +30,13 @@ import socialNetwork.utilitaries.SceneSwitcher;
 import socialNetwork.utilitaries.UsersSearchProcess;
 import socialNetwork.utilitaries.events.Event;
 import socialNetwork.utilitaries.events.MessageChangeEvent;
+import socialNetwork.utilitaries.events.MessageChangeEventType;
 import socialNetwork.utilitaries.observer.Observer;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class MessageController implements Observer<Event> {
     ObservableList<User> modelSearchFriends = FXCollections.observableArrayList();
@@ -50,12 +53,6 @@ public class MessageController implements Observer<Event> {
     Button friendRequestButton;
     @FXML
     TextField searchFriendshipField;
-    @FXML
-    Label friendsLabel;
-    @FXML
-    Label friendRequestsLabel;
-    @FXML
-    Label messagesLabel;
     @FXML
     Polygon triangleAuxiliaryLabel;
     @FXML
@@ -86,8 +83,6 @@ public class MessageController implements Observer<Event> {
     Label welcomeMessageLabel;
     @FXML
     AnchorPane conversationAnchorPane;
-    @FXML
-    Label reportsLabel;
 
     NetworkController networkController;
     PageUser rootPageUser;
@@ -130,25 +125,31 @@ public class MessageController implements Observer<Event> {
         });
     }
 
-    @Override
-    public void update(Event event) {
-        if(event instanceof MessageChangeEvent)
-            initModelChatsName();
+    private void updateActualChatWithMessages(Event event){
+        MessageChangeEvent messageChangeEvent = (MessageChangeEvent) event;
+        MessageChangeEventType type = messageChangeEvent.getType();
+        Message message = messageChangeEvent.getData().getMainMessage();
+        User userThatSendMessage = message.getFrom();
+
+        if(type.equals(MessageChangeEventType.SEND) &&
+                !userThatSendMessage.getId().equals(rootPageUser.getRoot().getId())){
+
+            Map< List<User> , Chat > chatMap = rootPageUser.getChatMap();
+            chatConversation = chatMap.get(chatConversation.getMembers());
+            loadConversationForSpecificSchat();
+        }
+
     }
 
-    @FXML
-    public void loadConversation(){
-        if(chatsNameListView.getSelectionModel().getSelectedItem() == null)
-            return;
-        if(firstTime) {
-            conversationScrollPane.setVisible(true);
-            welcomeMessageLabel.setVisible(false);
-            messageField.setVisible(true);
-            firstTime = false;
-        }
-        idUserLastMessage = -1L;
+    @Override
+    public void update(Event event) {
+        if(event instanceof MessageChangeEvent && chatConversation != null)
+             updateActualChatWithMessages(event);
+        modelChatsName.setAll(rootPageUser.getChatList());
+    }
+
+    private void loadConversationForSpecificSchat(){
         conversationVerticalBox.getChildren().clear();
-        chatConversation = chatsNameListView.getSelectionModel().getSelectedItem();
         conversationVerticalBox.heightProperty().addListener(new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
@@ -158,6 +159,8 @@ public class MessageController implements Observer<Event> {
         User root = rootPageUser.getRoot();
         List<Message> chatMessages = chatConversation.getMessageList();
         List<ReplyMessage> chatReplyMessages = chatConversation.getReplyMessageList();
+        //chatMessages.forEach(c -> System.out.println(c.getId() + " " + c.getText()));
+        //chatReplyMessages.forEach(c -> System.out.println(c.getId() + " " + c.getText()));
         int i = 0, j = 0;
         int n = chatMessages.size();
         int m = chatReplyMessages.size();
@@ -205,6 +208,23 @@ public class MessageController implements Observer<Event> {
             }
             j++;
         }
+    }
+
+    @FXML
+    public void loadConversation(){
+        if(chatsNameListView.getSelectionModel().getSelectedItem() == null)
+            return;
+        if(firstTime) {
+            conversationScrollPane.setVisible(true);
+            welcomeMessageLabel.setVisible(false);
+            messageField.setVisible(true);
+            firstTime = false;
+        }
+        idUserLastMessage = -1L;
+        conversationVerticalBox.getChildren().clear();
+        chatConversation = chatsNameListView.getSelectionModel().getSelectedItem();
+
+        loadConversationForSpecificSchat();
     }
 
     private void putMessageInScrollPane(String action, Message message){
@@ -300,6 +320,7 @@ public class MessageController implements Observer<Event> {
 
 
         networkController.sendMessages(idUserFrom,idTo,text);
+        // ??? se pierde id-ul la mesaj
         Message message = new Message(rootPageUser.getRoot(), to , text);
         //conversationVerticalBox is the same with the selected chat
         putMessageInScrollPane("sent",message);
@@ -346,49 +367,14 @@ public class MessageController implements Observer<Event> {
     }
 
     @FXML
+    public void switchToEventsViewFromUserScene(ActionEvent event) throws IOException{
+        SceneSwitcher.switchToEventsScene(event, getClass(), networkController, rootPageUser, displayStage);
+    }
+
+    @FXML
     public void enableAllButtonsAndClearSelection(){
         usersListView.getSelectionModel().clearSelection();
 
-    }
-
-    @FXML
-    public void enableFriendsLabel(){
-        friendsLabel.setVisible(true);
-    }
-
-    @FXML
-    public void enableFriendRequestsLabel(){
-        friendRequestsLabel.setVisible(true);
-    }
-
-    @FXML
-    public void enableMessagesLabel(){
-        messagesLabel.setVisible(true);
-    }
-
-    @FXML
-    public void enableReportsLabel(){
-        reportsLabel.setVisible(true);
-    }
-
-    @FXML
-    public void disableReportsLabel(){
-        reportsLabel.setVisible(false);
-    }
-
-    @FXML
-    public void disableFriendsLabel(){
-        friendsLabel.setVisible(false);
-    }
-
-    @FXML
-    public void disableFriendRequestsLabel(){
-        friendRequestsLabel.setVisible(false);
-    }
-
-    @FXML
-    public void disableMessagesLabel(){
-        messagesLabel.setVisible(false);
     }
 
     @FXML
@@ -432,7 +418,6 @@ public class MessageController implements Observer<Event> {
                         .getSelectedItems()
                         .stream()
                         .toList() );
-        System.out.println(members);
         closeStartConversationWindow();
         members.add(rootPageUser.getRoot());
         if(checkIfChatExists(members, rootPageUser.getChatList()))

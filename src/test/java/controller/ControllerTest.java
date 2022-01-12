@@ -8,6 +8,7 @@ import org.junit.jupiter.api.TestInstance;
 import socialNetwork.controllers.NetworkController;
 import socialNetwork.domain.models.*;
 import socialNetwork.domain.validators.*;
+import socialNetwork.exceptions.EventPublicException;
 import socialNetwork.exceptions.LogInException;
 import socialNetwork.repository.database.*;
 import socialNetwork.exceptions.DatabaseException;
@@ -33,15 +34,19 @@ public class ControllerTest {
     EntityValidatorInterface<UnorderedPair<Long,Long>, Friendship> testFriendshipValidator;
     EntityValidatorInterface<UnorderedPair<Long,Long>, FriendRequest> testFriendRequestValidator;
     EntityValidatorInterface<String, Autentification> testAuthentificationValidator;
+    EventPublicValidator testEventPublicValidator;
     AutentificationDatabaseRepository testAutentificationRepository = new AutentificationDatabaseRepository(url,user,password);
     MessageDTODatabaseRepository testMessageRepository;
     UserDatabaseRepository testUserRepository = new UserDatabaseRepository(url,user,password);;
     FriendshipDatabaseRepository testFriendshipRepository;
     FriendRequestDatabaseRepository testFriendRequestRepository;
+    EventPublicUserBindingDatabaseRepository eventPublicUserBindingDatabaseRepository;
+    EventPublicDatabaseRepository eventPublicDatabaseRepository;
     UserService testUserService;
     NetworkService testNetworkService;
     MessageService testMessageService;
     AuthentificationService testAuthentificationService;
+    EventPublicService testEventPublicService;
     FriendRequestService testFriendRequestService;
     NetworkController testNetworkController = null;
 
@@ -54,6 +59,7 @@ public class ControllerTest {
             testFriendshipValidator = new FriendshipValidator(testUserRepository);
             testFriendRequestValidator = new FriendRequestValidator(testUserRepository);
             testAuthentificationValidator = new AuthentificationValidator();
+            testEventPublicValidator = new EventPublicValidator();
             testUserService = new UserService(testUserRepository,testFriendshipRepository,testFriendRequestRepository,testUserValidator);
             testNetworkService = new NetworkService(testFriendshipRepository,testFriendRequestRepository,
                     testUserRepository,testFriendshipValidator);
@@ -62,9 +68,13 @@ public class ControllerTest {
                     testAuthentificationValidator,securityPassword);
             testFriendRequestService = new FriendRequestService(testFriendRequestRepository,testFriendshipRepository,
                     testFriendRequestValidator);
-
+            eventPublicDatabaseRepository = new EventPublicDatabaseRepository(url,user,password);
+            eventPublicUserBindingDatabaseRepository = new EventPublicUserBindingDatabaseRepository(url,user,password);
+            testEventPublicService = new EventPublicService(eventPublicDatabaseRepository,
+                    eventPublicUserBindingDatabaseRepository,testEventPublicValidator);
             testNetworkController = new NetworkController(testUserService,testNetworkService
-                    ,testMessageService,testAuthentificationService,testFriendRequestService,securityPassword);
+                    ,testMessageService,testAuthentificationService,
+                    testFriendRequestService,testEventPublicService,securityPassword);
         }
         return testNetworkController;
     }
@@ -159,7 +169,14 @@ public class ControllerTest {
     public void setUp(){
         tearDown();
         getUserTestData().forEach(x->testUserRepository.save(x));
-        getAutentificationTestData().forEach( x -> testAutentificationRepository.save(x));
+        getAutentificationTestData().forEach( x -> {
+            try {
+                getNetworkController().saveAuthentification(
+                        x.getUsername(),x.getPassword());
+            } catch (IllegalBlockSizeException | BadPaddingException | InvalidKeyException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     @Test
@@ -270,7 +287,8 @@ public class ControllerTest {
     }
 
     @Test
-    void testPageObjectChat(){
+    void testPageObjectChat() throws IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
+       // getNetworkController().saveAuthentification("a6","pa6");
         PageUser pageUser = getNetworkController().logIn("a6","pa6");
         List<Chat> chatList = pageUser.getChatList();
         Assertions.assertEquals(chatList.size(),0);
