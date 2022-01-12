@@ -59,7 +59,7 @@
                 <Line endX="1.399993896484375" endY="259.1999816894531" layoutX="225.0" layoutY="82.0" startX="-3.0517578125E-5" startY="-72.99999237060547" stroke="#d53939" />
             </children>
         </AnchorPane>
-        <HBox prefHeight="38.0" prefWidth="623.0">
+        <HBox fx:id="mainHorizontalBox" prefHeight="38.0" prefWidth="623.0">
             <children>
                 <Label prefHeight="22.0" prefWidth="96.0" text="Kage" textFill="#d53939">
                     <font>
