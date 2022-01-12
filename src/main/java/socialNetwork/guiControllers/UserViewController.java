@@ -22,6 +22,7 @@ import socialNetwork.utilitaries.MessageAlert;
 import socialNetwork.utilitaries.SceneSwitcher;
 import socialNetwork.utilitaries.UsersSearchProcess;
 import socialNetwork.utilitaries.events.Event;
+import socialNetwork.utilitaries.events.FriendRequestChangeEvent;
 import socialNetwork.utilitaries.events.FriendshipChangeEvent;
 import socialNetwork.utilitaries.observer.Observer;
 
@@ -87,6 +88,8 @@ public class UserViewController implements Observer<Event> {
                 .getAllFriendshipForSpecifiedUserService(rootPage.getRoot().getId()).size();
         int numberOfPages = amountOfFriends / itemsPerPage() +
                 ( amountOfFriends % itemsPerPage() != 0 ? 1 : 0 );
+        if( numberOfPages == 0 )
+            numberOfPages = 1;
         paginationListView.setPageCount(numberOfPages);
         paginationListView.setPageFactory(new Callback<Integer, Node>() {
             @Override
@@ -99,6 +102,7 @@ public class UserViewController implements Observer<Event> {
     public void setNetworkController(Stage primaryStage, NetworkController service, PageUser rootPage){
         this.networkController = service;
         networkController.getNetworkService().addObserver(this);
+        networkController.getFriendRequestService().addObserver(this);
         this.displayStage = primaryStage;
         this.rootPage = rootPage;
         rootPage.refresh(rootPage.getRoot().getUsername());
@@ -117,14 +121,19 @@ public class UserViewController implements Observer<Event> {
         ListViewInitialize.createListViewWithUser(listViewOfFriends, modelFriends);
         ListViewInitialize.createListViewWithUser(usersListView, modelSearchFriends);
         searchFriendshipField.textProperty().addListener(o -> handleFilterInUserController());
-
-        //scrollBarListViewOfFriends = getListViewScrollBar(listViewOfFriends);
     }
 
     @Override
     public void update(Event event) {
-        if(event instanceof FriendshipChangeEvent)
+        if(event instanceof FriendshipChangeEvent) {
             initModelFriends();
+            createPagination();
+        }
+
+        if(event instanceof FriendRequestChangeEvent){
+            initModelFriends();
+            createPagination();
+        }
     }
 
     @FXML

@@ -18,22 +18,17 @@ public class AutentificationDatabaseRepository implements
     private String url;
     private String user;
     private String password;
-    private Connection connection = null;
 
     public AutentificationDatabaseRepository(String url, String user, String password) {
         this.url = url;
         this.user = user;
         this.password = password;
-        try {
-            connection = DriverManager.getConnection(url, user, password);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
     }
 
     @Override
     public Optional<Autentification> find(String idSearchedEntity) {
-        try(PreparedStatement findAutentification = connection.prepareStatement(
+        try(Connection connection = DriverManager.getConnection(url,user,password);
+            PreparedStatement findAutentification = connection.prepareStatement(
                     "select * from autentifications where username = ?"
             )) {
             findAutentification.setString(1,idSearchedEntity);
@@ -54,7 +49,8 @@ public class AutentificationDatabaseRepository implements
     @Override
     public List<Autentification> getAll() {
         List<Autentification> autentificationList = new ArrayList<>();
-        try(PreparedStatement allAut = connection.prepareStatement(
+        try(Connection connection = DriverManager.getConnection(url,user,password);
+            PreparedStatement allAut = connection.prepareStatement(
                     "select * from autentifications"
             )) {
             ResultSet getAllAut = allAut.executeQuery();
@@ -79,7 +75,8 @@ public class AutentificationDatabaseRepository implements
 
     @Override
     public Optional<Autentification> save(Autentification autentification) {
-        try(PreparedStatement findUsernameInTable = connection.prepareStatement(
+        try(Connection connection = DriverManager.getConnection(url,user,password);
+            PreparedStatement findUsernameInTable = connection.prepareStatement(
                 "select username from autentifications where username = ?"
         )) {
             findUsernameInTable.setString(1,autentification.getUsername());
@@ -105,7 +102,8 @@ public class AutentificationDatabaseRepository implements
 
     @Override
     public Optional<Autentification> update(Autentification entityToUpdate) {
-        try (PreparedStatement preparedStatement = connection.prepareStatement(
+        try (Connection connection = DriverManager.getConnection(url,user,password);
+             PreparedStatement preparedStatement = connection.prepareStatement(
                     "update autentifications set passwordText = ? where username = ? ")) {
             preparedStatement.setString(1,entityToUpdate.getPassword());
             preparedStatement.setString(2,entityToUpdate.getUsername());
