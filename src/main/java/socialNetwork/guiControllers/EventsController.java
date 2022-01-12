@@ -11,10 +11,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.shape.Polygon;
 import javafx.stage.Stage;
 import socialNetwork.controllers.NetworkController;
-import socialNetwork.domain.models.DTOEventPublicUser;
-import socialNetwork.domain.models.EventPublic;
-import socialNetwork.domain.models.PageUser;
-import socialNetwork.domain.models.User;
+import socialNetwork.domain.models.*;
 import socialNetwork.exceptions.ExceptionBaseClass;
 import socialNetwork.utilitaries.*;
 import socialNetwork.utilitaries.events.Event;
@@ -61,6 +58,11 @@ public class EventsController implements Observer<Event>{
     PageUser rootPage;
     Stage displayStage;
 
+    private void refreshPage(){
+        RefreshPageUser refreshPageUser = new RefreshPageUser(false,false,false);
+        rootPage.refresh(rootPage.getRoot().getUsername(),refreshPageUser);
+    }
+
     public void setNetworkController(Stage primaryStage, NetworkController service, PageUser rootPage){
         this.networkController = service;
         networkController.getEventPublicService().addObserver(this);
@@ -68,8 +70,7 @@ public class EventsController implements Observer<Event>{
         this.rootPage = rootPage;
         ListViewInitialize.createListViewWithEvent(unsubscribedEventsListView, modelEventsNotSubscribed);
         ListViewInitialize.createListViewWithDtoEvent(subscribedEventsListView, modelEventsSubscribed, rootPage);
-
-        rootPage.refresh(rootPage.getRoot().getUsername());
+        refreshPage();
         initModelFriends();
         initModelEventPublic();
     }

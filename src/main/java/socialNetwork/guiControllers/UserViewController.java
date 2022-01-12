@@ -17,10 +17,7 @@ import javafx.stage.Stage;
 import javafx.scene.control.ListView;
 import javafx.util.Callback;
 import socialNetwork.controllers.NetworkController;
-import socialNetwork.domain.models.EventPublic;
-import socialNetwork.domain.models.FriendRequest;
-import socialNetwork.domain.models.PageUser;
-import socialNetwork.domain.models.User;
+import socialNetwork.domain.models.*;
 import socialNetwork.utilitaries.ListViewInitialize;
 import socialNetwork.utilitaries.MessageAlert;
 import socialNetwork.utilitaries.SceneSwitcher;
@@ -106,13 +103,18 @@ public class UserViewController implements Observer<Event> {
         });
     }
 
+    private void refreshPage(){
+        RefreshPageUser refreshPageUser = new RefreshPageUser(true,true,false);
+        rootPage.refresh(rootPage.getRoot().getUsername(),refreshPageUser);
+    }
+
     public void setNetworkController(Stage primaryStage, NetworkController service, PageUser rootPage){
         this.networkController = service;
         networkController.getNetworkService().addObserver(this);
         networkController.getFriendRequestService().addObserver(this);
         this.displayStage = primaryStage;
         this.rootPage = rootPage;
-        rootPage.refresh(rootPage.getRoot().getUsername());
+        refreshPage();
         ListViewInitialize.createListViewWithNotification(notificationsListView, modelNotifications);
         initModelFriends();
         initModelNotifications();

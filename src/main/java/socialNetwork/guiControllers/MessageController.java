@@ -90,12 +90,17 @@ public class MessageController implements Observer<Event> {
     boolean firstTime = true;
     Long idUserLastMessage = -1L;
 
+    private void refreshPage(){
+        RefreshPageUser refreshPageUser = new RefreshPageUser(false,false,true);
+        rootPageUser.refresh(rootPageUser.getRoot().getUsername(),refreshPageUser);
+    }
+
     public void setNetworkController(Stage primaryStage, NetworkController service, PageUser rootPageUser){
         this.networkController = service;
         networkController.getMessageService().addObserver(this);
         this.displayStage = primaryStage;
         this.rootPageUser = rootPageUser;
-        rootPageUser.refresh(rootPageUser.getRoot().getUsername());
+        refreshPage();
         usernameLabelChat.setText(rootPageUser.getRoot().getUsername());
         ListViewInitialize.createListViewWithChats(chatsNameListView,modelChatsName, rootPageUser.getRoot());
         initModelChatsName();

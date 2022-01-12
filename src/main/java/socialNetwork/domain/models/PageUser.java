@@ -27,10 +27,13 @@ public class PageUser implements Observer<Event> {
     }
 
 
-    public void refresh(String username){
-        friendList = networkController.getAllFriendshipForSpecifiedUser(root.getId());
-        friendRequestList = networkController.getAllFriendRequestForSpecifiedUser(root.getId());
-        setChatMap( networkController.getAllChatsSpecifiedUser(root.getId()) );
+    public void refresh(String username,RefreshPageUser refreshPageUser){
+        if(refreshPageUser.isRefreshFriend())
+            friendList = networkController.getAllFriendshipForSpecifiedUser(root.getId());
+        if(refreshPageUser.isRefreshFriendRequest())
+            friendRequestList = networkController.getAllFriendRequestForSpecifiedUser(root.getId());
+        if(refreshPageUser.isRefreshChat())
+            setChatMap( networkController.getAllChatsSpecifiedUser(root.getId()) );
     }
 
     public PageUser(User root, List<User> friendList, List<FriendRequest> friendRequestList,
