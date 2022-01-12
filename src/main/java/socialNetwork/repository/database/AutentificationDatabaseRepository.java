@@ -76,7 +76,7 @@ public class AutentificationDatabaseRepository implements
     @Override
     public Optional<Autentification> save(Autentification autentification) {
         try(Connection connection = DriverManager.getConnection(url,user,password);
-        PreparedStatement findUsernameInTable = connection.prepareStatement(
+            PreparedStatement findUsernameInTable = connection.prepareStatement(
                 "select username from autentifications where username = ?"
         )) {
             findUsernameInTable.setString(1,autentification.getUsername());
@@ -102,8 +102,8 @@ public class AutentificationDatabaseRepository implements
 
     @Override
     public Optional<Autentification> update(Autentification entityToUpdate) {
-        try (Connection connection = DriverManager.getConnection(url, user, password);
-            PreparedStatement preparedStatement = connection.prepareStatement(
+        try (Connection connection = DriverManager.getConnection(url,user,password);
+             PreparedStatement preparedStatement = connection.prepareStatement(
                     "update autentifications set passwordText = ? where username = ? ")) {
             preparedStatement.setString(1,entityToUpdate.getPassword());
             preparedStatement.setString(2,entityToUpdate.getUsername());
