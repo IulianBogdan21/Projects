@@ -58,7 +58,7 @@ public class MessageService implements Observable<Event> {
      */
     public Optional<ReplyMessage> respondMessageService(Long idUserFrom, Long idMessageAggregate, String text){
         User userFrom = getUserById(idUserFrom);
-        checkIfUserIsSupposedToRespondToMessage(idUserFrom, idMessageAggregate);
+        //checkIfUserIsSupposedToRespondToMessage(idUserFrom, idMessageAggregate);
 
         MessageDTO messageDTO = findMessageWithSpecifiedId(idMessageAggregate);
         Message messageWeWantToRespondTo = messageDTO.getMainMessage();
