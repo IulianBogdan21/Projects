@@ -72,10 +72,10 @@
                         <Font name="FontAwesome" size="20.0" />
                     </font>
                     <HBox.margin>
-                        <Insets left="20.0" top="6.0" />
+                        <Insets left="10.0" top="6.0" />
                     </HBox.margin>
                 </Label>
-                <Button mnemonicParsing="false" onAction="#switchToUserViewScene" prefHeight="34.0" prefWidth="100.0" style="-fx-background-color: transparent;" text="Friends">
+                <Button mnemonicParsing="false" onAction="#switchToUserViewScene" prefHeight="34.0" prefWidth="116.0" style="-fx-background-color: transparent;" text="Friends">
                     <graphic>
                         <FontAwesomeIconView glyphName="USER" size="20" wrappingWidth="15.085701942443848" />
                     </graphic>
@@ -83,7 +83,7 @@
                         <Insets />
                     </HBox.margin>
                 </Button>
-                <Button fx:id="friendRequestButton" mnemonicParsing="false" onAction="#switchToFriendshipRequestScene" prefHeight="34.0" prefWidth="106.0" style="-fx-background-color: transparent;" text="Requests">
+                <Button fx:id="friendRequestButton" mnemonicParsing="false" onAction="#switchToFriendshipRequestScene" prefHeight="34.0" prefWidth="124.0" style="-fx-background-color: transparent;" text="Requests">
                     <HBox.margin>
                         <Insets />
                     </HBox.margin>
@@ -96,15 +96,15 @@
                         <Insets top="6.0" />
                     </HBox.margin>
                 </TextField>
-                <Button alignment="CENTER_RIGHT" mnemonicParsing="false" onAction="#switchToMessagesScene" prefHeight="34.0" prefWidth="115.0" style="-fx-background-color: transparent;" text="Messages">
+                <Button alignment="CENTER_RIGHT" mnemonicParsing="false" onAction="#switchToMessagesScene" prefHeight="34.0" prefWidth="150.0" style="-fx-background-color: transparent;" text="Messages">
                     <graphic>
-                        <FontAwesomeIconView glyphName="ENVELOPE" size="20" />
+                        <FontAwesomeIconView glyphName="ENVELOPE" size="20" wrappingWidth="31.199950695037842" />
                     </graphic>
                     <HBox.margin>
                         <Insets />
                     </HBox.margin>
                 </Button>
-                <Button alignment="CENTER_RIGHT" mnemonicParsing="false" onAction="#switchToReportsScene" prefHeight="34.0" prefWidth="101.0" style="-fx-background-color: transparent;" text="Reports">
+                <Button alignment="CENTER_RIGHT" mnemonicParsing="false" onAction="#switchToReportsScene" prefHeight="34.0" prefWidth="125.0" style="-fx-background-color: transparent;" text="Reports">
                     <graphic>
                         <FontAwesomeIconView glyphName="FILE" size="20" />
                     </graphic>
@@ -112,7 +112,7 @@
                         <Insets />
                     </HBox.margin>
                 </Button>
-                <Button alignment="CENTER_RIGHT" mnemonicParsing="false" onAction="#switchToEventsViewFromUserScene" prefHeight="28.0" prefWidth="98.0" style="-fx-background-color: transparent;" text="Events">
+                <Button alignment="CENTER_RIGHT" mnemonicParsing="false" onAction="#switchToEventsViewFromUserScene" prefHeight="28.0" prefWidth="118.0" style="-fx-background-color: transparent;" text="Events">
                     <HBox.margin>
                         <Insets top="5.0" />
                     </HBox.margin>
@@ -120,9 +120,16 @@
                         <FontAwesomeIconView glyphName="CLIPBOARD" size="20" />
                     </graphic>
                 </Button>
+                <FontAwesomeIconView fx:id="bellIconView" fill="#d53939" glyphName="BELL" onMousePressed="#setNotificationsListViewOnVisible" selectionFill="#ff0d0d" size="25">
+                    <HBox.margin>
+                        <Insets right="5.0" top="6.0" />
+                    </HBox.margin>
+                </FontAwesomeIconView>
             </children>
         </HBox>
           <ListView fx:id="usersListView" layoutX="250.0" layoutY="59.0" onMouseClicked="#disableWhenSearchForUser" prefHeight="268.0" prefWidth="200.0" style="-fx-border-color: #e17474;" visible="false" />
           <Polygon fx:id="triangleAuxiliaryLabel" fill="#d53939" layoutX="345.0" layoutY="5.0" points="-9.399993896484375, 40.0, 8.600006103515625, 40.00000762939453, 0.199981689453125, 27.199981689453125" stroke="GREY" strokeType="INSIDE" visible="false" />
+          <Polygon fx:id="secondPolygon" fill="#d53939" layoutX="614.0" layoutY="55.0" points="-17.60003662109375, 9.199981689453125, 6.103515625E-5, 9.199981689453125, -8.79998779296875, -11.600006103515625" stroke="BLACK" strokeType="INSIDE" visible="false" />
+          <ListView fx:id="notificationsListView" layoutX="423.0" layoutY="63.0" prefHeight="306.0" prefWidth="192.0" style="-fx-border-color: #d53939;" visible="false" />
     </children>
 </AnchorPane>

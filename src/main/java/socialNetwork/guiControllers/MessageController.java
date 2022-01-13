@@ -29,6 +29,7 @@ import socialNetwork.utilitaries.MessageAlert;
 import socialNetwork.utilitaries.SceneSwitcher;
 import socialNetwork.utilitaries.UsersSearchProcess;
 import socialNetwork.utilitaries.events.Event;
+import socialNetwork.utilitaries.events.EventPublicChangeEvent;
 import socialNetwork.utilitaries.events.MessageChangeEvent;
 import socialNetwork.utilitaries.events.MessageChangeEventType;
 import socialNetwork.utilitaries.observer.Observer;
@@ -41,6 +42,7 @@ import java.util.Map;
 public class MessageController implements Observer<Event> {
     ObservableList<User> modelSearchFriends = FXCollections.observableArrayList();
     ObservableList<Chat> modelChatsName = FXCollections.observableArrayList();
+    ObservableList<EventPublic> modelNotifications = FXCollections.observableArrayList();
     Chat chatConversation = null;
 
     @FXML
@@ -66,6 +68,8 @@ public class MessageController implements Observer<Event> {
     @FXML
     ListView<User> startConversationListView;
     @FXML
+    ListView<EventPublic> notificationsListView;
+    @FXML
     VBox newConversationBox;
     @FXML
     Label usernameLabelChat;
@@ -83,6 +87,10 @@ public class MessageController implements Observer<Event> {
     Label welcomeMessageLabel;
     @FXML
     AnchorPane conversationAnchorPane;
+    @FXML
+    Polygon secondPolygon;
+    @FXML
+    FontAwesomeIconView bellIconView;
 
     NetworkController networkController;
     PageUser rootPageUser;
@@ -103,11 +111,20 @@ public class MessageController implements Observer<Event> {
         refreshPage();
         usernameLabelChat.setText(rootPageUser.getRoot().getUsername());
         ListViewInitialize.createListViewWithChats(chatsNameListView,modelChatsName, rootPageUser.getRoot());
+        ListViewInitialize.createListViewWithNotification(notificationsListView, modelNotifications);
         initModelChatsName();
+        initModelNotifications();
     }
 
     private void initModelChatsName(){
         modelChatsName.setAll(rootPageUser.getChatList());
+    }
+
+    private void initModelNotifications(){
+        List<EventPublic> notificationEvents =
+                rootPageUser.getNetworkController().filterAllEventPublicForNotification
+                        (rootPageUser.getRoot().getId(), 30L);
+        modelNotifications.setAll(notificationEvents);
     }
 
     @FXML
@@ -148,6 +165,8 @@ public class MessageController implements Observer<Event> {
 
     @Override
     public void update(Event event) {
+        if(event instanceof EventPublicChangeEvent)
+            initModelNotifications();
         if(event instanceof MessageChangeEvent && chatConversation != null)
              updateActualChatWithMessages(event);
         modelChatsName.setAll(rootPageUser.getChatList());
@@ -390,6 +409,8 @@ public class MessageController implements Observer<Event> {
     @FXML
     public void setUsersListViewOnInvisible(){
         UsersSearchProcess.setUsersListViewOnInvisible(usersListView, triangleAuxiliaryLabel, searchFriendshipField);
+        notificationsListView.setVisible(false);
+        secondPolygon.setVisible(false);
     }
 
     private void handleFilterInUserController(){
@@ -460,4 +481,10 @@ public class MessageController implements Observer<Event> {
         conversationAnchorPane.setDisable(true);
     }
 
+    @FXML
+    public void setNotificationsListViewOnVisible(){
+        notificationsListView.setVisible(true);
+        secondPolygon.setVisible(true);
+        bellIconView.setFill(Color.BLACK);
+    }
 }

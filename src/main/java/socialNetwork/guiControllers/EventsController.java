@@ -1,5 +1,6 @@
 package socialNetwork.guiControllers;
 
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -8,6 +9,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 import javafx.stage.Stage;
 import socialNetwork.controllers.NetworkController;
@@ -31,6 +33,7 @@ public class EventsController implements Observer<Event>{
     ObservableList<User> modelSearchFriends = FXCollections.observableArrayList();
     ObservableList<EventPublic> modelEventsNotSubscribed = FXCollections.observableArrayList();
     ObservableList<DTOEventPublicUser> modelEventsSubscribed = FXCollections.observableArrayList();
+    ObservableList<EventPublic> modelNotifications = FXCollections.observableArrayList();
 
     @FXML
     AnchorPane mainAnchorPane;
@@ -40,6 +43,8 @@ public class EventsController implements Observer<Event>{
     ListView<EventPublic> unsubscribedEventsListView;
     @FXML
     ListView<DTOEventPublicUser> subscribedEventsListView;
+    @FXML
+    ListView<EventPublic> notificationsListView;
     @FXML
     Button friendRequestButton;
     @FXML
@@ -52,6 +57,10 @@ public class EventsController implements Observer<Event>{
     TextField searchFriendshipField;
     @FXML
     Polygon triangleAuxiliaryLabel;
+    @FXML
+    Polygon secondPolygon;
+    @FXML
+    FontAwesomeIconView bellIconView;
     ScrollBar scrollBarListViewOfFriends;
 
     NetworkController networkController;
@@ -70,9 +79,11 @@ public class EventsController implements Observer<Event>{
         this.rootPage = rootPage;
         ListViewInitialize.createListViewWithEvent(unsubscribedEventsListView, modelEventsNotSubscribed);
         ListViewInitialize.createListViewWithDtoEvent(subscribedEventsListView, modelEventsSubscribed, rootPage);
+        ListViewInitialize.createListViewWithNotification(notificationsListView, modelNotifications);
         refreshPage();
         initModelFriends();
         initModelEventPublic();
+        initModelNotifications();
     }
 
     private void initModelFriends(){
@@ -98,6 +109,13 @@ public class EventsController implements Observer<Event>{
         modelEventsSubscribed.setAll(allSubscribedEvents);
     }
 
+    private void initModelNotifications(){
+        List<EventPublic> notificationEvents =
+                rootPage.getNetworkController().filterAllEventPublicForNotification
+                        (rootPage.getRoot().getId(), 30L);
+        modelNotifications.setAll(notificationEvents);
+    }
+
     @FXML
     public void initialize(){
         ListViewInitialize.createListViewWithUser(usersListView, modelSearchFriends);
@@ -107,10 +125,13 @@ public class EventsController implements Observer<Event>{
 
     @Override
     public void update(Event event) {
+
         if (event instanceof FriendshipChangeEvent)
             initModelFriends();
-        if(event instanceof EventPublicChangeEvent)
+        if(event instanceof EventPublicChangeEvent) {
             initModelEventPublic();
+            initModelNotifications();
+        }
     }
 
     @FXML
@@ -177,6 +198,8 @@ public class EventsController implements Observer<Event>{
     @FXML
     public void setUsersListViewOnInvisible(){
         UsersSearchProcess.setUsersListViewOnInvisible(usersListView, triangleAuxiliaryLabel, searchFriendshipField);
+        notificationsListView.setVisible(false);
+        secondPolygon.setVisible(false);
     }
 
     @FXML
@@ -208,5 +231,12 @@ public class EventsController implements Observer<Event>{
         catch (ExceptionBaseClass error){
             MessageAlert.showErrorMessage(displayStage, error.getMessage());
         }
+    }
+
+    @FXML
+    public void setNotificationsListViewOnVisible(){
+        notificationsListView.setVisible(true);
+        secondPolygon.setVisible(true);
+        bellIconView.setFill(Color.BLACK);
     }
 }
