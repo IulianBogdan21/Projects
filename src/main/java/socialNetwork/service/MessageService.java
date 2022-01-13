@@ -63,6 +63,9 @@ public class MessageService implements Observable<Event> {
         MessageDTO messageDTO = findMessageWithSpecifiedId(idMessageAggregate);
         Message messageWeWantToRespondTo = messageDTO.getMainMessage();
 
+        if( messageWeWantToRespondTo.getFrom().getId().equals(idUserFrom) )
+            throw new CorruptedDataException("Stop talking alone......");
+
         List<User> to = setListOfReceiversForResponseMessage(userFrom, messageWeWantToRespondTo);
         MessageDTO messageDTOToSave = buildResponseMessageDTO(userFrom, to, text, messageWeWantToRespondTo);
 

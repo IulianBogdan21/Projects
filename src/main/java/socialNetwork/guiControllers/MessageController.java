@@ -25,6 +25,7 @@ import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import socialNetwork.controllers.NetworkController;
 import socialNetwork.domain.models.*;
+import socialNetwork.exceptions.ExceptionBaseClass;
 import socialNetwork.utilitaries.ListViewInitialize;
 import socialNetwork.utilitaries.MessageAlert;
 import socialNetwork.utilitaries.SceneSwitcher;
@@ -140,7 +141,7 @@ public class MessageController implements Observer<Event> {
         Message message = messageChangeEvent.getData().getMainMessage();
         User userThatSendMessage = message.getFrom();
 
-        if(type.equals(MessageChangeEventType.SEND) ){
+        if(type.equals(MessageChangeEventType.SEND) || type.equals(MessageChangeEventType.RESPOND)){
 
             Map< List<User> , Chat > chatMap = rootPageUser.getChatMap();
             chatConversation = chatMap.get(chatConversation.getMembers());
@@ -214,7 +215,6 @@ public class MessageController implements Observer<Event> {
         modelHBox.setAll(hBoxArrayList);
         List<HBox> items = discussionListView.getItems();
         int index = items.size();
-        System.out.println("balanici: "+ index);
         items.add(new HBox());
         discussionListView.scrollTo(index);
     }
@@ -273,6 +273,7 @@ public class MessageController implements Observer<Event> {
         }
 
         if(message instanceof ReplyMessage){
+            hBox.setId(null); //<------------- nu e posibila reply la reply
             ReplyMessage replyMessage = (ReplyMessage) message;
             HBox hBoxReplyMessage = createReplyMessageForShowGUI(action,
                     replyMessage.getMessage().getText());
@@ -325,12 +326,22 @@ public class MessageController implements Observer<Event> {
     }
 
     @FXML
+    public void deselectAllMessages(){
+        discussionListView.getSelectionModel().clearSelection();
+    }
+
+    /**
+     * check if the selection is good.Clear Selection if the message is a reply one
+     * or it was sent by the root
+     */
+    @FXML
     public void respondToMessage(){
         HBox hBox = discussionListView.getSelectionModel().getSelectedItem();
         if(hBox.getId() == null || hBox.getId().equals("")) {
             discussionListView.getSelectionModel().clearSelection();
             return;
         }
+        System.out.println(Long.valueOf(hBox.getId()));
     }
 
     @FXML
@@ -342,19 +353,21 @@ public class MessageController implements Observer<Event> {
 
         if(hBox != null){
             Long idMessageAggregate = Long.valueOf(hBox.getId());
-            networkController.respondMessage(idUserFrom,idMessageAggregate,text);
-            discussionListView.getSelectionModel().clearSelection();
+            try {
+                networkController.respondMessage(idUserFrom, idMessageAggregate, text);
+            }
+            catch (ExceptionBaseClass e){
+                MessageAlert.showErrorMessage(displayStage,e.getMessage());
+            }
+            finally {
+                discussionListView.getSelectionModel().clearSelection();
+            }
             return;
         }
 
         List<User> to = idMembersWithoutRootForChat(chatConversation, rootPageUser.getRoot());
         List<Long> idTo = to.stream().map(user -> user.getId()).toList();
         networkController.sendMessages(idUserFrom,idTo,text);
-
-        // !!! se pierde id-ul la mesaj
-        //Message message = new Message(rootPageUser.getRoot(), to , text);
-        //conversationVerticalBox is the same with the selected chat
-        //putMessageInScrollPane("sent",message);
 
     }
 
