@@ -1,7 +1,10 @@
 package socialNetwork.guiControllers;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
@@ -32,10 +35,11 @@ public class LoginController {
     Stage stage;
 
     public void setNetworkController(Stage primaryStage, NetworkController service){
-       // System.out.println(service);
         networkController = service;
         stage = primaryStage;
+
     }
+
 
     @FXML
     public void handleLogin(){
