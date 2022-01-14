@@ -153,6 +153,14 @@ public class PageUser implements Observer<Event> {
             Message mainMessage = data.getMainMessage();
             List<User> members = new ArrayList<>( mainMessage.getTo() );
             members.add(mainMessage.getFrom());
+
+            boolean forMe = false;
+            for(User user : members)
+                if( user.getId().equals(root.getId()) ) forMe = true;
+
+            if(forMe == false)
+                return;
+
             List<User> sortedMembers =  members.stream()
                     .sorted((User userX,User userY) -> {
                         return userX.getId().compareTo(userY.getId());
