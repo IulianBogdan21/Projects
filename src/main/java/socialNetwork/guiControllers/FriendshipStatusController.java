@@ -46,12 +46,6 @@ public class FriendshipStatusController implements Observer<Event> {
     @FXML
     TextField searchFriendshipField;
     @FXML
-    Label friendsLabel;
-    @FXML
-    Label friendRequestsLabel;
-    @FXML
-    Label messagesLabel;
-    @FXML
     Polygon triangleAuxiliaryLabel;
     @FXML
     ListView<User> usersListView;

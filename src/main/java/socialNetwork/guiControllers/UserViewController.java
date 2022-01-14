@@ -66,7 +66,6 @@ public class UserViewController implements Observer<Event> {
     Polygon secondPolygon;
     @FXML
     FontAwesomeIconView bellIconView;
-    ScrollBar scrollBarListViewOfFriends;
 
 
     NetworkController networkController;

@@ -18,7 +18,6 @@ import socialNetwork.exceptions.ExceptionBaseClass;
 import socialNetwork.utilitaries.*;
 import socialNetwork.utilitaries.events.Event;
 import socialNetwork.utilitaries.events.EventPublicChangeEvent;
-import socialNetwork.utilitaries.events.EventPublicChangeEventType;
 import socialNetwork.utilitaries.events.FriendshipChangeEvent;
 import socialNetwork.utilitaries.observer.Observer;
 
@@ -125,7 +124,6 @@ public class EventsController implements Observer<Event>{
     public void initialize(){
         ListViewInitialize.createListViewWithUser(usersListView, modelSearchFriends);
         searchFriendshipField.textProperty().addListener(o -> handleFilterInUserController());
-        //scrollBarListViewOfFriends = getListViewScrollBar(listViewOfFriends);
     }
 
     @Override
@@ -137,11 +135,6 @@ public class EventsController implements Observer<Event>{
             initModelEventPublic();
             initModelNotifications();
         }
-    }
-
-    @FXML
-    public void handleScrollListViewFriends(ScrollEvent event){
-        //System.out.println(event.getX() + " " +  event.getY());
     }
 
     @FXML

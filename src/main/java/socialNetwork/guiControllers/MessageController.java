@@ -16,6 +16,7 @@ import javafx.scene.effect.Lighting;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
@@ -25,6 +26,7 @@ import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import socialNetwork.controllers.NetworkController;
 import socialNetwork.domain.models.*;
+import socialNetwork.exceptions.ExceptionBaseClass;
 import socialNetwork.utilitaries.ListViewInitialize;
 import socialNetwork.utilitaries.MessageAlert;
 import socialNetwork.utilitaries.SceneSwitcher;
@@ -35,6 +37,7 @@ import socialNetwork.utilitaries.events.MessageChangeEvent;
 import socialNetwork.utilitaries.events.MessageChangeEventType;
 import socialNetwork.utilitaries.observer.Observer;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +48,8 @@ public class MessageController implements Observer<Event> {
     ObservableList<Chat> modelChatsName = FXCollections.observableArrayList();
     ObservableList<EventPublic> modelNotifications = FXCollections.observableArrayList();
     ObservableList<User> modelParticipantsToChat = FXCollections.observableArrayList();
+    ObservableList<HBox> modelHBox = FXCollections.observableArrayList();
+    List<HBox> hBoxArrayList = new ArrayList<>();
     Chat chatConversation = null;
 
     @FXML
@@ -84,9 +89,7 @@ public class MessageController implements Observer<Event> {
     @FXML
     FontAwesomeIconView sendMessageIcon;
     @FXML
-    ScrollPane conversationScrollPane;
-    @FXML
-    VBox conversationVerticalBox;
+    ListView<HBox> discussionListView;
     @FXML
     Label welcomeMessageLabel;
     @FXML
@@ -117,6 +120,7 @@ public class MessageController implements Observer<Event> {
         this.networkController = service;
         networkController.getMessageService().addObserver(this);
         this.displayStage = primaryStage;
+        this.displayStage.getScene().getStylesheets().add("/css/listCell.css");
         this.rootPageUser = rootPageUser;
         refreshPage();
         usernameLabelChat.setText(rootPageUser.getRoot().getUsername());
@@ -143,11 +147,12 @@ public class MessageController implements Observer<Event> {
 
     @FXML
     public void initialize(){
-        conversationScrollPane.setVisible(false);
+        discussionListView.setVisible(false);
         startConversationListView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         ListViewInitialize.createListViewWithUser(usersListView, modelSearchFriends);
         ListViewInitialize.createListViewWithUser(startConversationListView, modelSearchFriends);
         ListViewInitialize.createListViewWithUser(participantsToChatListView, modelParticipantsToChat);
+        discussionListView.setItems(modelHBox);
         searchFriendshipField.textProperty().addListener(o -> handleFilterInUserController());
         searchUserToStartConversationField.textProperty().addListener(o -> handleFilterSearchUserForNewConversation());
         messageField.textProperty().addListener(o -> handleMessageIcon());
@@ -168,8 +173,7 @@ public class MessageController implements Observer<Event> {
         Message message = messageChangeEvent.getData().getMainMessage();
         User userThatSendMessage = message.getFrom();
 
-        if(type.equals(MessageChangeEventType.SEND) &&
-                !userThatSendMessage.getId().equals(rootPageUser.getRoot().getId())){
+        if(type.equals(MessageChangeEventType.SEND) || type.equals(MessageChangeEventType.RESPOND)){
 
             Map< List<User> , Chat > chatMap = rootPageUser.getChatMap();
             chatConversation = chatMap.get(chatConversation.getMembers());
@@ -189,18 +193,12 @@ public class MessageController implements Observer<Event> {
     }
 
     private void loadConversationForSpecificSchat(){
-        conversationVerticalBox.getChildren().clear();
-        conversationVerticalBox.heightProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                conversationScrollPane.setVvalue((Double) newValue);
-            }
-        });
+        hBoxArrayList.clear();
+        modelHBox.setAll(hBoxArrayList);
+
         User root = rootPageUser.getRoot();
         List<Message> chatMessages = chatConversation.getMessageList();
         List<ReplyMessage> chatReplyMessages = chatConversation.getReplyMessageList();
-        //chatMessages.forEach(c -> System.out.println(c.getId() + " " + c.getText()));
-        //chatReplyMessages.forEach(c -> System.out.println(c.getId() + " " + c.getText()));
         int i = 0, j = 0;
         int n = chatMessages.size();
         int m = chatReplyMessages.size();
@@ -248,6 +246,12 @@ public class MessageController implements Observer<Event> {
             }
             j++;
         }
+
+        modelHBox.setAll(hBoxArrayList);
+        List<HBox> items = discussionListView.getItems();
+        int index = items.size();
+        items.add(new HBox());
+        discussionListView.scrollTo(index);
     }
 
     @FXML
@@ -255,13 +259,13 @@ public class MessageController implements Observer<Event> {
         if(chatsNameListView.getSelectionModel().getSelectedItem() == null)
             return;
         if(firstTime) {
-            conversationScrollPane.setVisible(true);
+            discussionListView.setVisible(true);
             welcomeMessageLabel.setVisible(false);
             messageField.setVisible(true);
             firstTime = false;
         }
         idUserLastMessage = -1L;
-        conversationVerticalBox.getChildren().clear();
+        modelHBox.setAll(new ArrayList<>());
         chatConversation = chatsNameListView.getSelectionModel().getSelectedItem();
 
         loadConversationForSpecificSchat();
@@ -278,7 +282,7 @@ public class MessageController implements Observer<Event> {
     private void putMessageInScrollPane(String action, Message message){
         String messageText = message.getText();
         HBox hBox = new HBox();
-      //  hBox.setId(message.getId().toString());
+        hBox.setId(String.valueOf(message.getId()));
         if(action.equals("sent")) {
             hBox.setAlignment(Pos.CENTER_RIGHT);
         }
@@ -308,18 +312,20 @@ public class MessageController implements Observer<Event> {
         if(!userThatSendTheLastMessage.getId().equals(idUserLastMessage)){
             idUserLastMessage = userThatSendTheLastMessage.getId();
             HBox hBoxLabelNameUser = createLabelForUserThatWriteMessages(action,userThatSendTheLastMessage);
-            conversationVerticalBox.getChildren().add(hBoxLabelNameUser);
+            hBoxArrayList.add(hBoxLabelNameUser);
         }
 
         if(message instanceof ReplyMessage){
+            hBox.setId(null); //<------------- nu e posibila reply la reply
             ReplyMessage replyMessage = (ReplyMessage) message;
             HBox hBoxReplyMessage = createReplyMessageForShowGUI(action,
                     replyMessage.getMessage().getText());
-            conversationVerticalBox.getChildren().add(hBoxReplyMessage);
+            hBoxArrayList.add(hBoxReplyMessage);
+            hBox.setPrefHeight(text.prefHeight(100));
         }
 
         hBox.getChildren().add(textFlow);
-        conversationVerticalBox.getChildren().add(hBox);
+        hBoxArrayList.add(hBox);
     }
 
     private HBox createReplyMessageForShowGUI(String action,String messageText){
@@ -332,11 +338,14 @@ public class MessageController implements Observer<Event> {
         }
         hBox.setPadding(new Insets(5,5,5,10));
         Text text = new Text(messageText);
+        hBox.setPrefHeight(text.prefHeight(100));
+
         TextFlow textFlow = new TextFlow(text);
         textFlow.setPadding(new Insets(5,10,5,10));
         textFlow.setStyle("-fx-background-color: #948c8c;" +
                 "-fx-background-radius: 20px"
         );
+
         hBox.getChildren().add(textFlow);
         return hBox;
     }
@@ -360,19 +369,49 @@ public class MessageController implements Observer<Event> {
     }
 
     @FXML
+    public void deselectAllMessages(){
+        discussionListView.getSelectionModel().clearSelection();
+    }
+
+    /**
+     * check if the selection is good.Clear Selection if the message is a reply one
+     * or it was sent by the root
+     */
+    @FXML
+    public void respondToMessage(){
+        HBox hBox = discussionListView.getSelectionModel().getSelectedItem();
+        if(hBox.getId() == null || hBox.getId().equals("")) {
+            discussionListView.getSelectionModel().clearSelection();
+            return;
+        }
+        System.out.println(Long.valueOf(hBox.getId()));
+    }
+
+    @FXML
     public void sendMessage(){
+        HBox hBox = discussionListView.getSelectionModel().getSelectedItem();
         String text = messageField.getText();
+        messageField.clear();
         Long idUserFrom = rootPageUser.getRoot().getId();
+
+        if(hBox != null){
+            Long idMessageAggregate = Long.valueOf(hBox.getId());
+            try {
+                networkController.respondMessage(idUserFrom, idMessageAggregate, text);
+            }
+            catch (ExceptionBaseClass e){
+                MessageAlert.showErrorMessage(displayStage,e.getMessage());
+            }
+            finally {
+                discussionListView.getSelectionModel().clearSelection();
+            }
+            return;
+        }
+
         List<User> to = idMembersWithoutRootForChat(chatConversation, rootPageUser.getRoot());
         List<Long> idTo = to.stream().map(user -> user.getId()).toList();
-
-
         networkController.sendMessages(idUserFrom,idTo,text);
-        // ??? se pierde id-ul la mesaj
-        Message message = new Message(rootPageUser.getRoot(), to , text);
-        //conversationVerticalBox is the same with the selected chat
-        putMessageInScrollPane("sent",message);
-        messageField.clear();
+
     }
 
     private List<User> idMembersWithoutRootForChat(Chat chat,User root){
@@ -470,6 +509,7 @@ public class MessageController implements Observer<Event> {
                         .toList() );
         closeStartConversationWindow();
         members.add(rootPageUser.getRoot());
+
         if(checkIfChatExists(members, rootPageUser.getChatList()))
             return;
         Chat temporaryChat = new Chat(members,new ArrayList<Message>(), new ArrayList<ReplyMessage>());

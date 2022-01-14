@@ -2,7 +2,6 @@ package socialNetwork.gui;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
@@ -11,14 +10,12 @@ import socialNetwork.controllers.NetworkController;
 import socialNetwork.domain.models.*;
 import socialNetwork.domain.validators.*;
 import socialNetwork.guiControllers.LoginController;
-import socialNetwork.guiControllers.UserViewController;
 import socialNetwork.repository.database.*;
 import socialNetwork.repository.paging.PagingRepository;
 import socialNetwork.service.*;
 import socialNetwork.utilitaries.UnorderedPair;
 
 import java.io.IOException;
-import java.time.Duration;
 
 public class StartApplication extends Application {
 
@@ -80,18 +77,6 @@ public class StartApplication extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-     //  System.out.println("O intrat din nou la casa");
-//        FXMLLoader fxmlLoader = new FXMLLoader();
-//        fxmlLoader.setLocation(getClass().getResource("/socialNetwork.gui/loginView.fxml"));
-//        Scene scene = new Scene(fxmlLoader.load());
-//        scene.getStylesheets().add(getClass().getResource("/css/logIn.css").toExternalForm());
-//        Image icon = new Image("images/applicationLogo.png");
-//        stage.getIcons().add(icon);
-//        stage.setTitle("Kage");
-//        stage.setScene(scene);
-//
-//        LoginController loginController = fxmlLoader.getController();
-//        loginController.setNetworkController(stage, networkController);
 
         for(int i = 0 ; i < INSTANCES ; i++) {
             try {
@@ -103,15 +88,6 @@ public class StartApplication extends Application {
             }
         }
 
-        //stage.show();
-       // System.out.println("-----------------------------------------------");
-//        try {
-//            if(StartApplication.thereMore < 2) {
-//                runAnotherApp(StartApplication.class);
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
     }
 
     public void runAnotherApp(Class<? extends Application> anotherAppClass) throws Exception {
@@ -129,8 +105,6 @@ public class StartApplication extends Application {
         anotherStage.setScene(scene);
         LoginController loginController = fxmlLoader.getController();
         loginController.setNetworkController(anotherStage, networkController);
-     //   System.out.println("balaii " + networkController);
-      //  System.out.println("---------------FFFFFFFFFF--------------------------------");
         anotherStage.show();
         app2.start(anotherStage);
 

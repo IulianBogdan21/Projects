@@ -58,10 +58,13 @@ public class MessageService implements Observable<Event> {
      */
     public Optional<ReplyMessage> respondMessageService(Long idUserFrom, Long idMessageAggregate, String text){
         User userFrom = getUserById(idUserFrom);
-        checkIfUserIsSupposedToRespondToMessage(idUserFrom, idMessageAggregate);
+        //checkIfUserIsSupposedToRespondToMessage(idUserFrom, idMessageAggregate);
 
         MessageDTO messageDTO = findMessageWithSpecifiedId(idMessageAggregate);
         Message messageWeWantToRespondTo = messageDTO.getMainMessage();
+
+        if( messageWeWantToRespondTo.getFrom().getId().equals(idUserFrom) )
+            throw new CorruptedDataException("Stop talking alone......");
 
         List<User> to = setListOfReceiversForResponseMessage(userFrom, messageWeWantToRespondTo);
         MessageDTO messageDTOToSave = buildResponseMessageDTO(userFrom, to, text, messageWeWantToRespondTo);
