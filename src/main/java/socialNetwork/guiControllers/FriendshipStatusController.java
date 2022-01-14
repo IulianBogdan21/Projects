@@ -88,6 +88,10 @@ public class FriendshipStatusController implements Observer<Event> {
         ListViewInitialize.createListViewWithNotification(notificationsListView, modelNotifications);
         initModelFriendRequest();
         initModelNotifications();
+        if(notificationsListView.getItems().size() != 0)
+            bellIconView.setFill(Color.valueOf("#d53939"));
+        if(displayStage.getUserData()!=null && displayStage.getUserData().equals("seen"))
+            bellIconView.setFill(Color.valueOf("#000000"));
     }
 
     private void initModelFriendRequest(){
@@ -159,8 +163,9 @@ public class FriendshipStatusController implements Observer<Event> {
 
     @Override
     public void update(Event event) {
-        if(event instanceof EventPublicChangeEvent)
+        if(event instanceof EventPublicChangeEvent) {
             initModelNotifications();
+        }
         if(event instanceof FriendRequestChangeEvent)
             initModelFriendRequest();
     }

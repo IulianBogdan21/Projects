@@ -78,12 +78,17 @@ public class EventsController implements Observer<Event>{
         this.displayStage = primaryStage;
         this.rootPage = rootPage;
         ListViewInitialize.createListViewWithEvent(unsubscribedEventsListView, modelEventsNotSubscribed);
-        ListViewInitialize.createListViewWithDtoEvent(subscribedEventsListView, modelEventsSubscribed, rootPage);
+        ListViewInitialize.createListViewWithDtoEvent(subscribedEventsListView, modelEventsSubscribed, rootPage,
+                displayStage, bellIconView);
         ListViewInitialize.createListViewWithNotification(notificationsListView, modelNotifications);
         refreshPage();
         initModelFriends();
         initModelEventPublic();
         initModelNotifications();
+        if(notificationsListView.getItems().size() != 0)
+            bellIconView.setFill(Color.valueOf("#d53939"));
+        if(displayStage.getUserData()!=null && displayStage.getUserData().equals("seen"))
+            bellIconView.setFill(Color.valueOf("#000000"));
     }
 
     private void initModelFriends(){

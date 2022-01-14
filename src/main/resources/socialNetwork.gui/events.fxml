@@ -123,7 +123,7 @@
                         <FontAwesomeIconView glyphName="CLIPBOARD" size="20" />
                     </graphic>
                 </Button>
-                <FontAwesomeIconView fx:id="bellIconView" fill="#d53939" glyphName="BELL" onMousePressed="#setNotificationsListViewOnVisible" selectionFill="#ff0d0d" size="25">
+                <FontAwesomeIconView fx:id="bellIconView" fill="#000000" glyphName="BELL" onMousePressed="#setNotificationsListViewOnVisible" selectionFill="#ff0d0d" size="25">
                     <HBox.margin>
                         <Insets right="5.0" top="6.0" />
                     </HBox.margin>

@@ -126,6 +126,10 @@ public class ReportsController implements Observer<Event> {
         ListViewInitialize.createListViewWithNotification(notificationsListView, modelNotifications);
         initModelFriends();
         initModelNotifications();
+        if(notificationsListView.getItems().size() != 0)
+            bellIconView.setFill(Color.valueOf("#d53939"));
+        if(displayStage.getUserData()!=null && displayStage.getUserData().equals("seen"))
+            bellIconView.setFill(Color.valueOf("#000000"));
     }
 
     private void initModelFriends(){
@@ -238,8 +242,9 @@ public class ReportsController implements Observer<Event> {
 
     @Override
     public void update(Event event) {
-        if(event instanceof EventPublicChangeEvent)
+        if(event instanceof EventPublicChangeEvent) {
             initModelNotifications();
+        }
         if(event instanceof FriendshipChangeEvent)
             initModelFriends();
     }

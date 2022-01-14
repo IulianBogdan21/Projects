@@ -30,7 +30,7 @@
             </ImageView>
                 <AnchorPane layoutX="6.0" layoutY="9.0" prefHeight="334.0" prefWidth="218.0">
                     <children>
-                        <ImageView fitHeight="334.0" fitWidth="218.0" layoutX="1.0" onMouseClicked="#enableAllButtonsAndClearSelection" onMousePressed="#setUsersListViewOnInvisible" pickOnBounds="true">
+                        <ImageView fx:id="mainImageView" fitHeight="334.0" fitWidth="218.0" layoutX="1.0" onMouseClicked="#enableAllButtonsAndClearSelection" onMousePressed="#setUsersListViewOnInvisible" pickOnBounds="true">
                             <image>
                                 <Image url="@../images/signUp.png" />
                             </image>
@@ -59,7 +59,7 @@
                 <Line endX="1.399993896484375" endY="259.1999816894531" layoutX="225.0" layoutY="82.0" startX="-3.0517578125E-5" startY="-72.99999237060547" stroke="#d53939" />
             </children>
         </AnchorPane>
-        <HBox prefHeight="38.0" prefWidth="623.0">
+        <HBox fx:id="mainHorizontalBox" prefHeight="38.0" prefWidth="623.0">
             <children>
                 <Label prefHeight="22.0" prefWidth="96.0" text="Kage" textFill="#d53939">
                     <font>
@@ -114,7 +114,7 @@
                         <FontAwesomeIconView glyphName="CLIPBOARD" size="20" />
                     </graphic>
                 </Button>
-                <FontAwesomeIconView fx:id="bellIconView" fill="#d53939" glyphName="BELL" onMousePressed="#setNotificationsListViewOnVisible" selectionFill="#ff0d0d" size="25">
+                <FontAwesomeIconView fx:id="bellIconView" fill="#000000" glyphName="BELL" onMousePressed="#setNotificationsListViewOnVisible" selectionFill="#ff0d0d" size="25">
                     <HBox.margin>
                         <Insets right="5.0" top="6.0" />
                     </HBox.margin>
@@ -135,6 +135,7 @@
                   <Font name="Arial Bold" size="20.0" />
                </font>
             </Label>
+            <FontAwesomeIconView fx:id="showParticipantsIcon" glyphName="USERS" layoutX="10.0" layoutY="315.0" onMousePressed="#showChatParticipants" size="25" visible="false" />
          </children>
       </AnchorPane>
       <VBox fx:id="newConversationBox" layoutX="200.0" layoutY="70.0" prefHeight="250.0" prefWidth="250.0" visible="false">
@@ -165,5 +166,26 @@
           <ListView fx:id="usersListView" layoutX="240.0" layoutY="56.0" prefHeight="268.0" prefWidth="200.0" style="-fx-border-color: #e17474;" visible="false" />
           <Polygon fx:id="secondPolygon" fill="#d53939" layoutX="614.0" layoutY="55.0" points="-17.60003662109375, 9.199981689453125, 6.103515625E-5, 9.199981689453125, -8.79998779296875, -11.600006103515625" stroke="BLACK" strokeType="INSIDE" visible="false" />
           <ListView fx:id="notificationsListView" layoutX="423.0" layoutY="63.0" prefHeight="306.0" prefWidth="192.0" style="-fx-border-color: #d53939;" visible="false" />
+      <VBox fx:id="participantsChatVBox" layoutX="216.0" layoutY="42.0" prefHeight="286.0" prefWidth="410.0" style="-fx-background-image: url(&quot;/images/signUp.png&quot;);" visible="false">
+         <children>
+            <FontAwesomeIconView fx:id="closeChatParticipantsIcon" glyphName="CLOSE" onMousePressed="#closeParticipantsList" size="20">
+               <VBox.margin>
+                  <Insets left="380.0" />
+               </VBox.margin></FontAwesomeIconView>
+            <Label prefHeight="30.0" prefWidth="404.0" text="Participants">
+               <padding>
+                  <Insets left="150.0" />
+               </padding>
+               <font>
+                  <Font size="20.0" />
+               </font>
+            </Label>
+            <ListView fx:id="participantsToChatListView" prefHeight="237.0" prefWidth="235.0">
+               <VBox.margin>
+                  <Insets bottom="10.0" left="90.0" right="90.0" />
+               </VBox.margin>
+            </ListView>
+         </children>
+      </VBox>
     </children>
 </AnchorPane>

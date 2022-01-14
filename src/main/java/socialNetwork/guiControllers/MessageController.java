@@ -13,6 +13,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.effect.Lighting;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
@@ -43,6 +44,7 @@ public class MessageController implements Observer<Event> {
     ObservableList<User> modelSearchFriends = FXCollections.observableArrayList();
     ObservableList<Chat> modelChatsName = FXCollections.observableArrayList();
     ObservableList<EventPublic> modelNotifications = FXCollections.observableArrayList();
+    ObservableList<User> modelParticipantsToChat = FXCollections.observableArrayList();
     Chat chatConversation = null;
 
     @FXML
@@ -70,6 +72,8 @@ public class MessageController implements Observer<Event> {
     @FXML
     ListView<EventPublic> notificationsListView;
     @FXML
+    ListView<User> participantsToChatListView;
+    @FXML
     VBox newConversationBox;
     @FXML
     Label usernameLabelChat;
@@ -91,6 +95,12 @@ public class MessageController implements Observer<Event> {
     Polygon secondPolygon;
     @FXML
     FontAwesomeIconView bellIconView;
+    @FXML
+    FontAwesomeIconView showParticipantsIcon;
+    @FXML
+    VBox participantsChatVBox;
+    @FXML
+    FontAwesomeIconView closeChatParticipantsIcon;
 
     NetworkController networkController;
     PageUser rootPageUser;
@@ -114,6 +124,10 @@ public class MessageController implements Observer<Event> {
         ListViewInitialize.createListViewWithNotification(notificationsListView, modelNotifications);
         initModelChatsName();
         initModelNotifications();
+        if(notificationsListView.getItems().size() != 0)
+            bellIconView.setFill(Color.valueOf("#d53939"));
+        if(displayStage.getUserData()!=null && displayStage.getUserData().equals("seen"))
+            bellIconView.setFill(Color.valueOf("#000000"));
     }
 
     private void initModelChatsName(){
@@ -133,6 +147,7 @@ public class MessageController implements Observer<Event> {
         startConversationListView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         ListViewInitialize.createListViewWithUser(usersListView, modelSearchFriends);
         ListViewInitialize.createListViewWithUser(startConversationListView, modelSearchFriends);
+        ListViewInitialize.createListViewWithUser(participantsToChatListView, modelParticipantsToChat);
         searchFriendshipField.textProperty().addListener(o -> handleFilterInUserController());
         searchUserToStartConversationField.textProperty().addListener(o -> handleFilterSearchUserForNewConversation());
         messageField.textProperty().addListener(o -> handleMessageIcon());
@@ -165,8 +180,9 @@ public class MessageController implements Observer<Event> {
 
     @Override
     public void update(Event event) {
-        if(event instanceof EventPublicChangeEvent)
+        if(event instanceof EventPublicChangeEvent) {
             initModelNotifications();
+        }
         if(event instanceof MessageChangeEvent && chatConversation != null)
              updateActualChatWithMessages(event);
         modelChatsName.setAll(rootPageUser.getChatList());
@@ -249,6 +265,14 @@ public class MessageController implements Observer<Event> {
         chatConversation = chatsNameListView.getSelectionModel().getSelectedItem();
 
         loadConversationForSpecificSchat();
+
+        List<User> allParticipants = chatConversation.getMembers();
+        modelParticipantsToChat.setAll(allParticipants);
+        participantsToChatListView.setItems(modelParticipantsToChat);
+        if(chatConversation.getMembers().size() > 2)
+            showParticipantsIcon.setVisible(true);
+        else
+            showParticipantsIcon.setVisible(false);
     }
 
     private void putMessageInScrollPane(String action, Message message){
@@ -486,5 +510,15 @@ public class MessageController implements Observer<Event> {
         notificationsListView.setVisible(true);
         secondPolygon.setVisible(true);
         bellIconView.setFill(Color.BLACK);
+    }
+
+    @FXML
+    public void closeParticipantsList(){
+        participantsChatVBox.setVisible(false);
+    }
+
+    @FXML
+    public void showChatParticipants(){
+        participantsChatVBox.setVisible(true);
     }
 }
