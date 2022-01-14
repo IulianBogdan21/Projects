@@ -21,7 +21,7 @@ import java.util.function.Predicate;
 public class ListViewInitialize {
 
     public static void createListViewWithUser(ListView<User> listView, ObservableList<User> modelFriends){
-        Image genericUserImage = new Image("images/emptyProfilePicture.jpg");
+        //Image genericUserImage = new Image("images/emptyProfilePicture.jpg");
         listView.setItems(modelFriends);
         listView.setCellFactory(u -> new ListCell<User>(){
             private ImageView imageView = new ImageView();
@@ -33,7 +33,16 @@ public class ListViewInitialize {
                     setGraphic(null);
                 }
                 else{
-                    imageView.setImage(genericUserImage);
+                    String idUser = String.valueOf(item.getId());
+                    String path = "images/u" + idUser + ".jpg";
+                    try {
+                        Image genericUserImage = new Image(path);
+                        imageView.setImage(genericUserImage);
+                    }catch (IllegalArgumentException e){
+                        Image genericUserImage = new Image("images/emptyProfilePicture.jpg");
+                        imageView.setImage(genericUserImage);
+                    }
+
                     imageView.setFitHeight(50);
                     imageView.setFitWidth(50);
                     imageView.setPreserveRatio(true);
@@ -139,8 +148,6 @@ public class ListViewInitialize {
                             rootPage.getNetworkController().getPublicEventWithId(item.getIdEventPublic()).get();
                     Label label = new Label(publicEvent.getName() + " - " + publicEvent.getDescription() + " - taking place at " + publicEvent.getDate());
                     hBox.getChildren().addAll(label, myButton);
-                    //setText(publicEvent.getName() + " - " + publicEvent.getDescription() + " - taking place at " + publicEvent.getDate());
-                    //setGraphic(myButton);
                     setGraphic(hBox);
                 }
             }
@@ -190,7 +197,7 @@ public class ListViewInitialize {
                     setGraphic(null);
                 }
                 else{
-                    imageView.setImage(genericUserImage);
+
                     imageView.setFitHeight(50);
                     imageView.setFitWidth(50);
                     imageView.setPreserveRatio(true);
@@ -200,7 +207,20 @@ public class ListViewInitialize {
                         if(otherGuy.getId().equals(root.getId()))
                             otherGuy = item.getMembers().get(1);
                         setText(otherGuy.getUsername());
+
+                        String idOtherGuy = String.valueOf(otherGuy.getId());
+                        String path = "images/u" + idOtherGuy + ".jpg";
+                        try {
+                            Image genericUserImage = new Image(path);
+                            imageView.setImage(genericUserImage);
+                        }catch (IllegalArgumentException e){
+                            Image genericUserImage = new Image("images/emptyProfilePicture.jpg");
+                            imageView.setImage(genericUserImage);
+                        }
+
                     }else{
+                        Image genericUserImage = new Image("images/emptyProfilePicture.jpg");
+                        imageView.setImage(genericUserImage);
                         String nameAllMembers = item.getMembers()
                                 .stream()
                                 .filter(user -> !user.getId().equals(root.getId()))
