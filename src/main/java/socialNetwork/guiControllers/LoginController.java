@@ -37,12 +37,6 @@ public class LoginController {
     public void setNetworkController(Stage primaryStage, NetworkController service){
         networkController = service;
         stage = primaryStage;
-//        Scene scene = stage.getScene();
-//        scene.widthProperty().addListener(new ChangeListener<Number>() {
-//            @Override public void changed(ObservableValue<? extends Number> observableValue, Number oldSceneWidth, Number newSceneWidth) {System.out.println("Width: " + newSceneWidth);}});
-//        scene.heightProperty().addListener(new ChangeListener<Number>() {
-//            @Override public void changed(ObservableValue<? extends Number> observableValue, Number oldSceneHeight, Number newSceneHeight) {System.out.println("Height: " + newSceneHeight);}});
-//
 
     }
 
