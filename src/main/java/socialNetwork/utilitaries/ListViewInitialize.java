@@ -8,6 +8,8 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.scene.paint.Color;
+import javafx.stage.Stage;
 import socialNetwork.controllers.NetworkController;
 import socialNetwork.domain.models.*;
 
@@ -98,7 +100,9 @@ public class ListViewInitialize {
 
     public static void createListViewWithDtoEvent(ListView<DTOEventPublicUser> listView,
                                                   ObservableList<DTOEventPublicUser> modelEvents,
-                                                  PageUser rootPage){
+                                                  PageUser rootPage,
+                                                  Stage displayStage,
+                                                  FontAwesomeIconView bellIcon){
         listView.setItems(modelEvents);
         listView.setCellFactory(u -> new ListCell<DTOEventPublicUser>(){
 
@@ -127,6 +131,8 @@ public class ListViewInitialize {
                          else{
                              rootPage.getNetworkController().turnOnNotificationsEventPublic(item.getIdUser(), item.getIdEventPublic());
                              myButton.setText("On");
+                             displayStage.setUserData("unseen");
+                             bellIcon.setFill(Color.valueOf("#d53939"));
                          }
                      });
                     EventPublic publicEvent =

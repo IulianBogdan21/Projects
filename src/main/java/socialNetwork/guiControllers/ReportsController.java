@@ -1,5 +1,6 @@
 package socialNetwork.guiControllers;
 
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -7,6 +8,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -21,6 +23,7 @@ import socialNetwork.utilitaries.ListViewInitialize;
 import socialNetwork.utilitaries.MessageAlert;
 import socialNetwork.utilitaries.SceneSwitcher;
 import socialNetwork.utilitaries.UsersSearchProcess;
+import socialNetwork.utilitaries.events.EventPublicChangeEvent;
 import socialNetwork.utilitaries.events.FriendshipChangeEvent;
 import socialNetwork.utilitaries.observer.Observer;
 import socialNetwork.utilitaries.events.Event;
@@ -38,6 +41,7 @@ public class ReportsController implements Observer<Event> {
     ObservableList<Message> modelMessages = FXCollections.observableArrayList();
     ObservableList<RequestInvitationGUIDTO> modelFriendships = FXCollections.observableArrayList();
     ObservableList<Chat> modelChats = FXCollections.observableArrayList();
+    ObservableList<EventPublic> modelNotifications = FXCollections.observableArrayList();
 
     FileChooser fileChooser = new FileChooser();
 
@@ -84,6 +88,8 @@ public class ReportsController implements Observer<Event> {
     @FXML
     ListView<Message> messagesListView;
     @FXML
+    ListView<EventPublic> notificationsListView;
+    @FXML
     VBox mainVerticalBox;
     @FXML
     VBox userActivitiesNewFriendshipsVBox;
@@ -97,6 +103,10 @@ public class ReportsController implements Observer<Event> {
     VBox userActivitiesMessagesReceivedVBox;
     @FXML
     Label userActivitiesMessagesReceivedIntervalLabel;
+    @FXML
+    Polygon secondPolygon;
+    @FXML
+    FontAwesomeIconView bellIconView;
 
     NetworkController networkController;
     PageUser rootPage;
@@ -113,12 +123,25 @@ public class ReportsController implements Observer<Event> {
         this.displayStage = primaryStage;
         this.rootPage = rootPage;
         refreshPage();
+        ListViewInitialize.createListViewWithNotification(notificationsListView, modelNotifications);
         initModelFriends();
+        initModelNotifications();
+        if(notificationsListView.getItems().size() != 0)
+            bellIconView.setFill(Color.valueOf("#d53939"));
+        if(displayStage.getUserData()!=null && displayStage.getUserData().equals("seen"))
+            bellIconView.setFill(Color.valueOf("#000000"));
     }
 
     private void initModelFriends(){
         List<User> friends = rootPage.getFriendList();
         modelFriends.setAll(friends);
+    }
+
+    private void initModelNotifications(){
+        List<EventPublic> notificationEvents =
+                rootPage.getNetworkController().filterAllEventPublicForNotification
+                        (rootPage.getRoot().getId(), 30L);
+        modelNotifications.setAll(notificationEvents);
     }
 
     private void initializeListView(ListView<RequestInvitationGUIDTO> listView,
@@ -219,6 +242,9 @@ public class ReportsController implements Observer<Event> {
 
     @Override
     public void update(Event event) {
+        if(event instanceof EventPublicChangeEvent) {
+            initModelNotifications();
+        }
         if(event instanceof FriendshipChangeEvent)
             initModelFriends();
     }
@@ -328,6 +354,8 @@ public class ReportsController implements Observer<Event> {
     @FXML
     public void setUsersListViewOnInvisible(){
         UsersSearchProcess.setUsersListViewOnInvisible(usersListView, triangleAuxiliaryLabel, searchFriendshipField);
+        notificationsListView.setVisible(false);
+        secondPolygon.setVisible(false);
     }
 
     @FXML
@@ -658,5 +686,12 @@ public class ReportsController implements Observer<Event> {
                 .toList();
         modelChats.setAll(chats);
         messagesNumberFromChatsListView.setItems(modelChats);
+    }
+
+    @FXML
+    public void setNotificationsListViewOnVisible(){
+        notificationsListView.setVisible(true);
+        secondPolygon.setVisible(true);
+        bellIconView.setFill(Color.BLACK);
     }
 }

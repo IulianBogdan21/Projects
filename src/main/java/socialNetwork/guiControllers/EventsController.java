@@ -1,5 +1,6 @@
 package socialNetwork.guiControllers;
 
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -8,6 +9,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 import javafx.stage.Stage;
 import socialNetwork.controllers.NetworkController;
@@ -16,7 +18,6 @@ import socialNetwork.exceptions.ExceptionBaseClass;
 import socialNetwork.utilitaries.*;
 import socialNetwork.utilitaries.events.Event;
 import socialNetwork.utilitaries.events.EventPublicChangeEvent;
-import socialNetwork.utilitaries.events.EventPublicChangeEventType;
 import socialNetwork.utilitaries.events.FriendshipChangeEvent;
 import socialNetwork.utilitaries.observer.Observer;
 
@@ -31,6 +32,7 @@ public class EventsController implements Observer<Event>{
     ObservableList<User> modelSearchFriends = FXCollections.observableArrayList();
     ObservableList<EventPublic> modelEventsNotSubscribed = FXCollections.observableArrayList();
     ObservableList<DTOEventPublicUser> modelEventsSubscribed = FXCollections.observableArrayList();
+    ObservableList<EventPublic> modelNotifications = FXCollections.observableArrayList();
 
     @FXML
     AnchorPane mainAnchorPane;
@@ -40,6 +42,8 @@ public class EventsController implements Observer<Event>{
     ListView<EventPublic> unsubscribedEventsListView;
     @FXML
     ListView<DTOEventPublicUser> subscribedEventsListView;
+    @FXML
+    ListView<EventPublic> notificationsListView;
     @FXML
     Button friendRequestButton;
     @FXML
@@ -52,6 +56,10 @@ public class EventsController implements Observer<Event>{
     TextField searchFriendshipField;
     @FXML
     Polygon triangleAuxiliaryLabel;
+    @FXML
+    Polygon secondPolygon;
+    @FXML
+    FontAwesomeIconView bellIconView;
     ScrollBar scrollBarListViewOfFriends;
 
     NetworkController networkController;
@@ -69,10 +77,17 @@ public class EventsController implements Observer<Event>{
         this.displayStage = primaryStage;
         this.rootPage = rootPage;
         ListViewInitialize.createListViewWithEvent(unsubscribedEventsListView, modelEventsNotSubscribed);
-        ListViewInitialize.createListViewWithDtoEvent(subscribedEventsListView, modelEventsSubscribed, rootPage);
+        ListViewInitialize.createListViewWithDtoEvent(subscribedEventsListView, modelEventsSubscribed, rootPage,
+                displayStage, bellIconView);
+        ListViewInitialize.createListViewWithNotification(notificationsListView, modelNotifications);
         refreshPage();
         initModelFriends();
         initModelEventPublic();
+        initModelNotifications();
+        if(notificationsListView.getItems().size() != 0)
+            bellIconView.setFill(Color.valueOf("#d53939"));
+        if(displayStage.getUserData()!=null && displayStage.getUserData().equals("seen"))
+            bellIconView.setFill(Color.valueOf("#000000"));
     }
 
     private void initModelFriends(){
@@ -98,24 +113,28 @@ public class EventsController implements Observer<Event>{
         modelEventsSubscribed.setAll(allSubscribedEvents);
     }
 
+    private void initModelNotifications(){
+        List<EventPublic> notificationEvents =
+                rootPage.getNetworkController().filterAllEventPublicForNotification
+                        (rootPage.getRoot().getId(), 30L);
+        modelNotifications.setAll(notificationEvents);
+    }
+
     @FXML
     public void initialize(){
         ListViewInitialize.createListViewWithUser(usersListView, modelSearchFriends);
         searchFriendshipField.textProperty().addListener(o -> handleFilterInUserController());
-        //scrollBarListViewOfFriends = getListViewScrollBar(listViewOfFriends);
     }
 
     @Override
     public void update(Event event) {
+
         if (event instanceof FriendshipChangeEvent)
             initModelFriends();
-        if(event instanceof EventPublicChangeEvent)
+        if(event instanceof EventPublicChangeEvent) {
             initModelEventPublic();
-    }
-
-    @FXML
-    public void handleScrollListViewFriends(ScrollEvent event){
-        //System.out.println(event.getX() + " " +  event.getY());
+            initModelNotifications();
+        }
     }
 
     @FXML
@@ -177,6 +196,8 @@ public class EventsController implements Observer<Event>{
     @FXML
     public void setUsersListViewOnInvisible(){
         UsersSearchProcess.setUsersListViewOnInvisible(usersListView, triangleAuxiliaryLabel, searchFriendshipField);
+        notificationsListView.setVisible(false);
+        secondPolygon.setVisible(false);
     }
 
     @FXML
@@ -208,5 +229,12 @@ public class EventsController implements Observer<Event>{
         catch (ExceptionBaseClass error){
             MessageAlert.showErrorMessage(displayStage, error.getMessage());
         }
+    }
+
+    @FXML
+    public void setNotificationsListViewOnVisible(){
+        notificationsListView.setVisible(true);
+        secondPolygon.setVisible(true);
+        bellIconView.setFill(Color.BLACK);
     }
 }

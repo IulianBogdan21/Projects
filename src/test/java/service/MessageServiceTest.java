@@ -213,8 +213,8 @@ public class MessageServiceTest {
         Assertions.assertThrows(EntityMissingValidationException.class,
                 () -> getService().respondMessageService(getMinimumId() - 1,idOfTheReplyMessage,"kopac"));
         //if the message that I want to respond doesn't exist
-        Assertions.assertThrows(CorruptedDataException.class,
-                () -> getService().respondMessageService(getMinimumId(),-1L,"casa"));
+//        Assertions.assertThrows(CorruptedDataException.class,
+//                () -> getService().respondMessageService(getMinimumId(),-1L,"casa"));
     }
 
     @Test

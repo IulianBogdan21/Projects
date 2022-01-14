@@ -66,7 +66,6 @@ public class UserViewController implements Observer<Event> {
     Polygon secondPolygon;
     @FXML
     FontAwesomeIconView bellIconView;
-    ScrollBar scrollBarListViewOfFriends;
 
 
     NetworkController networkController;
@@ -119,6 +118,10 @@ public class UserViewController implements Observer<Event> {
         initModelFriends();
         initModelNotifications();
         createPagination();
+        if(notificationsListView.getItems().size() != 0)
+            bellIconView.setFill(Color.valueOf("#d53939"));
+        if(displayStage.getUserData() != null && displayStage.getUserData().equals("seen"))
+            bellIconView.setFill(Color.valueOf("#000000"));
     }
 
 
@@ -143,8 +146,9 @@ public class UserViewController implements Observer<Event> {
 
     @Override
     public void update(Event event) {
-        if(event instanceof EventPublicChangeEvent)
+        if(event instanceof EventPublicChangeEvent) {
             initModelNotifications();
+        }
         if(event instanceof FriendshipChangeEvent) {
             initModelFriends();
             createPagination();
@@ -252,6 +256,7 @@ public class UserViewController implements Observer<Event> {
         notificationsListView.setVisible(true);
         secondPolygon.setVisible(true);
         bellIconView.setFill(Color.BLACK);
+        displayStage.setUserData("seen");
     }
 
 }

@@ -1,10 +1,12 @@
 package socialNetwork.guiControllers;
 
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 import javafx.stage.Stage;
 import socialNetwork.controllers.NetworkController;
@@ -15,6 +17,7 @@ import socialNetwork.utilitaries.MessageAlert;
 import socialNetwork.utilitaries.SceneSwitcher;
 import socialNetwork.utilitaries.UsersSearchProcess;
 import socialNetwork.utilitaries.events.Event;
+import socialNetwork.utilitaries.events.EventPublicChangeEvent;
 import socialNetwork.utilitaries.events.FriendRequestChangeEvent;
 import socialNetwork.utilitaries.observer.Observer;
 
@@ -26,6 +29,7 @@ public class FriendshipStatusController implements Observer<Event> {
     ObservableList<RequestInvitationGUIDTO> modelFriendshipRequestDTO = FXCollections.observableArrayList();
     ObservableList<RequestInvitationGUIDTO> modelFriendshipRequestDTOReact = FXCollections.observableArrayList();
     ObservableList<User> modelSearchFriends = FXCollections.observableArrayList();
+    ObservableList<EventPublic> modelNotifications = FXCollections.observableArrayList();
 
     NetworkController networkController;
     PageUser rootPageUser;
@@ -42,12 +46,6 @@ public class FriendshipStatusController implements Observer<Event> {
     @FXML
     TextField searchFriendshipField;
     @FXML
-    Label friendsLabel;
-    @FXML
-    Label friendRequestsLabel;
-    @FXML
-    Label messagesLabel;
-    @FXML
     Polygon triangleAuxiliaryLabel;
     @FXML
     ListView<User> usersListView;
@@ -55,6 +53,8 @@ public class FriendshipStatusController implements Observer<Event> {
     ListView<RequestInvitationGUIDTO> requestsSentListView;
     @FXML
     ListView<RequestInvitationGUIDTO> requestsReceivedListView;
+    @FXML
+    ListView<EventPublic> notificationsListView;
     @FXML
     Button approveRequestButton;
     @FXML
@@ -64,7 +64,9 @@ public class FriendshipStatusController implements Observer<Event> {
     @FXML
     Button withdrawRequestButton;
     @FXML
-    Label reportsLabel;
+    Polygon secondPolygon;
+    @FXML
+    FontAwesomeIconView bellIconView;
 
     private void refreshPage(){
         RefreshPageUser refreshPageUser = new RefreshPageUser(true,true,false);
@@ -77,7 +79,13 @@ public class FriendshipStatusController implements Observer<Event> {
         this.displayStage = primaryStage;
         this.rootPageUser = rootPageUser;
         refreshPage();
+        ListViewInitialize.createListViewWithNotification(notificationsListView, modelNotifications);
         initModelFriendRequest();
+        initModelNotifications();
+        if(notificationsListView.getItems().size() != 0)
+            bellIconView.setFill(Color.valueOf("#d53939"));
+        if(displayStage.getUserData()!=null && displayStage.getUserData().equals("seen"))
+            bellIconView.setFill(Color.valueOf("#000000"));
     }
 
     private void initModelFriendRequest(){
@@ -113,6 +121,13 @@ public class FriendshipStatusController implements Observer<Event> {
         modelFriendshipRequestDTOReact.setAll(notMainUserSendsRequests);
     }
 
+    private void initModelNotifications(){
+        List<EventPublic> notificationEvents =
+                rootPageUser.getNetworkController().filterAllEventPublicForNotification
+                        (rootPageUser.getRoot().getId(), 30L);
+        modelNotifications.setAll(notificationEvents);
+    }
+
     @FXML
     public void initialize(){
         showRequestsSentButton.setStyle("-fx-font-weight: bold");
@@ -142,6 +157,9 @@ public class FriendshipStatusController implements Observer<Event> {
 
     @Override
     public void update(Event event) {
+        if(event instanceof EventPublicChangeEvent) {
+            initModelNotifications();
+        }
         if(event instanceof FriendRequestChangeEvent)
             initModelFriendRequest();
     }
@@ -317,6 +335,8 @@ public class FriendshipStatusController implements Observer<Event> {
         usersListView.setVisible(false);
         triangleAuxiliaryLabel.setVisible(false);
         searchFriendshipField.clear();
+        notificationsListView.setVisible(false);
+        secondPolygon.setVisible(false);
     }
 
     @FXML
@@ -361,6 +381,13 @@ public class FriendshipStatusController implements Observer<Event> {
             approveRequestButton.setDisable(false);
             resubmissionRequestButton.setDisable(false);
         }
+    }
+
+    @FXML
+    public void setNotificationsListViewOnVisible(){
+        notificationsListView.setVisible(true);
+        secondPolygon.setVisible(true);
+        bellIconView.setFill(Color.BLACK);
     }
 
 }
