@@ -8,6 +8,8 @@ import javafx.fxml.FXML;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
@@ -42,6 +44,8 @@ public class UserViewController implements Observer<Event> {
 
     @FXML
     AnchorPane mainAnchorPane;
+    @FXML
+    ImageView mainImage;
     @FXML
     AnchorPane secondAnchorPane;
     @FXML
@@ -107,12 +111,25 @@ public class UserViewController implements Observer<Event> {
         rootPage.refresh(rootPage.getRoot().getUsername(),refreshPageUser);
     }
 
+    private void setImage(User mainUser){
+        String idUser = String.valueOf(mainUser.getId());
+        String path = "images/u" + idUser + ".jpg";
+        try {
+            Image genericUserImage = new Image(path);
+            mainImage.setImage(genericUserImage);
+        }catch (IllegalArgumentException e){
+            Image genericUserImage = new Image("images/emptyProfilePicture.jpg");
+            mainImage.setImage(genericUserImage);
+        }
+    }
+
     public void setNetworkController(Stage primaryStage, NetworkController service, PageUser rootPage){
         this.networkController = service;
         networkController.getNetworkService().addObserver(this);
         networkController.getFriendRequestService().addObserver(this);
         this.displayStage = primaryStage;
         this.rootPage = rootPage;
+        setImage(rootPage.getRoot());
         refreshPage();
         ListViewInitialize.createListViewWithNotification(notificationsListView, modelNotifications);
         initModelFriends();
