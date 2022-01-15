@@ -35,7 +35,7 @@
                         <Image url="@../images/signUp.png" />
                      </image>
                   </ImageView>
-                  <Label layoutX="72.0" layoutY="49.0" prefHeight="18.0" prefWidth="74.0" text="Options" textFill="#d53939">
+                  <Label layoutX="73.0" layoutY="152.0" prefHeight="18.0" prefWidth="74.0" text="Options" textFill="#d53939">
                      <font>
                         <Font name="System Bold" size="20.0" />
                      </font>
@@ -50,9 +50,10 @@
                         </Lighting>
                      </effect>
                   </Label>
-                  <Line endX="100.0" layoutX="110.0" layoutY="87.0" startX="-100.0" stroke="#d53939" />
-                  <Button fx:id="deleteFriendshipButton" layoutX="48.0" layoutY="154.0" mnemonicParsing="false" onAction="#handleFriendshipDelete" prefHeight="26.0" prefWidth="119.0" style="-fx-background-color: #d53939; -fx-background-radius: 15px;" text="Delete friendship" textFill="WHITE" />
-                  <Button fx:id="addFriendshipButton" layoutX="48.0" layoutY="115.0" mnemonicParsing="false" onAction="#handleFriendshipRequestFromUserViewController" prefHeight="26.0" prefWidth="119.0" style="-fx-background-color: #d53939; -fx-background-radius: 15px;" text="Request friendship" textFill="WHITE" />
+                  <Line endX="100.0" layoutX="107.0" layoutY="200.0" startX="-100.0" stroke="#d53939" />
+                  <Button fx:id="deleteFriendshipButton" layoutX="48.0" layoutY="258.0" mnemonicParsing="false" onAction="#handleFriendshipDelete" prefHeight="26.0" prefWidth="119.0" style="-fx-background-color: #d53939; -fx-background-radius: 15px;" text="Delete friendship" textFill="WHITE" />
+                  <Button fx:id="addFriendshipButton" layoutX="48.0" layoutY="217.0" mnemonicParsing="false" onAction="#handleFriendshipRequestFromUserViewController" prefHeight="26.0" prefWidth="119.0" style="-fx-background-color: #d53939; -fx-background-radius: 15px;" text="Request friendship" textFill="WHITE" />
+                  <ImageView fx:id="mainImage" fitHeight="102.0" fitWidth="147.0" layoutX="61.0" layoutY="27.0" pickOnBounds="true" preserveRatio="true" />
                </children></AnchorPane>
             <Line endX="1.399993896484375" endY="259.1999816894531" layoutX="225.0" layoutY="82.0" startX="-3.0517578125E-5" startY="-72.99999237060547" stroke="#d53939" />
             <Polygon fx:id="triangleAuxiliaryLabel" fill="#d53939" layoutX="349.0" layoutY="-20.0" points="-9.399993896484375, 40.0, 8.600006103515625, 40.00000762939453, 0.199981689453125, 27.199981689453125" stroke="GREY" strokeType="INSIDE" visible="false" />
